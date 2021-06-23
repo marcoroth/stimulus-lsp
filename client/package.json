@@ -1,0 +1,22 @@
+{
+  "name": "stimulus-intellisense-client",
+  "description": "Intelligent Stimulus JS tooling for Visual Studio Code",
+  "author": "Marco Roth",
+  "license": "MIT",
+  "version": "0.1.0",
+  "publisher": "Marco Roth",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/marcoroth/stimulus-intellisense"
+  },
+  "engines": {
+    "vscode": "^1.52.0"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.52.0",
+    "vscode-test": "^1.3.0"
+  }
+}
