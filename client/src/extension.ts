@@ -38,6 +38,7 @@ export function activate(context: ExtensionContext) {
   const clientOptions: LanguageClientOptions = {
     documentSelector: [
       { scheme: 'file', language: 'html' },
+      { scheme: 'file', language: 'ruby' },
       { scheme: 'file', language: 'erb' },
       { scheme: 'file', language: 'haml' },
       { scheme: 'file', language: 'slim' },
@@ -52,7 +53,7 @@ export function activate(context: ExtensionContext) {
   // Create the language client and start the client.
   client = new LanguageClient(
     'languageServerStimulus',
-    'Stimulus Language Server Example',
+    'Stimulus Language Server',
     serverOptions,
     clientOptions
   );
