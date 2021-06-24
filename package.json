@@ -17,6 +17,11 @@
   ],
   "main": "./client/out/extension",
   "contributes": {
+    "html": {
+      "customData": [
+        "./stimulus.html-data.json"
+      ]
+    },
     "configuration": {
       "type": "object",
       "title": "Example configuration",
