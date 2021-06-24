@@ -196,12 +196,18 @@ connection.onCompletion(
       {
         label: 'TypeScript',
         kind: CompletionItemKind.Text,
-        data: 1
+        data: {
+          detail : 'TypeScript details',
+          documentation: 'TypeScript documentation'
+        }
       },
       {
         label: 'JavaScript',
         kind: CompletionItemKind.Text,
-        data: 2
+        data: {
+          detail : 'JavaScript details',
+          documentation: 'JavaScript documentation'
+        },
       }
     ];
   }
@@ -211,13 +217,9 @@ connection.onCompletion(
 // the completion list.
 connection.onCompletionResolve(
   (item: CompletionItem): CompletionItem => {
-    if (item.data === 1) {
-      item.detail = 'TypeScript details';
-      item.documentation = 'TypeScript documentation';
-    } else if (item.data === 2) {
-      item.detail = 'JavaScript details';
-      item.documentation = 'JavaScript documentation';
-    }
+    const { detail, documentation } = item.data
+    item.detail = detail
+    item.documentation = documentation
     return item;
   }
 );
