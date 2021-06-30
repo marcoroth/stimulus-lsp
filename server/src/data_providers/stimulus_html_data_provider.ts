@@ -53,11 +53,25 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
       return { name: `data-${controller.identifier}-target` }
     })
 
+    const valueAttribtues = this.controllers.map((controller) => {
+      return Object.keys(controller.values).map(value => {
+        return { name: `data-${controller.identifier}-${value}-value` }
+      })
+    }).flat()
+
+    const classAttribtues = this.controllers.map((controller) => {
+      return controller.classes.map(klass => {
+        return { name: `data-${controller.identifier}-${klass}-class` }
+      })
+    }).flat()
+
     return [
       { name: "data-controller"},
       { name: "data-action" },
       { name: "data-target" },
-      ...targetAttribtues
+      ...targetAttribtues,
+      ...valueAttribtues,
+      ...classAttribtues
     ]
   }
 
@@ -92,14 +106,67 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
       ]
     }
 
-    const matches = attribute.match(/data-(.+)-target/)
+    const targetMatches = attribute.match(/data-(.+)-target/)
 
-    if (matches && Array.isArray(matches) && matches[1]) {
-      const identifier = matches[1]
+    if (targetMatches && Array.isArray(targetMatches) && targetMatches[1]) {
+      const identifier = targetMatches[1]
 
       return this.controllers.filter(c => c.identifier == identifier).map(c => c.targets).flat().map(target => {
         return { name: target }
       })
+    }
+
+    const valueMatches = attribute.match(/data-(.+)-(.+)-value/)
+
+    if (valueMatches && Array.isArray(valueMatches) && valueMatches[1]) {
+      const identifier = valueMatches[1]
+      const value = valueMatches[2]
+
+      const controller = this.controllers.find(c => c.identifier == identifier)
+
+      if (controller) {
+        const valueDefiniton = controller.values[value]
+
+        if (valueDefiniton === "Boolean") {
+          return [
+            { name: "true" },  
+            { name: "false" },
+            { name: "null" }
+          ]
+        }
+
+        if (valueDefiniton === "Number") {
+          return [
+            { name: "-1" },  
+            { name: "0" },  
+            { name: "1" },
+            { name: "2" },
+            { name: "3" },
+            { name: "4" },
+            { name: "5" },
+            { name: "6" },
+            { name: "7" },
+            { name: "8" },
+            { name: "9" },
+          ]
+        }
+
+        if (valueDefiniton === "Object") {
+          return [ { name: "{}" } ]
+        }
+
+        if (valueDefiniton === "Array") {
+          return [ { name: "[]" } ]
+        }
+
+        if (valueDefiniton === "String") {
+          return [
+            { name: "string" },
+            { name: identifier },
+            { name: value },
+          ]
+        }
+      }
     }
 
     return []
