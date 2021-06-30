@@ -5,29 +5,21 @@
 import {
   createConnection,
   TextDocuments,
-  Diagnostic,
-  DiagnosticSeverity,
   ProposedFeatures,
   InitializeParams,
   DidChangeConfigurationNotification,
   CompletionItem,
-  CompletionItemKind,
-  TextDocumentPositionParams,
   TextDocumentSyncKind,
   InitializeResult
 } from 'vscode-languageserver/node';
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
-
-import { getLanguageService } from 'vscode-html-languageservice'
-
+import { getLanguageService, LanguageService } from 'vscode-html-languageservice'
 import { StimulusHTMLDataProvider } from './data_providers/stimulus_html_data_provider'
 
-const htmlLanguageService = getLanguageService({
-  customDataProviders: [
-    new StimulusHTMLDataProvider("id", ["clipboard", "copy", "users", "form", "test"])
-  ]
-})
+let document: TextDocument
+let htmlLanguageService: LanguageService
+let projectPath = ""
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -42,6 +34,14 @@ let hasDiagnosticRelatedInformationCapability = false;
 
 connection.onInitialize((params: InitializeParams) => {
   const capabilities = params.capabilities;
+
+  projectPath = params.rootUri || ""
+
+  htmlLanguageService = getLanguageService({
+    customDataProviders: [
+      new StimulusHTMLDataProvider("id", projectPath)
+    ]
+  })
 
   // Does the client support the `workspace/configuration` request?
   // If not, we fall back using global settings.
@@ -135,8 +135,6 @@ function getDocumentSettings(resource: string): Thenable<ExampleSettings> {
 documents.onDidClose(e => {
   documentSettings.delete(e.document.uri);
 });
-
-let document: TextDocument
 
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
@@ -247,16 +245,16 @@ connection.onDidChangeWatchedFiles(_change => {
 
 connection.onCompletion(async (textDocumentPosition, token) => {
   console.log("onCompletion", token)
+
   const document = documents.get(textDocumentPosition.textDocument.uri);
-  if (!document) {
-    return null;
-  }
+
+  if (!document) return null
 
   return htmlLanguageService.doComplete(
     document,
     textDocumentPosition.position,
     htmlLanguageService.parseHTMLDocument(document)
-  );
+  )
 });
 
 
@@ -265,8 +263,15 @@ connection.onCompletion(async (textDocumentPosition, token) => {
 connection.onCompletionResolve(
   (item: CompletionItem): CompletionItem => {
     // const { detail, documentation } = item.data
-    // item.detail = detail
-    // item.documentation = documentation
+
+
+    // if (item.data.detail && item.data.documentation) {
+    //   item.detail = item.data.detail
+    //   item.documentation = item.data.documentation
+    //   item.kind = CompletionItemKind.Class
+    // }
+
+
     return item;
   }
 );
