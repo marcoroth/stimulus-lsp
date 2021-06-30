@@ -1,0 +1,29 @@
+{
+  "name": "stimulus-language-service",
+  "description": "Intelligent Stimulus JS tooling",
+  "version": "0.1.0",
+  "author": "Marco Roth",
+  "license": "MIT",
+  "engines": {
+    "node": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/marcoroth/stimulus-intellisense"
+  },
+  "dependencies": {
+    "acorn": "^8.4.1",
+    "espree": "^8.0.0",
+    "stimulus": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.1.3",
+    "acorn-static-class-features": "^1.0.0",
+    "acorn-walk": "^8.1.0",
+    "fast-glob": "^3.2.5",
+    "fs": "^0.0.1-security",
+    "path": "^0.12.7",
+    "stimulus": "^2.0.0"
+  },
+  "scripts": {}
+}

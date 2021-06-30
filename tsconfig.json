@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
     "module": "commonjs",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
     "target": "es2019",
     "lib": ["ES2019"],
     "outDir": "out",
@@ -16,6 +18,7 @@
   ],
   "references": [
     { "path": "./client" },
-    { "path": "./server" }
+    { "path": "./server" },
+    { "path": "./service" }
   ]
 }
