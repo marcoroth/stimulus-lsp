@@ -1,8 +1,13 @@
 {
   "compilerOptions": {
     "module": "commonjs",
+<<<<<<< Updated upstream
     "moduleResolution": "node",
     "esModuleInterop": true,
+||||||| Stash base
+=======
+    "moduleResolution": "node",
+>>>>>>> Stashed changes
     "target": "es2019",
     "lib": ["ES2019"],
     "outDir": "out",
@@ -18,7 +23,16 @@
   ],
   "references": [
     { "path": "./client" },
+<<<<<<< Updated upstream
     { "path": "./server" },
     { "path": "./service" }
+||||||| Stash base
+    { "path": "./server" }
+=======
+    { "path": "./server" }
+  ],
+  "types": [
+    "node"
+>>>>>>> Stashed changes
   ]
 }

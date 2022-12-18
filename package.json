@@ -34,5 +34,11 @@
     "eslint": "^7.26.0",
     "mocha": "^8.3.2",
     "typescript": "^4.3.2"
+  },
+  "dependencies": {
+    "path": "^0.12.7",
+    "vscode": "^1.1.37",
+    "vscode-languageclient": "^7.0.0",
+    "vscode-languageserver": "^7.0.0"
   }
 }

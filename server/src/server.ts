@@ -82,7 +82,7 @@ connection.onInitialized(() => {
     connection.client.register(DidChangeConfigurationNotification.type, undefined);
   }
   if (hasWorkspaceFolderCapability) {
-    connection.workspace.onDidChangeWorkspaceFolders(_event => {
+    connection.workspace.onDidChangeWorkspaceFolders((_event: any) => {
       connection.console.log('Workspace folder change event received.');
     });
   }
@@ -102,7 +102,7 @@ let globalSettings: ExampleSettings = defaultSettings;
 // Cache the settings of all open documents
 const documentSettings: Map<string, Thenable<ExampleSettings>> = new Map();
 
-connection.onDidChangeConfiguration(change => {
+connection.onDidChangeConfiguration((change: any) => {
   if (hasConfigurationCapability) {
     // Reset all cached document settings
     documentSettings.clear();
@@ -132,15 +132,23 @@ function getDocumentSettings(resource: string): Thenable<ExampleSettings> {
 }
 
 // Only keep settings for open documents
-documents.onDidClose(e => {
+documents.onDidClose((e: any) => {
   documentSettings.delete(e.document.uri);
 });
 
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
+<<<<<<< Updated upstream
 documents.onDidChangeContent(change => {
   document = change.document
   validateDataControllerAttributes(change.document)
+||||||| Stash base
+documents.onDidChangeContent(change => {
+  validateTextDocument(change.document);
+=======
+documents.onDidChangeContent((change: any) => {
+  validateTextDocument(change.document);
+>>>>>>> Stashed changes
 });
 
 async function validateDataControllerAttributes(textDocument: TextDocument): Promise<void> {
@@ -149,6 +157,7 @@ async function validateDataControllerAttributes(textDocument: TextDocument): Pro
   // connection.console.log(textDocument.lineCount.toString())
 }
 
+<<<<<<< Updated upstream
 // async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 //   // In this simple example we get the settings for every validate run.
 //   const settings = await getDocumentSettings(textDocument.uri);
@@ -197,6 +206,11 @@ async function validateDataControllerAttributes(textDocument: TextDocument): Pro
 // }
 
 connection.onDidChangeWatchedFiles(_change => {
+||||||| Stash base
+connection.onDidChangeWatchedFiles(_change => {
+=======
+connection.onDidChangeWatchedFiles((_change: any) => {
+>>>>>>> Stashed changes
   // Monitored files have change in VSCode
   connection.console.log('We received an file change event');
 });

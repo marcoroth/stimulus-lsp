@@ -11,9 +11,13 @@
     "type": "git",
     "url": "https://github.com/marcoroth/stimulus-intellisense"
   },
-  "dependencies": {
+  "dependencies": {},
+  "scripts": {},
+  "devDependencies": {
+    "@types/vscode": "^1.57.0",
     "vscode-languageserver": "^7.0.0",
     "vscode-languageserver-textdocument": "^1.0.1"
+<<<<<<< Updated upstream
   },
   "scripts": {},
   "devDependencies": {
@@ -34,4 +38,10 @@
     "acorn-static-class-features": "^1.0.0",
     "acorn-walk": "^8.1.0"
   }
+||||||| Stash base
+  },
+  "scripts": {}
+=======
+  }
+>>>>>>> Stashed changes
 }
