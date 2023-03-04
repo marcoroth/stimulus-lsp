@@ -1,8 +1,9 @@
-const { Parser, Node: AcornNode } = require("acorn")
-const walk = require("acorn-walk")
+import { Parser, Node as _AcornNode } from "acorn"
+import { simple } from "acorn-walk"
 
 export interface ControllerDeclaration {
   identifier: string
+  dasherized: string
   methods: Array<string>
   targets: Array<string>
   classes: Array<string>
@@ -25,26 +26,29 @@ export interface PropertyElement {
 export const parse = (parser: typeof Parser, data: string, filename: string) => {
   const tree = parser.parse(data, { sourceType: 'module', ecmaVersion: 2020 })
 
+  // TODO also check for namespaced controllers
   const splits = filename.split("/")
-  const file_name = splits[splits.length - 1]
+  const fileName = splits[splits.length - 1]
+  const identifier = fileName.split("_controller.js")[0]
 
   const controller: ControllerDeclaration = {
-    identifier: file_name.split("_controller.js")[0],
+    identifier: identifier,
+    dasherized: dasherize(camelize(identifier)),
     methods: [],
     targets: [],
     classes: [],
     values: {}
   }
 
-  walk.simple(tree, {
-    MethodDefinition(node: typeof AcornNode) {
+  simple(tree, {
+    MethodDefinition(node: any): void {
       if (node.kind === "method") {
         controller.methods.push(node.key.name)
       }
     },
 
-    PropertyDefinition(node: typeof AcornNode) {
-      const { name } = node.key
+    PropertyDefinition(node: any): void {
+      const { name } = node.key
 
       if (name === "targets") {
         controller.targets = node.value.elements.map((e: NodeElement) => e.value)
@@ -63,5 +67,14 @@ export const parse = (parser: typeof Parser, data: string, filename: string) => 
   })
 
   return controller
+}
 
+// TODO refactor into common utils
+function camelize(value: string) {
+  return value.replace(/(?:[_-])([a-z0-9])/g, (_, char) => char.toUpperCase())
+}
+
+// TODO refactor into common utils
+function dasherize(value: string) {
+  return value.replace(/([A-Z])/g, (_, char) => `-${char.toLowerCase()}`)
 }

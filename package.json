@@ -4,10 +4,7 @@
   "author": "Marco Roth",
   "license": "MIT",
   "version": "0.1.0",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/marcoroth/stimulus-intellisense"
-  },
+  "repository": "https://github.com/marcoroth/stimulus-intellisense",
   "publisher": "Marco Roth",
   "engines": {
     "vscode": "^1.43.0"

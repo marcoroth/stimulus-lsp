@@ -1,11 +1,11 @@
 import { IHTMLDataProvider } from 'vscode-html-languageservice'
 import { EVENTS } from '../events'
 
-import * as fs from 'fs';
+import * as fs from 'fs'
 import glob from 'glob'
 
-const { Parser } = require("acorn")
-const staticClassFeatures = require('acorn-static-class-features')
+import { Parser } from "acorn"
+import staticClassFeatures from 'acorn-static-class-features'
 
 import { parse, ControllerDeclaration } from '../util/parse'
 
@@ -50,18 +50,18 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
     console.log("provideAttributes", tag)
 
     const targetAttribtues = this.controllers.map((controller) => {
-      return { name: `data-${controller.identifier}-target` }
+      return { name: `data-${controller.dasherized}-target` }
     })
 
     const valueAttribtues = this.controllers.map((controller) => {
       return Object.keys(controller.values).map(value => {
-        return { name: `data-${controller.identifier}-${value}-value` }
+        return { name: `data-${controller.dasherized}-${value}-value` }
       })
     }).flat()
 
     const classAttribtues = this.controllers.map((controller) => {
       return controller.classes.map(klass => {
-        return { name: `data-${controller.identifier}-${klass}-class` }
+        return { name: `data-${controller.dasherized}-${klass}-class` }
       })
     }).flat()
 
@@ -79,7 +79,7 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
     console.log("provideValues", tag, attribute)
 
     if (attribute == "data-controller") {
-      return this.controllers.map(controller => ({ name: controller.identifier }))
+      return this.controllers.map(controller => ({ name: controller.dasherized }))
     }
 
     if (attribute == "data-action") {
@@ -87,7 +87,7 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
 
       const eventControllers = events.map(event => {
         return this.controllers.map(controller => {
-          return { name: `${event.name}->${controller.identifier}`, controller }
+          return { name: `${event.name}->${controller.dasherized}`, controller }
         })
       }).flat()
 
@@ -109,9 +109,9 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
     const targetMatches = attribute.match(/data-(.+)-target/)
 
     if (targetMatches && Array.isArray(targetMatches) && targetMatches[1]) {
-      const identifier = targetMatches[1]
+      const dasherized = targetMatches[1]
 
-      return this.controllers.filter(c => c.identifier == identifier).map(c => c.targets).flat().map(target => {
+      return this.controllers.filter(c => c.dasherized == dasherized).map(c => c.targets).flat().map(target => {
         return { name: target }
       })
     }
@@ -119,10 +119,10 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
     const valueMatches = attribute.match(/data-(.+)-(.+)-value/)
 
     if (valueMatches && Array.isArray(valueMatches) && valueMatches[1]) {
-      const identifier = valueMatches[1]
+      const dasherized = valueMatches[1]
       const value = valueMatches[2]
 
-      const controller = this.controllers.find(c => c.identifier == identifier)
+      const controller = this.controllers.find(c => c.dasherized == dasherized)
 
       if (controller) {
         const valueDefiniton = controller.values[value]
@@ -162,7 +162,7 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
         if (valueDefiniton === "String") {
           return [
             { name: "string" },
-            { name: identifier },
+            { name: dasherized },
             { name: value },
           ]
         }

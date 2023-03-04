@@ -1,13 +1,14 @@
 import * as fs from 'fs'
-const { Parser, Node: AcornNode } = require("acorn")
-
-const staticClassFeatures = require('acorn-static-class-features')
-const walk  = require("acorn-walk")
-// import * as path from "path"
 import glob from 'glob'
 
+import { Parser, Node as _AcornNode } from "acorn"
+import staticClassFeatures from 'acorn-static-class-features'
+import { simple } from "acorn-walk"
+
+// TODO: unify types with types from server
 interface ControllerDeclaration {
   identifier: string
+  dasherized: string
   methods: Array<string>
   targets: Array<string>
   classes: Array<string>
@@ -50,7 +51,7 @@ export const getValues = () => {
   ]
 }
 
-glob(`${folder}/**/*_controller.js`, { ignore: `${folder}/node_modules/**/*` }, (_err, files) => {
+glob(`${folder}/**/*_controller.js`, { ignore: `${folder}/node_modules/**/*` }, (_err, files) => {
   files.forEach(file => analyzeController(file))
 })
 
@@ -60,24 +61,26 @@ const analyzeController = (file: string) => {
 
     const splits = file.split("/")
     const file_name = splits[splits.length - 1]
+    const identifier = file_name.split("_controller.js")[0]
 
     const controller: ControllerDeclaration = {
-      identifier: file_name.split("_controller.js")[0],
+      identifier: identifier,
+      dasherized: dasherize(camelize(identifier)),
       methods: [],
       targets: [],
       classes: [],
       values: {}
     }
 
-    walk.simple(tree, {
-      MethodDefinition(node: typeof AcornNode) {
+    simple(tree, {
+      MethodDefinition(node: any): void {
         if (node.kind === "method") {
           controller.methods.push(node.key.name)
         }
       },
 
-      PropertyDefinition(node: typeof AcornNode) {
-        const { name } = node.key
+      PropertyDefinition(node: any): void {
+        const { name } = node.key
 
         if (name === "targets") {
           controller.targets = node.value.elements.map((e: NodeElement) => e.value)
@@ -97,4 +100,14 @@ const analyzeController = (file: string) => {
 
     console.log(controller)
   })
+}
+
+// TODO refactor into common utils
+function camelize(value: string) {
+  return value.replace(/(?:[_-])([a-z0-9])/g, (_, char) => char.toUpperCase())
+}
+
+// TODO refactor into common utils
+function dasherize(value: string) {
+  return value.replace(/([A-Z])/g, (_, char) => `-${char.toLowerCase()}`)
 }
