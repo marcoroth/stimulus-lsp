@@ -14,12 +14,12 @@ import {
 } from 'vscode-languageserver/node';
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { getLanguageService, LanguageService } from 'vscode-html-languageservice'
-import { StimulusHTMLDataProvider } from './data_providers/stimulus_html_data_provider'
+import { getLanguageService, LanguageService } from 'vscode-html-languageservice';
+import { StimulusHTMLDataProvider } from './data_providers/stimulus_html_data_provider';
 
-let document: TextDocument
-let htmlLanguageService: LanguageService
-let projectPath = ""
+let document: TextDocument;
+let htmlLanguageService: LanguageService;
+let projectPath = "";
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -35,13 +35,13 @@ let hasDiagnosticRelatedInformationCapability = false;
 connection.onInitialize((params: InitializeParams) => {
   const capabilities = params.capabilities;
 
-  projectPath = params.rootUri || ""
+  projectPath = params.rootUri || "";
 
   htmlLanguageService = getLanguageService({
     customDataProviders: [
       new StimulusHTMLDataProvider("id", projectPath)
     ]
-  })
+  });
 
   // Does the client support the `workspace/configuration` request?
   // If not, we fall back using global settings.
@@ -139,8 +139,8 @@ documents.onDidClose(e => {
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
 documents.onDidChangeContent(change => {
-  document = change.document
-  validateDataControllerAttributes(change.document)
+  document = change.document;
+  validateDataControllerAttributes(change.document);
 });
 
 async function validateDataControllerAttributes(textDocument: TextDocument): Promise<void> {
@@ -244,17 +244,17 @@ connection.onDidChangeWatchedFiles(_change => {
 // );
 
 connection.onCompletion(async (textDocumentPosition, token) => {
-  console.log("onCompletion", token)
+  console.log("onCompletion", token);
 
   const document = documents.get(textDocumentPosition.textDocument.uri);
 
-  if (!document) return null
+  if (!document) return null;
 
   return htmlLanguageService.doComplete(
     document,
     textDocumentPosition.position,
     htmlLanguageService.parseHTMLDocument(document)
-  )
+  );
 });
 
 
