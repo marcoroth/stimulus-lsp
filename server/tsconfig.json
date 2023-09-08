@@ -8,12 +8,8 @@
     "sourceMap": true,
     "strict": true,
     "outDir": "out",
-    "rootDir": "src",
-    "typeRoots": [
-      "./types",
-      "./node_modules/@types"
-    ]
+    "rootDir": "src"
   },
   "include": ["src"],
-  "exclude": ["node_modules", ".vscode-test"]
+  "exclude": ["node_modules"]
 }

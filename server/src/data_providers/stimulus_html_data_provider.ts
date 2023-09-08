@@ -1,36 +1,21 @@
 import { IHTMLDataProvider } from 'vscode-html-languageservice'
 import { EVENTS } from '../events'
 
-import * as fs from 'fs'
-import glob from 'glob'
-
-import { Parser } from "acorn"
-import staticClassFeatures from 'acorn-static-class-features'
-
-import { parse, ControllerDeclaration } from '../util/parse'
+import { Project } from "stimulus-parser"
 
 export class StimulusHTMLDataProvider implements IHTMLDataProvider {
-  controllers: Array<ControllerDeclaration> = []
   private folder: string
-  private controllersPaths: Array<string> = []
-  private parser: typeof Parser = Parser.extend(staticClassFeatures)
+  private project: Project
 
   constructor(private id: string, private projectPath: string) {
     this.folder = this.projectPath.replace("file://", "")
 
-    glob(`${this.folder}/**/*_controller.js`, { ignore: `${this.folder}/node_modules/**/*` }, (_err, files) => {
-      files.forEach(file => {
-        this.controllersPaths.push(file)
-        this.analyzeController(file)
-      })
-    })
+    this.project = new Project(this.folder)
+    this.project.analyze()
   }
 
-  analyzeController (file: string) {
-    return fs.readFile(file, 'utf8', (_err, data) => {
-      const controller = parse(this.parser, data, file)
-      this.controllers.push(controller)
-    })
+  get controllers() {
+    return this.project.controllerDefinitions
   }
 
   isApplicable() {
@@ -43,6 +28,7 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
 
   provideTags() {
     console.log("provideTags")
+
     return []
   }
 
