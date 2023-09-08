@@ -1,7 +1,7 @@
 import { ControllerDefinition } from "./controller_definition"
 import { Parser } from "./parser"
 
-import * as fs from "fs"
+import { promises as fs } from "fs"
 import { glob } from "glob"
 
 interface ControllerFile {
@@ -12,8 +12,8 @@ interface ControllerFile {
 export class Project {
   readonly projectPath: string
   readonly controllerDefinitions: ControllerDefinition[] = []
-  private controllersFiles: Array<ControllerFile> = []
 
+  private controllersFiles: Array<ControllerFile> = []
   private parser: Parser = new Parser()
 
   constructor(projectPath: string) {
@@ -21,22 +21,24 @@ export class Project {
   }
 
   async analyze() {
-    await this.detectControllerFiles()
+    await this.readControllerFiles()
 
     this.controllersFiles.forEach((file: ControllerFile) => {
       this.controllerDefinitions.push(this.parser.parseController(file.content, file.filename))
     })
   }
 
-  async detectControllerFiles() {
+  private async readControllerFiles() {
     const controllerFiles = await glob(`${this.projectPath}/**/*_controller.js`, {
       ignore: `${this.projectPath}/node_modules/**/*`,
     })
 
-    controllerFiles.forEach((filename: string) => {
-      fs.readFile(filename, "utf8", (_err: any, content) => {
+    await Promise.allSettled(
+      controllerFiles.map(async (filename: string) => {
+        const content = await fs.readFile(filename, "utf8")
+
         this.controllersFiles.push({ filename, content })
       })
-    })
+    )
   }
 }
