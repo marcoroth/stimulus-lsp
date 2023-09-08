@@ -34,8 +34,8 @@ const codeActions: CodeActions = new CodeActions(documentService);
 connection.onInitialize((params: InitializeParams) => {
   settings = new Settings(params, connection);
   stimulusDataProvider = new StimulusHTMLDataProvider("id", settings.projectPath);
-  diagnostics = new Diagnostics(connection, stimulusDataProvider)
-  commands = new Commands(settings, connection)
+  diagnostics = new Diagnostics(connection, stimulusDataProvider);
+  commands = new Commands(settings, connection);
 
   htmlLanguageService = getLanguageService({
     customDataProviders: [
@@ -120,11 +120,11 @@ connection.onCodeAction(params => {
 
 connection.onExecuteCommand(async (params) => {
   if (params.command === "stimulus.controller.create" && params.arguments) {
-    const [identifier, diagnostic] = params.arguments as [string, Diagnostic]
+    const [identifier, diagnostic] = params.arguments as [string, Diagnostic];
 
-    await commands.createController(identifier, diagnostic)
+    await commands.createController(identifier, diagnostic);
   } else {
-    return
+    return;
   }
 });
 

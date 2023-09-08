@@ -14,13 +14,13 @@ export class Commands {
   private readonly connection: Connection
 
   constructor(settings: Settings, connection: Connection) {
-    this.settings = settings
-    this.connection = connection
+    this.settings = settings;
+    this.connection = connection;
   }
 
   async createController(identifier: string, diagnostic: Diagnostic) {
-    if (identifier === undefined) return
-    if (diagnostic === undefined) return
+    if (identifier === undefined) return;
+    if (diagnostic === undefined) return;
 
     const newControllerPath = `${this.settings.controllersPath}/${identifier}_controller.js`;
     const createFile: CreateFile = { kind: 'create', uri: newControllerPath };
@@ -41,6 +41,6 @@ export default class extends Controller {
   connect() {
     console.log("${identifier} controller connected")
   }
-}`
+}`;
   }
 }

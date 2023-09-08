@@ -47,7 +47,7 @@ export class Settings {
   }
 
   get controllersPath() {
-    return `${this.projectPath}/app/javascript/controllers`
+    return `${this.projectPath}/app/javascript/controllers`;
   }
 
   getDocumentSettings(resource: string): Thenable<StimulusSettings> {
