@@ -17,7 +17,7 @@ export class Diagnostics {
   }
 
   get validControllers() {
-    return this.stimulusDataProvider ? this.stimulusDataProvider.controllers.map((controller) => controller.dasherized) : [];
+    return this.stimulusDataProvider.controllers.map((controller) => controller.dasherized);
   }
 
   validateDataControllerAttributes(textDocument: TextDocument) {
