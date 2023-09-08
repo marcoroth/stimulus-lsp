@@ -1,0 +1,14 @@
+*.tgz
+*.tsbuildinfo
+*.log
+*~
+
+/dist
+node_modules/
+coverage/
+
+yarn-error.log
+
+.DS_Store
+.rollup.cache
+.tool-versions
