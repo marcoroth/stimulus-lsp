@@ -19,6 +19,5 @@
   "references": [
     { "path": "./client" },
     { "path": "./server" },
-    { "path": "./service" }
   ]
 }
