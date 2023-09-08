@@ -115,7 +115,7 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
 
         if (valueDefiniton === "Boolean") {
           return [
-            { name: "true" },  
+            { name: "true" },
             { name: "false" },
             { name: "null" }
           ];
@@ -123,8 +123,8 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
 
         if (valueDefiniton === "Number") {
           return [
-            { name: "-1" },  
-            { name: "0" },  
+            { name: "-1" },
+            { name: "0" },
             { name: "1" },
             { name: "2" },
             { name: "3" },

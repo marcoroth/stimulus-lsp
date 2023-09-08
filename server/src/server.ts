@@ -15,11 +15,13 @@ import {
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { getLanguageService, LanguageService } from 'vscode-html-languageservice';
-import { StimulusHTMLDataProvider } from './data_providers/stimulus_html_data_provider';
 
+import { StimulusHTMLDataProvider } from './data_providers/stimulus_html_data_provider';
+import { Settings, StimulusSettings } from './settings';
+
+let settings: Settings;
 let document: TextDocument;
 let htmlLanguageService: LanguageService;
-let projectPath = "";
 let stimulusDataProvider: StimulusHTMLDataProvider;
 
 // Create a connection for the server, using Node's IPC as a transport.
@@ -29,36 +31,15 @@ const connection = createConnection(ProposedFeatures.all);
 // Create a simple text document manager.
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 
-let hasConfigurationCapability = false;
-let hasWorkspaceFolderCapability = false;
-let hasDiagnosticRelatedInformationCapability = false;
-
 connection.onInitialize((params: InitializeParams) => {
-  const capabilities = params.capabilities;
-
-  projectPath = params.rootUri || "";
-
-  stimulusDataProvider = new StimulusHTMLDataProvider("id", projectPath);
+  settings = new Settings(params, connection);
+  stimulusDataProvider = new StimulusHTMLDataProvider("id", settings.projectPath);
 
   htmlLanguageService = getLanguageService({
     customDataProviders: [
       stimulusDataProvider
     ]
   });
-
-  // Does the client support the `workspace/configuration` request?
-  // If not, we fall back using global settings.
-  hasConfigurationCapability = !!(
-    capabilities.workspace && !!capabilities.workspace.configuration
-  );
-  hasWorkspaceFolderCapability = !!(
-    capabilities.workspace && !!capabilities.workspace.workspaceFolders
-  );
-  hasDiagnosticRelatedInformationCapability = !!(
-    capabilities.textDocument &&
-    capabilities.textDocument.publishDiagnostics &&
-    capabilities.textDocument.publishDiagnostics.relatedInformation
-  );
 
   const result: InitializeResult = {
     capabilities: {
@@ -69,74 +50,48 @@ connection.onInitialize((params: InitializeParams) => {
       }
     }
   };
-  if (hasWorkspaceFolderCapability) {
+
+  if (settings.hasWorkspaceFolderCapability) {
     result.capabilities.workspace = {
       workspaceFolders: {
         supported: true
       }
     };
   }
+
   return result;
 });
 
 connection.onInitialized(() => {
-  if (hasConfigurationCapability) {
+  if (settings.hasConfigurationCapability) {
     // Register for all configuration changes.
     connection.client.register(DidChangeConfigurationNotification.type, undefined);
   }
-  if (hasWorkspaceFolderCapability) {
+
+  if (settings.hasWorkspaceFolderCapability) {
     connection.workspace.onDidChangeWorkspaceFolders(_event => {
       connection.console.log('Workspace folder change event received.');
     });
   }
 });
 
-interface StimulusSettings {}
-
-// The global settings, used when the `workspace/configuration` request is not supported by the client.
-// Please note that this is not the case when using this server with the client provided in this example
-// but could happen with other clients.
-const defaultSettings: StimulusSettings = {};
-let globalSettings: StimulusSettings = defaultSettings;
-
-// Cache the settings of all open documents
-const documentSettings: Map<string, Thenable<StimulusSettings>> = new Map();
-
 connection.onDidChangeConfiguration(change => {
-  if (hasConfigurationCapability) {
+  if (settings.hasConfigurationCapability) {
     // Reset all cached document settings
-    documentSettings.clear();
+    settings.documentSettings.clear();
   } else {
-    globalSettings = <StimulusSettings>(
-      (change.settings.languageServerStimulus || defaultSettings)
+    settings.globalSettings = <StimulusSettings>(
+      (change.settings.languageServerStimulus || settings.defaultSettings)
     );
   }
 
-  // Revalidate all open text documents
-  // documents.all().forEach(validateTextDocument);
+  // Revalidate all open documents
+  documents.all().forEach(validateDataControllerAttributes);
 });
-
-// function getDocumentSettings(resource: string): Thenable<StimulusSettings> {
-//   if (!hasConfigurationCapability) {
-//     return Promise.resolve(globalSettings);
-//   }
-//
-//   let result = documentSettings.get(resource);
-//
-//   if (!result) {
-//     result = connection.workspace.getConfiguration({
-//       scopeUri: resource,
-//       section: 'languageServerStimulus'
-//     });
-//     documentSettings.set(resource, result);
-//   }
-//
-//   return result;
-// }
 
 // Only keep settings for open documents
 documents.onDidClose(e => {
-  documentSettings.delete(e.document.uri);
+  settings.documentSettings.delete(e.document.uri);
 });
 
 // The content of a text document has changed. This event is emitted
