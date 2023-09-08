@@ -10,8 +10,8 @@ import staticClassFeatures from 'acorn-static-class-features'
 import { parse, ControllerDeclaration } from '../util/parse'
 
 export class StimulusHTMLDataProvider implements IHTMLDataProvider {
+  controllers: Array<ControllerDeclaration> = []
   private folder: string
-  private controllers: Array<ControllerDeclaration> = []
   private controllersPaths: Array<string> = []
   private parser: typeof Parser = Parser.extend(staticClassFeatures)
 

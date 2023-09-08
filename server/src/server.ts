@@ -11,6 +11,8 @@ import {
   CompletionItem,
   TextDocumentSyncKind,
   InitializeResult
+  Diagnostic,
+  DiagnosticSeverity
 } from 'vscode-languageserver/node';
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
@@ -20,6 +22,7 @@ import { StimulusHTMLDataProvider } from './data_providers/stimulus_html_data_pr
 let document: TextDocument;
 let htmlLanguageService: LanguageService;
 let projectPath = "";
+let stimulusDataProvider: StimulusHTMLDataProvider
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -37,9 +40,11 @@ connection.onInitialize((params: InitializeParams) => {
 
   projectPath = params.rootUri || "";
 
+  stimulusDataProvider = new StimulusHTMLDataProvider("id", projectPath)
+
   htmlLanguageService = getLanguageService({
     customDataProviders: [
-      new StimulusHTMLDataProvider("id", projectPath)
+      stimulusDataProvider
     ]
   });
 
@@ -139,62 +144,43 @@ documents.onDidClose(e => {
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
 documents.onDidChangeContent(change => {
-  document = change.document;
   validateDataControllerAttributes(change.document);
 });
 
 async function validateDataControllerAttributes(textDocument: TextDocument): Promise<void> {
-  const settings = await getDocumentSettings(textDocument.uri);
-  // connection.console.log(textDocument.uri)
-  // connection.console.log(textDocument.lineCount.toString())
-}
+  const text = textDocument.getText();
+  const pattern = /data-controller=["'](.+)["']/g;
+  const validControllers = stimulusDataProvider ? stimulusDataProvider.controllers.map((controller) => controller.dasherized) : []
+  const diagnostics: Diagnostic[] = [];
 
-// async function validateTextDocument(textDocument: TextDocument): Promise<void> {
-//   // In this simple example we get the settings for every validate run.
-//   const settings = await getDocumentSettings(textDocument.uri);
-//
-//   // The validator creates diagnostics for all uppercase words length 2 and more
-//   const text = textDocument.getText();
-//   const pattern = /\b[A-Z]{2,}\b/g;
-//   let m: RegExpExecArray | null;
-//
-//   let problems = 0;
-//   const diagnostics: Diagnostic[] = [];
-//   while ((m = pattern.exec(text)) && problems < settings.maxNumberOfProblems) {
-//     problems++;
-//     const diagnostic: Diagnostic = {
-//       severity: DiagnosticSeverity.Warning,
-//       range: {
-//         start: textDocument.positionAt(m.index),
-//         end: textDocument.positionAt(m.index + m[0].length)
-//       },
-//       message: `${m[0]} is all uppercase.`,
-//       source: 'ex'
-//     };
-//     if (hasDiagnosticRelatedInformationCapability) {
-//       diagnostic.relatedInformation = [
-//         {
-//           location: {
-//             uri: textDocument.uri,
-//             range: Object.assign({}, diagnostic.range)
-//           },
-//           message: 'Spelling matters'
-//         },
-//         {
-//           location: {
-//             uri: textDocument.uri,
-//             range: Object.assign({}, diagnostic.range)
-//           },
-//           message: 'Particularly for names'
-//         }
-//       ];
-//     }
-//     diagnostics.push(diagnostic);
-//   }
-//
-//   // Send the computed diagnostics to VSCode.
-//   connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
-// }
+  let m: RegExpExecArray | null;
+
+  while ((m = pattern.exec(text))) {
+    const match = m[0]
+    const identifier = m[1]
+
+    if (!validControllers.includes(identifier)) {
+      const offset = match.indexOf(identifier)
+      const start = m.index + offset
+      const end = m.index + offset + identifier.length
+
+      const diagnostic: Diagnostic = {
+        severity: DiagnosticSeverity.Warning,
+        range: {
+          start: textDocument.positionAt(start),
+          end: textDocument.positionAt(end)
+        },
+        message: `${identifier} isn't a valid controller.`,
+        source: 'ex'
+      };
+
+      diagnostics.push(diagnostic);
+    }
+  }
+
+  // Send the computed diagnostics to VSCode.
+  connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
+}
 
 connection.onDidChangeWatchedFiles(_change => {
   // Monitored files have change in VSCode
