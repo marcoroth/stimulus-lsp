@@ -46,6 +46,10 @@ export class Settings {
     return this.params.rootUri || "";
   }
 
+  get controllersPath() {
+    return `${this.projectPath}/app/javascript/controllers`
+  }
+
   getDocumentSettings(resource: string): Thenable<StimulusSettings> {
     if (!this.hasConfigurationCapability) {
       return Promise.resolve(this.globalSettings);

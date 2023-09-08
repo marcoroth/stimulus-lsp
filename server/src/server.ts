@@ -6,19 +6,17 @@ import {
   CompletionItem,
   TextDocumentSyncKind,
   InitializeResult,
-  // TextDocumentPositionParams,
-  // CompletionItemKind,
-  Diagnostic,
-  DiagnosticSeverity
+  Diagnostic
 } from 'vscode-languageserver/node';
 
-import { TextDocument } from 'vscode-languageserver-textdocument';
 import { getLanguageService, LanguageService } from 'vscode-html-languageservice';
 
 import { StimulusHTMLDataProvider } from './data_providers/stimulus_html_data_provider';
 import { Settings, StimulusSettings } from './settings';
 import { DocumentService } from './document_service';
 import { Diagnostics } from './diagnostics';
+import { Commands } from './commands';
+import { CodeActions } from './code_actions';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -28,13 +26,16 @@ let settings: Settings;
 let htmlLanguageService: LanguageService;
 let stimulusDataProvider: StimulusHTMLDataProvider;
 let diagnostics: Diagnostics;
+let commands: Commands;
 
 const documentService = new DocumentService(connection);
+const codeActions: CodeActions = new CodeActions(documentService);
 
 connection.onInitialize((params: InitializeParams) => {
   settings = new Settings(params, connection);
   stimulusDataProvider = new StimulusHTMLDataProvider("id", settings.projectPath);
   diagnostics = new Diagnostics(connection, stimulusDataProvider)
+  commands = new Commands(settings, connection)
 
   htmlLanguageService = getLanguageService({
     customDataProviders: [
@@ -45,9 +46,12 @@ connection.onInitialize((params: InitializeParams) => {
   const result: InitializeResult = {
     capabilities: {
       textDocumentSync: TextDocumentSyncKind.Incremental,
-      // Tell the client that this server supports code completion.
       completionProvider: {
         resolveProvider: true
+      },
+      codeActionProvider: true,
+      executeCommandProvider: {
+        commands: ['stimulus.controller.create']
       }
     }
   };
@@ -108,6 +112,20 @@ documentService.onDidChangeContent(change => {
 connection.onDidChangeWatchedFiles(_change => {
   // Monitored files have change in VSCode
   connection.console.log('We received an file change event');
+});
+
+connection.onCodeAction(params => {
+  return codeActions.onCodeAction(params);
+});
+
+connection.onExecuteCommand(async (params) => {
+  if (params.command === "stimulus.controller.create" && params.arguments) {
+    const [identifier, diagnostic] = params.arguments as [string, Diagnostic]
+
+    await commands.createController(identifier, diagnostic)
+  } else {
+    return
+  }
 });
 
 // This handler provides the initial list of the completion items.
