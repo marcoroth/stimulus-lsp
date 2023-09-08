@@ -20,7 +20,7 @@ import { StimulusHTMLDataProvider } from './data_providers/stimulus_html_data_pr
 let document: TextDocument;
 let htmlLanguageService: LanguageService;
 let projectPath = "";
-let stimulusDataProvider: StimulusHTMLDataProvider
+let stimulusDataProvider: StimulusHTMLDataProvider;
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -38,7 +38,7 @@ connection.onInitialize((params: InitializeParams) => {
 
   projectPath = params.rootUri || "";
 
-  stimulusDataProvider = new StimulusHTMLDataProvider("id", projectPath)
+  stimulusDataProvider = new StimulusHTMLDataProvider("id", projectPath);
 
   htmlLanguageService = getLanguageService({
     customDataProviders: [
@@ -148,19 +148,19 @@ documents.onDidChangeContent(change => {
 async function validateDataControllerAttributes(textDocument: TextDocument): Promise<void> {
   const text = textDocument.getText();
   const pattern = /data-controller=["'](.+)["']/g;
-  const validControllers = stimulusDataProvider ? stimulusDataProvider.controllers.map((controller) => controller.dasherized) : []
+  const validControllers = stimulusDataProvider ? stimulusDataProvider.controllers.map((controller) => controller.dasherized) : [];
   const diagnostics: Diagnostic[] = [];
 
   let m: RegExpExecArray | null;
 
   while ((m = pattern.exec(text))) {
-    const match = m[0]
-    const identifier = m[1]
+    const match = m[0];
+    const identifier = m[1];
 
     if (!validControllers.includes(identifier)) {
-      const offset = match.indexOf(identifier)
-      const start = m.index + offset
-      const end = m.index + offset + identifier.length
+      const offset = match.indexOf(identifier);
+      const start = m.index + offset;
+      const end = m.index + offset + identifier.length;
 
       const diagnostic: Diagnostic = {
         severity: DiagnosticSeverity.Warning,
