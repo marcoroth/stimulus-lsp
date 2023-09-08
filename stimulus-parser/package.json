@@ -19,17 +19,20 @@
     "lint": "eslint .",
     "format": "yarn lint --fix"
   },
+  "dependencies": {
+    "acorn": "^8.8.2",
+    "acorn-static-class-features": "^1.0.0",
+    "acorn-walk": "^8.2.0",
+    "fs": "^0.0.1-security",
+    "glob": "^10.3.4"
+  },
   "devDependencies": {
     "@types/glob": "^8.1.0",
     "@typescript-eslint/eslint-plugin": "^5.60.1",
     "@typescript-eslint/parser": "^5.60.1",
-    "acorn": "^8.8.2",
-    "acorn-static-class-features": "^1.0.0",
-    "acorn-walk": "^8.2.0",
     "eslint": "^8.44.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "fs": "^0.0.1-security",
     "path": "^0.12.7",
     "prettier": "^2.8.8",
     "rimraf": "^5.0.1",
