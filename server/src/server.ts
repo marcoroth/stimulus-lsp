@@ -18,6 +18,7 @@ import { getLanguageService, LanguageService } from 'vscode-html-languageservice
 import { StimulusHTMLDataProvider } from './data_providers/stimulus_html_data_provider';
 import { Settings, StimulusSettings } from './settings';
 import { DocumentService } from './document_service';
+import { Diagnostics } from './diagnostics';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -26,12 +27,14 @@ const connection = createConnection(ProposedFeatures.all);
 let settings: Settings;
 let htmlLanguageService: LanguageService;
 let stimulusDataProvider: StimulusHTMLDataProvider;
+let diagnostics: Diagnostics;
 
 const documentService = new DocumentService(connection);
 
 connection.onInitialize((params: InitializeParams) => {
   settings = new Settings(params, connection);
   stimulusDataProvider = new StimulusHTMLDataProvider("id", settings.projectPath);
+  diagnostics = new Diagnostics(connection, stimulusDataProvider)
 
   htmlLanguageService = getLanguageService({
     customDataProviders: [
@@ -84,7 +87,9 @@ connection.onDidChangeConfiguration(change => {
   }
 
   // Revalidate all open documents
-  documentService.getAll().forEach(validateDataControllerAttributes);
+  if (diagnostics) {
+    documentService.getAll().forEach(diagnostics.validateDataControllerAttributes);
+  }
 });
 
 // Only keep settings for open documents
@@ -95,43 +100,10 @@ documentService.onDidClose(e => {
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
 documentService.onDidChangeContent(change => {
-  validateDataControllerAttributes(change.document);
-});
-
-async function validateDataControllerAttributes(textDocument: TextDocument): Promise<void> {
-  const text = textDocument.getText();
-  const pattern = /data-controller=["'](.+)["']/g;
-  const validControllers = stimulusDataProvider ? stimulusDataProvider.controllers.map((controller) => controller.dasherized) : [];
-  const diagnostics: Diagnostic[] = [];
-
-  let m: RegExpExecArray | null;
-
-  while ((m = pattern.exec(text))) {
-    const match = m[0];
-    const identifier = m[1];
-
-    if (!validControllers.includes(identifier)) {
-      const offset = match.indexOf(identifier);
-      const start = m.index + offset;
-      const end = m.index + offset + identifier.length;
-
-      const diagnostic: Diagnostic = {
-        severity: DiagnosticSeverity.Warning,
-        range: {
-          start: textDocument.positionAt(start),
-          end: textDocument.positionAt(end)
-        },
-        message: `${identifier} isn't a valid controller.`,
-        source: 'ex'
-      };
-
-      diagnostics.push(diagnostic);
-    }
+  if (diagnostics) {
+    diagnostics.validateDataControllerAttributes(change.document);
   }
-
-  // Send the computed diagnostics to VSCode.
-  connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
-}
+});
 
 connection.onDidChangeWatchedFiles(_change => {
   // Monitored files have change in VSCode
