@@ -1,4 +1,5 @@
 export interface ControllerDefinition {
+  path: string
   identifier: string
   dasherized: string
   methods: Array<string>

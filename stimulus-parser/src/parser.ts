@@ -30,6 +30,7 @@ export class Parser {
     const identifier = fileName.split("_controller.js")[0]
 
     const controller: ControllerDefinition = {
+      path: filename,
       identifier: identifier,
       dasherized: dasherize(camelize(identifier)),
       methods: [],
