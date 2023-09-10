@@ -72,10 +72,12 @@ test("parse values with with default values", () => {
   const controller = parser.parseController(code, "value_controller.js")
 
   expect(controller.values).toEqual({
-    string: { type: "String", default: '"string"' },
+    string: { type: "String", default: "string" },
     object: { type: "Object", default: { object: "Object" } },
-    boolean: { type: "Boolean", default: "true" },
+    boolean: { type: "Boolean", default: true },
     array: { type: "Array", default: ["Array"] },
-    number: { type: "Number", default: "1" },
+    number: { type: "Number", default: 1 },
+  })
+})
   })
 })

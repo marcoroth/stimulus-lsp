@@ -78,7 +78,7 @@ export class Parser {
               const defaultProperty = properties.find((property) => property.key.name === "default")
 
               type = typeProperty?.value.name || ""
-              defaultValue = defaultProperty?.value.raw
+              defaultValue = defaultProperty?.value.value
 
               if (!defaultValue && defaultProperty) {
                 defaultValue = convertProperty(defaultProperty.value)
