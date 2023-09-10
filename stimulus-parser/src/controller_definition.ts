@@ -10,6 +10,12 @@ export class ControllerDefinition {
   classes: Array<string> = []
   values: { [key: string]: string } = {}
 
+  static controllerPathForIdentifier(identifier: string): string {
+    const path = identifier.replace(/--/g, "/").replace(/-/g, "_")
+
+    return `${path}_controller.js`
+  }
+
   constructor(project: Project, path: string) {
     this.project = project
     this.path = path
