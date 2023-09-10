@@ -48,7 +48,7 @@ export class Definitions {
     }
 
     if (this.controllers.map(controller => controller.identifier).includes(identifier)) {
-      identifiers = [identifier]
+      identifiers = [identifier];
     } else {
       identifiers = tokenList(node, "data-controller");
     }

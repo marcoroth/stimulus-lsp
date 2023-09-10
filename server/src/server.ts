@@ -115,8 +115,8 @@ documentService.onDidChangeContent(change => {
 });
 
 connection.onDefinition((params: DefinitionParams) => {
-  return definitions.onDefinition(params)
-})
+  return definitions.onDefinition(params);
+});
 
 connection.onDidChangeWatchedFiles(_change => {
   // Monitored files have change in VSCode

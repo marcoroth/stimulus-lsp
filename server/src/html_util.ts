@@ -1,25 +1,25 @@
 import { Node } from 'vscode-html-languageservice';
 
 export function attributeValue(node: Node, attribute: string) {
-  if (!node.attributes) return null
+  if (!node.attributes) return null;
 
-  return unquote(node.attributes[attribute] || "")
+  return unquote(node.attributes[attribute] || "");
 }
 
 export function tokenList(node: Node, attribute: string) {
-  const value = (squish(attributeValue(node, attribute) || "")).trim()
+  const value = (squish(attributeValue(node, attribute) || "")).trim();
 
-  return value.split(" ")
+  return value.split(" ");
 }
 
-export function unquote(string: String) {
-  return string.substr(1, string.length - 2)
+export function unquote(string: string) {
+  return string.substr(1, string.length - 2);
 }
 
-export function reverseString(string: String) {
-  return string.split("").reverse().join("")
+export function reverseString(string: string) {
+  return string.split("").reverse().join("");
 }
 
-export function squish(string: String) {
-  return string.replace(/\s+/g, ' ')
+export function squish(string: string) {
+  return string.replace(/\s+/g, ' ');
 }

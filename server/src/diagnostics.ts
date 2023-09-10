@@ -2,7 +2,7 @@ import { Connection, Diagnostic, DiagnosticSeverity, Range } from 'vscode-langua
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { getLanguageService, Node, LanguageService } from 'vscode-html-languageservice';
 
-import { attributeValue, tokenList } from "./html_util"
+import { attributeValue, tokenList } from "./html_util";
 import { StimulusHTMLDataProvider } from './data_providers/stimulus_html_data_provider';
 
 export interface InvalidControllerDiagnosticData {
@@ -27,8 +27,8 @@ export class Diagnostics {
   }
 
   visitNode(node: Node, textDocument: TextDocument, service: LanguageService) {
-    const identifiers = tokenList(node, this.controllerAttribute)
-    const invalidIdentifiers = identifiers.filter(identifier => !this.controllers.includes(identifier))
+    const identifiers = tokenList(node, this.controllerAttribute);
+    const invalidIdentifiers = identifiers.filter(identifier => !this.controllers.includes(identifier));
 
     invalidIdentifiers.forEach((identifier) => {
       const range = this.rangeFromNode(textDocument, node);
@@ -36,7 +36,7 @@ export class Diagnostics {
       const attributeRange = this.rangeForAttribute(textDocument, startTagContent, node, this.controllerAttribute, identifier);
 
       this.createInvalidControllerDiagnosticFor(identifier, textDocument, attributeRange);
-    })
+    });
 
     node.children.forEach((child) => {
       this.visitNode(child, textDocument, service);
@@ -62,9 +62,9 @@ export class Diagnostics {
   }
 
   private rangeForAttribute(textDocument: TextDocument, tagContent: string, node: Node, attribute: string, search: string) {
-    const value = attributeValue(node, attribute) || ""
+    const value = attributeValue(node, attribute) || "";
 
-    const searchIndex = value.indexOf(search) || 0
+    const searchIndex = value.indexOf(search) || 0;
     const attributeStartIndex = tagContent.indexOf(attribute);
 
     const attributeValueStart = node.start + attributeStartIndex + attribute.length + searchIndex + 2;
