@@ -80,23 +80,19 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
     if (attribute == "data-action") {
       const events = EVENTS.map((name) => ({ name }))
 
-      const eventControllers = events
-        .map((event) => {
-          return this.controllers.map((controller) => {
-            return { name: `${event.name}->${controller.identifier}`, controller }
-          })
+      const eventControllers = events.flatMap((event) => {
+        return this.controllers.map((controller) => {
+          return { name: `${event.name}->${controller.identifier}`, controller }
         })
-        .flat()
+      })
 
-      const eventControllerActions = eventControllers
-        .map((eventController) => {
-          const actions = eventController.controller.methods
+      const eventControllerActions = eventControllers.flatMap((eventController) => {
+        const actions = eventController.controller.methods
 
-          return actions.map((action) => {
-            return { name: `${eventController.name}#${action}` }
-          })
+        return actions.map((action) => {
+          return { name: `${eventController.name}#${action}` }
         })
-        .flat()
+      })
 
       return [...events, ...eventControllers, ...eventControllerActions]
     }
@@ -108,8 +104,7 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
 
       return this.controllers
         .filter((c) => c.identifier == dasherized)
-        .map((c) => c.targets)
-        .flat()
+        .flatMap((c) => c.targets)
         .map((target) => {
           return { name: target }
         })
@@ -126,14 +121,20 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
       if (controller) {
         const valueDefiniton = controller.values[value]
 
-        if (valueDefiniton === "Boolean") {
-          return [{ name: "true" }, { name: "false" }, { name: "null" }]
+        if (valueDefiniton.type === "Boolean") {
+          return [
+            { name: "true" },
+            { name: "false" },
+            { name: "null" },
+            { name: JSON.stringify(valueDefiniton.default) },
+          ]
         }
 
-        if (valueDefiniton === "Number") {
+        if (valueDefiniton.type === "Number") {
           return [
             { name: "-1" },
             { name: "0" },
+            { name: JSON.stringify(valueDefiniton.default) },
             { name: "1" },
             { name: "2" },
             { name: "3" },
@@ -146,16 +147,26 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
           ]
         }
 
-        if (valueDefiniton === "Object") {
-          return [{ name: "{}" }]
+        if (valueDefiniton.type === "Object") {
+          return [
+            { name: JSON.stringify(valueDefiniton.default) },
+            { name: "{}" },
+          ]
         }
 
-        if (valueDefiniton === "Array") {
-          return [{ name: "[]" }]
+        if (valueDefiniton.type === "Array") {
+          return [
+            { name: JSON.stringify(valueDefiniton.default) },
+            { name: "[]" },
+          ]
         }
 
-        if (valueDefiniton === "String") {
-          return [{ name: "string" }, { name: dasherized }, { name: value }]
+        if (valueDefiniton.type === "String") {
+          return [
+            { name: JSON.stringify(valueDefiniton.default) },
+            { name: dasherized },
+            { name: value }
+          ]
         }
       }
     }
