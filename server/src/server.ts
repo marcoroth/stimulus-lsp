@@ -6,7 +6,8 @@ import {
   CompletionItem,
   TextDocumentSyncKind,
   InitializeResult,
-  Diagnostic
+  Diagnostic,
+  DefinitionParams
 } from 'vscode-languageserver/node';
 
 import { getLanguageService, LanguageService } from 'vscode-html-languageservice';
@@ -15,6 +16,7 @@ import { StimulusHTMLDataProvider } from './data_providers/stimulus_html_data_pr
 import { Settings, StimulusSettings } from './settings';
 import { DocumentService } from './document_service';
 import { Diagnostics } from './diagnostics';
+import { Definitions } from './definitions';
 import { Commands } from './commands';
 import { CodeActions } from './code_actions';
 
@@ -26,6 +28,7 @@ let settings: Settings;
 let htmlLanguageService: LanguageService;
 let stimulusDataProvider: StimulusHTMLDataProvider;
 let diagnostics: Diagnostics;
+let definitions: Definitions;
 let commands: Commands;
 
 const documentService = new DocumentService(connection);
@@ -35,6 +38,7 @@ connection.onInitialize((params: InitializeParams) => {
   settings = new Settings(params, connection);
   stimulusDataProvider = new StimulusHTMLDataProvider("id", settings.projectPath);
   diagnostics = new Diagnostics(connection, stimulusDataProvider);
+  definitions = new Definitions(documentService, stimulusDataProvider);
   commands = new Commands(settings, connection);
 
   htmlLanguageService = getLanguageService({
@@ -50,6 +54,7 @@ connection.onInitialize((params: InitializeParams) => {
         resolveProvider: true
       },
       codeActionProvider: true,
+      definitionProvider: true,
       executeCommandProvider: {
         commands: ['stimulus.controller.create']
       }
@@ -108,6 +113,10 @@ documentService.onDidChangeContent(change => {
     diagnostics.validateDataControllerAttributes(change.document);
   }
 });
+
+connection.onDefinition((params: DefinitionParams) => {
+  return definitions.onDefinition(params)
+})
 
 connection.onDidChangeWatchedFiles(_change => {
   // Monitored files have change in VSCode
