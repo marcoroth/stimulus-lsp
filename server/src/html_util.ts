@@ -15,3 +15,7 @@ export function tokenList(node: Node, attribute: string) {
 export function unquote(string: String) {
   return string.substr(1, string.length - 2)
 }
+
+export function reverseString(string: String) {
+  return string.split("").reverse().join("")
+}
