@@ -3,11 +3,21 @@ import { Node } from 'vscode-html-languageservice';
 export function attributeValue(node: Node, attribute: string) {
   if (!node.attributes) return null;
 
-  return unquote(node.attributes[attribute] || "");
+  const value = node.attributes[attribute];
+
+  if (!value) return null;
+
+  return unquote(value);
 }
 
 export function tokenList(node: Node, attribute: string) {
-  const value = (squish(attributeValue(node, attribute) || "")).trim();
+  let value = attributeValue(node, attribute);
+
+  if (!value) return [];
+
+  value = squish(value).trim();
+
+  if (value.length === 0) return [];
 
   return value.split(" ");
 }
