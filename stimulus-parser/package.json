@@ -1,6 +1,6 @@
 {
   "name": "stimulus-parser",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Statically analyze Stimulus controllers",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -30,8 +30,8 @@
     "@hotwired/stimulus": "^3.2.2",
     "@types/glob": "^8.1.0",
     "@types/minimatch": "^3.0.4",
-    "path": "^0.12.7",
     "minimatch": "^3.0.4",
+    "path": "^0.12.7",
     "rimraf": "^5.0.1",
     "ts-node": "^10.9.1",
     "tslib": "^2.6.2",
