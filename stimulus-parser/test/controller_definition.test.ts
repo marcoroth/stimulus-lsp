@@ -56,5 +56,7 @@ test("controllerPathForIdentifier", () => {
   expect(ControllerDefinition.controllerPathForIdentifier("some-dasherized")).toEqual("some_dasherized_controller.js")
   expect(ControllerDefinition.controllerPathForIdentifier("some_underscored")).toEqual("some_underscored_controller.js")
   expect(ControllerDefinition.controllerPathForIdentifier("namespaced--some")).toEqual("namespaced/some_controller.js")
-  expect(ControllerDefinition.controllerPathForIdentifier("nested--namespaced--some")).toEqual("nested/namespaced/some_controller.js")
+  expect(ControllerDefinition.controllerPathForIdentifier("nested--namespaced--some")).toEqual(
+    "nested/namespaced/some_controller.js"
+  )
 })

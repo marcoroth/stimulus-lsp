@@ -3,8 +3,8 @@ import { Parser as AcornParser } from "acorn"
 import staticClassFeatures from "acorn-static-class-features"
 
 import { Project } from "./project"
-import { ControllerDefinition } from "./controller_definition"
-import { NodeElement, PropertyElement } from "./types"
+import { ControllerDefinition, defaultValuesForType } from "./controller_definition"
+import { NodeElement, PropertyValue } from "./types"
 
 export class Parser {
   private readonly project: Project
@@ -45,8 +45,50 @@ export class Parser {
         }
 
         if (name === "values") {
-          node.value.properties.forEach((property: PropertyElement) => {
-            controller.values[property.key.name] = property.value.name
+          node.value.properties.forEach((property: NodeElement) => {
+            const value = property.value
+
+            let type
+            let defaultValue
+
+            if (value.name && typeof value.name === "string") {
+              type = value.name
+              defaultValue = defaultValuesForType[type]
+            } else {
+              const properties = property.value.properties
+
+              const convertArrayExpression = (value: PropertyValue) => {
+                return value.elements.map((node) => node.value)
+              }
+
+              const convertObjectExpression = (value: PropertyValue) => {
+                return Object.fromEntries(value.properties.map((property) => [property.key.name, property.value.value]))
+              }
+
+              const convertProperty = (value: PropertyValue) => {
+                switch (value.type) {
+                  case "ArrayExpression":
+                    return convertArrayExpression(value)
+                  case "ObjectExpression":
+                    return convertObjectExpression(value)
+                }
+              }
+
+              const typeProperty = properties.find((property) => property.key.name === "type")
+              const defaultProperty = properties.find((property) => property.key.name === "default")
+
+              type = typeProperty?.value.name || ""
+              defaultValue = defaultProperty?.value.raw
+
+              if (!defaultValue && defaultProperty) {
+                defaultValue = convertProperty(defaultProperty.value)
+              }
+            }
+
+            controller.values[property.key.name] = {
+              type: type,
+              default: defaultValue,
+            }
           })
         }
       },

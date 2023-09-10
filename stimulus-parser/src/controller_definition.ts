@@ -1,6 +1,21 @@
 import { Project } from "./project"
 import { identifierForContextKey } from "@hotwired/stimulus-webpack-helpers"
 
+type ValueDefinitionValue = Array<any> | boolean | number | object | string | undefined
+
+type ValueDefinition = {
+  type: string
+  default: ValueDefinitionValue
+}
+
+export const defaultValuesForType = {
+  Array: [],
+  Boolean: false,
+  Number: 0,
+  Object: {},
+  String: "",
+} as { [key: string]: ValueDefinitionValue }
+
 export class ControllerDefinition {
   readonly path: string
   readonly project: Project
@@ -8,7 +23,7 @@ export class ControllerDefinition {
   methods: Array<string> = []
   targets: Array<string> = []
   classes: Array<string> = []
-  values: { [key: string]: string } = {}
+  values: { [key: string]: ValueDefinition } = {}
 
   static controllerPathForIdentifier(identifier: string): string {
     const path = identifier.replace(/--/g, "/").replace(/-/g, "_")
