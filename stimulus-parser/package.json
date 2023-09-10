@@ -16,8 +16,6 @@
     "dev": "watch",
     "clean": "rimraf dist",
     "prerelease": "yarn build",
-    "lint": "eslint .",
-    "format": "yarn lint --fix",
     "test": "vitest"
   },
   "dependencies": {
@@ -31,13 +29,7 @@
   "devDependencies": {
     "@hotwired/stimulus": "^3.2.2",
     "@types/glob": "^8.1.0",
-    "@typescript-eslint/eslint-plugin": "^5.60.1",
-    "@typescript-eslint/parser": "^5.60.1",
-    "eslint": "^8.44.0",
-    "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-prettier": "^4.2.1",
     "path": "^0.12.7",
-    "prettier": "^2.8.8",
     "rimraf": "^5.0.1",
     "ts-node": "^10.9.1",
     "tslib": "^2.6.2",

@@ -6,117 +6,115 @@ import {
   DidChangeWatchedFilesNotification,
   TextDocumentSyncKind,
   InitializeResult,
-  Diagnostic
-} from 'vscode-languageserver/node';
+  Diagnostic,
+} from "vscode-languageserver/node"
 
-import { Service } from './service';
-import { StimulusSettings } from "./settings";
+import { Service } from "./service"
+import { StimulusSettings } from "./settings"
 
-let service: Service;
-const connection = createConnection(ProposedFeatures.all);
+let service: Service
+const connection = createConnection(ProposedFeatures.all)
 
 connection.onInitialize(async (params: InitializeParams) => {
-  service = new Service(connection, params);
-  await service.init();
+  service = new Service(connection, params)
+  await service.init()
 
   const result: InitializeResult = {
     capabilities: {
       textDocumentSync: TextDocumentSyncKind.Incremental,
       completionProvider: {
-        resolveProvider: true
+        resolveProvider: true,
       },
       codeActionProvider: true,
       definitionProvider: true,
       executeCommandProvider: {
-        commands: ['stimulus.controller.create']
-      }
-    }
-  };
+        commands: ["stimulus.controller.create"],
+      },
+    },
+  }
 
   if (service.settings.hasWorkspaceFolderCapability) {
     result.capabilities.workspace = {
       workspaceFolders: {
-        supported: true
-      }
-    };
+        supported: true,
+      },
+    }
   }
 
-  return result;
-});
+  return result
+})
 
 connection.onInitialized(() => {
   if (service.settings.hasConfigurationCapability) {
     // Register for all configuration changes.
-    connection.client.register(DidChangeConfigurationNotification.type, undefined);
+    connection.client.register(DidChangeConfigurationNotification.type, undefined)
   }
 
   if (service.settings.hasWorkspaceFolderCapability) {
-    connection.workspace.onDidChangeWorkspaceFolders(_event => {
-      connection.console.log('Workspace folder change event received.');
-    });
+    connection.workspace.onDidChangeWorkspaceFolders((_event) => {
+      connection.console.log("Workspace folder change event received.")
+    })
   }
 
   connection.client.register(DidChangeWatchedFilesNotification.type, {
-    watchers: [
-      { globPattern: `**/app/javascript/**/*` },
-    ],
-  });
-});
+    watchers: [{ globPattern: `**/app/javascript/**/*` }],
+  })
+})
 
-connection.onDidChangeConfiguration(change => {
+connection.onDidChangeConfiguration((change) => {
   if (service.settings.hasConfigurationCapability) {
     // Reset all cached document settings
-    service.settings.documentSettings.clear();
+    service.settings.documentSettings.clear()
   } else {
     service.settings.globalSettings = <StimulusSettings>(
       (change.settings.languageServerStimulus || service.settings.defaultSettings)
-    );
+    )
   }
 
-  service.refresh();
-});
+  service.refresh()
+})
 
-connection.onDidOpenTextDocument(params => {
-  const document = service.documentService.get(params.textDocument.uri);
+connection.onDidOpenTextDocument((params) => {
+  const document = service.documentService.get(params.textDocument.uri)
 
   if (document) {
-    service.diagnostics.refreshDocument(document);
+    service.diagnostics.refreshDocument(document)
   }
-});
+})
 
-connection.onDidChangeWatchedFiles(() => service.refresh());
-connection.onDefinition(params => service.definitions.onDefinition(params));
-connection.onCodeAction(params => service.codeActions.onCodeAction(params));
+connection.onDidChangeWatchedFiles(() => service.refresh())
+connection.onDefinition((params) => service.definitions.onDefinition(params))
+connection.onCodeAction((params) => service.codeActions.onCodeAction(params))
 
-connection.onExecuteCommand(params => {
-  if (params.command !== "stimulus.controller.create" || !params.arguments) return;
+connection.onExecuteCommand((params) => {
+  if (params.command !== "stimulus.controller.create" || !params.arguments) return
 
-  const [identifier, diagnostic] = params.arguments as [string, Diagnostic];
+  const [identifier, diagnostic] = params.arguments as [string, Diagnostic]
 
-  service.commands.createController(identifier, diagnostic);
-});
+  service.commands.createController(identifier, diagnostic)
+})
 
-connection.onCompletion(textDocumentPosition => {
-  const document = service.documentService.get(textDocumentPosition.textDocument.uri);
+connection.onCompletion((textDocumentPosition) => {
+  const document = service.documentService.get(textDocumentPosition.textDocument.uri)
 
-  if (!document) return null;
+  if (!document) return null
 
   return service.htmlLanguageService.doComplete(
     document,
     textDocumentPosition.position,
     service.htmlLanguageService.parseHTMLDocument(document)
-  );
-});
+  )
+})
 
 // This handler resolves additional information for the item selected in
 // the completion list.
-connection.onCompletionResolve(item => {
-  if (item.data?.detail) item.detail = item.data.detail;
-  if (item.data?.documentation) item.documentation = item.data.documentation;
-  if (item.data?.kind) item.kind = item.data.kind;
+connection.onCompletionResolve((item) => {
+  if (item.data?.detail) item.detail = item.data.detail
+  if (item.data?.documentation) item.documentation = item.data.documentation
+  if (item.data?.kind) item.kind = item.data.kind
 
-  return item;
-});
+  return item
+})
 
 // Listen on the connection
-connection.listen();
+connection.listen()

@@ -59,5 +59,5 @@ export const EVENTS = [
   "transitionrun",
   "transitionstart",
   "visibilitychange",
-  "wheel"
-];
+  "wheel",
+]

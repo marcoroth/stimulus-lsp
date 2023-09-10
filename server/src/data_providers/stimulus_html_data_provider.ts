@@ -1,126 +1,133 @@
-import { IHTMLDataProvider } from 'vscode-html-languageservice';
-import { EVENTS } from '../events';
+import { IHTMLDataProvider } from "vscode-html-languageservice"
+// import { CompletionItemKind } from 'vscode-languageserver/node';
 
-import { Project } from "stimulus-parser";
+import { EVENTS } from "../events"
+
+import { Project } from "stimulus-parser"
 
 export class StimulusHTMLDataProvider implements IHTMLDataProvider {
   private folder: string
   private project: Project
 
   constructor(private id: string, private projectPath: string) {
-    this.folder = this.projectPath.replace("file://", "");
-    this.project = new Project(this.folder);
+    this.folder = this.projectPath.replace("file://", "")
+    this.project = new Project(this.folder)
   }
 
   get controllers() {
-    return this.project.controllerDefinitions;
+    return this.project.controllerDefinitions
   }
 
   async refresh() {
-    await this.project.analyze();
+    await this.project.analyze()
   }
 
   isApplicable() {
-    return true;
+    return true
   }
 
   getId() {
-    return this.id;
+    return this.id
   }
 
   provideTags() {
-    console.log("provideTags");
+    console.log("provideTags")
 
-    return [];
+    return []
   }
 
   provideAttributes(tag: string) {
-    console.log("provideAttributes", tag);
+    console.log("provideAttributes", tag)
 
     const targetAttribtues = this.controllers.map((controller) => {
-      return { name: `data-${controller.identifier}-target` };
-    });
+      const name = `data-${controller.identifier}-target`
+      return { name }
+    })
 
-    const valueAttribtues = this.controllers.map((controller) => {
-      return Object.keys(controller.values).map(value => {
-        return { name: `data-${controller.identifier}-${value}-value` };
-      });
-    }).flat();
+    const valueAttribtues = this.controllers
+      .map((controller) => {
+        return Object.keys(controller.values).map((value) => {
+          return { name: `data-${controller.identifier}-${value}-value` }
+        })
+      })
+      .flat()
 
-    const classAttribtues = this.controllers.map((controller) => {
-      return controller.classes.map(klass => {
-        return { name: `data-${controller.identifier}-${klass}-class` };
-      });
-    }).flat();
+    const classAttribtues = this.controllers
+      .map((controller) => {
+        return controller.classes.map((klass) => {
+          return { name: `data-${controller.identifier}-${klass}-class` }
+        })
+      })
+      .flat()
 
     return [
-      { name: "data-controller"},
+      { name: "data-controller" },
       { name: "data-action" },
       { name: "data-target" },
       ...targetAttribtues,
       ...valueAttribtues,
-      ...classAttribtues
-    ];
+      ...classAttribtues,
+    ]
   }
 
   provideValues(tag: string, attribute: string) {
-    console.log("provideValues", tag, attribute);
+    console.log("provideValues", tag, attribute)
 
     if (attribute == "data-controller") {
-      return this.controllers.map(controller => ({ name: controller.identifier }));
+      return this.controllers.map((controller) => ({ name: controller.identifier }))
     }
 
     if (attribute == "data-action") {
-      const events = EVENTS.map(name => ({ name }));
+      const events = EVENTS.map((name) => ({ name }))
 
-      const eventControllers = events.map(event => {
-        return this.controllers.map(controller => {
-          return { name: `${event.name}->${controller.identifier}`, controller };
-        });
-      }).flat();
+      const eventControllers = events
+        .map((event) => {
+          return this.controllers.map((controller) => {
+            return { name: `${event.name}->${controller.identifier}`, controller }
+          })
+        })
+        .flat()
 
-      const eventControllerActions = eventControllers.map(eventController => {
-        const actions = eventController.controller.methods;
+      const eventControllerActions = eventControllers
+        .map((eventController) => {
+          const actions = eventController.controller.methods
 
-        return actions.map(action => {
-          return { name: `${eventController.name}#${action}` };
-        });
-      }).flat();
+          return actions.map((action) => {
+            return { name: `${eventController.name}#${action}` }
+          })
+        })
+        .flat()
 
-      return [
-        ...events,
-        ...eventControllers,
-        ...eventControllerActions
-      ];
+      return [...events, ...eventControllers, ...eventControllerActions]
     }
 
-    const targetMatches = attribute.match(/data-(.+)-target/);
+    const targetMatches = attribute.match(/data-(.+)-target/)
 
     if (targetMatches && Array.isArray(targetMatches) && targetMatches[1]) {
-      const dasherized = targetMatches[1];
+      const dasherized = targetMatches[1]
 
-      return this.controllers.filter(c => c.identifier == dasherized).map(c => c.targets).flat().map(target => {
-        return { name: target };
-      });
+      return this.controllers
+        .filter((c) => c.identifier == dasherized)
+        .map((c) => c.targets)
+        .flat()
+        .map((target) => {
+          return { name: target }
+        })
     }
 
-    const valueMatches = attribute.match(/data-(.+)-(.+)-value/);
+    const valueMatches = attribute.match(/data-(.+)-(.+)-value/)
 
     if (valueMatches && Array.isArray(valueMatches) && valueMatches[1]) {
-      const dasherized = valueMatches[1];
-      const value = valueMatches[2];
+      const dasherized = valueMatches[1]
+      const value = valueMatches[2]
 
-      const controller = this.controllers.find(c => c.identifier == dasherized);
+      const controller = this.controllers.find((c) => c.identifier == dasherized)
 
       if (controller) {
-        const valueDefiniton = controller.values[value];
+        const valueDefiniton = controller.values[value]
 
         if (valueDefiniton === "Boolean") {
-          return [
-            { name: "true" },
-            { name: "false" },
-            { name: "null" }
-          ];
+          return [{ name: "true" }, { name: "false" }, { name: "null" }]
         }
 
         if (valueDefiniton === "Number") {
@@ -136,27 +143,23 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
             { name: "7" },
             { name: "8" },
             { name: "9" },
-          ];
+          ]
         }
 
         if (valueDefiniton === "Object") {
-          return [ { name: "{}" } ];
+          return [{ name: "{}" }]
         }
 
         if (valueDefiniton === "Array") {
-          return [ { name: "[]" } ];
+          return [{ name: "[]" }]
         }
 
         if (valueDefiniton === "String") {
-          return [
-            { name: "string" },
-            { name: dasherized },
-            { name: value },
-          ];
+          return [{ name: "string" }, { name: dasherized }, { name: value }]
         }
       }
     }
 
-    return [];
+    return []
   }
 }

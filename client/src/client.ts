@@ -1,7 +1,7 @@
-import * as path from 'path';
+import * as path from "path"
 
-import { workspace, ExtensionContext } from 'vscode';
-import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient/node';
+import { workspace, ExtensionContext } from "vscode"
+import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from "vscode-languageclient/node"
 
 export class Client {
   private client: LanguageClient
@@ -10,30 +10,28 @@ export class Client {
   private languageClientName = "Stimulus LSP"
 
   constructor(context: ExtensionContext) {
-    this.serverModule = context.asAbsolutePath(
-      path.join('server', 'out', 'server.js')
-    );
+    this.serverModule = context.asAbsolutePath(path.join("server", "out", "server.js"))
 
     this.client = new LanguageClient(
       this.languageClientId,
       this.languageClientName,
       this.serverOptions,
       this.clientOptions
-    );
+    )
   }
 
   async start() {
     try {
-      this.client.start();
+      this.client.start()
     } catch (error: any) {
-      console.error(`Error restarting the server: ${error.message}`);
-      return;
+      console.error(`Error restarting the server: ${error.message}`)
+      return
     }
   }
 
   async stop(): Promise<void> {
     if (this.client) {
-      await this.client.stop();
+      await this.client.stop()
     }
   }
 
@@ -41,8 +39,8 @@ export class Client {
   // --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
   private get debugOptions() {
     return {
-      execArgv: ['--nolazy', '--inspect=6009']
-    };
+      execArgv: ["--nolazy", "--inspect=6009"],
+    }
   }
 
   // If the extension is launched in debug mode then the debug server options are used
@@ -51,30 +49,30 @@ export class Client {
     return {
       run: {
         module: this.serverModule,
-        transport: TransportKind.ipc
+        transport: TransportKind.ipc,
       },
       debug: {
         module: this.serverModule,
         transport: TransportKind.ipc,
-        options: this.debugOptions
-      }
-    };
+        options: this.debugOptions,
+      },
+    }
   }
 
   private get clientOptions(): LanguageClientOptions {
-   return {
-     documentSelector: [
-       { scheme: 'file', language: 'html' },
-       { scheme: 'file', language: 'ruby' },
-       { scheme: 'file', language: 'erb' },
-       { scheme: 'file', language: 'haml' },
-       { scheme: 'file', language: 'slim' },
-       { scheme: 'file', language: 'php' }
-     ],
-     synchronize: {
-       // Notify the server about file changes to '.clientrc files contained in the workspace
-       fileEvents: workspace.createFileSystemWatcher('**/.clientrc')
-     }
-   };
+    return {
+      documentSelector: [
+        { scheme: "file", language: "html" },
+        { scheme: "file", language: "ruby" },
+        { scheme: "file", language: "erb" },
+        { scheme: "file", language: "haml" },
+        { scheme: "file", language: "slim" },
+        { scheme: "file", language: "php" },
+      ],
+      synchronize: {
+        // Notify the server about file changes to '.clientrc files contained in the workspace
+        fileEvents: workspace.createFileSystemWatcher("**/.clientrc"),
+      },
+    }
   }
 }
