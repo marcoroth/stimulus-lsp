@@ -29,16 +29,20 @@ export class Diagnostics {
     if (attributes !== undefined) {
       Object.keys(attributes).forEach((attribute: string) => {
         if (attribute === "data-controller") {
-          const quotedIdentifier = attributes[attribute];
-          const identifier = quotedIdentifier ? quotedIdentifier.substr(1, quotedIdentifier.length - 2) : null;
+          const quotedValue = attributes[attribute] || "";
+          const value = quotedValue ? quotedValue.substr(1, quotedValue.length - 2) : "";
 
-          if (quotedIdentifier && identifier && !this.controllers.includes(identifier)) {
-            const range = this.rangeFromNode(textDocument, node);
-            const startTagContent = textDocument.getText(range);
-            const attributeRange = this.rangeForAttribute(textDocument, startTagContent, node, attribute, identifier);
+          const identifiers = value.split(" ")
 
-            this.createInvalidControllerDiagnosticFor(identifier, textDocument, attributeRange);
-          }
+          identifiers.forEach((identifier) => {
+            if (!this.controllers.includes(identifier)) {
+              const range = this.rangeFromNode(textDocument, node);
+              const startTagContent = textDocument.getText(range);
+              const attributeRange = this.rangeForAttribute(textDocument, startTagContent, node, attribute, identifier);
+
+              this.createInvalidControllerDiagnosticFor(identifier, textDocument, attributeRange);
+            }
+          })
         }
       });
     }
