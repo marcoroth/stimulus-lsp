@@ -11,45 +11,15 @@ import {
   DefinitionParams,
 } from 'vscode-languageserver/node';
 
-import { getLanguageService, LanguageService } from 'vscode-html-languageservice';
+import { Service } from './service';
+import { StimulusSettings } from "./settings";
 
-import { StimulusHTMLDataProvider } from './data_providers/stimulus_html_data_provider';
-import { Settings, StimulusSettings } from './settings';
-import { DocumentService } from './document_service';
-import { Diagnostics } from './diagnostics';
-import { Definitions } from './definitions';
-import { Commands } from './commands';
-import { CodeActions } from './code_actions';
-
-// Create a connection for the server, using Node's IPC as a transport.
-// Also include all preview / proposed LSP features.
+let service: Service;
 const connection = createConnection(ProposedFeatures.all);
 
-let settings: Settings;
-let htmlLanguageService: LanguageService;
-let stimulusDataProvider: StimulusHTMLDataProvider;
-let diagnostics: Diagnostics;
-let definitions: Definitions;
-let commands: Commands;
-
-const documentService = new DocumentService(connection);
-const codeActions: CodeActions = new CodeActions(documentService);
-
 connection.onInitialize(async (params: InitializeParams) => {
-  settings = new Settings(params, connection);
-
-  stimulusDataProvider = new StimulusHTMLDataProvider("id", settings.projectPath);
-  await stimulusDataProvider.refresh();
-
-  diagnostics = new Diagnostics(connection, stimulusDataProvider, documentService);
-  definitions = new Definitions(documentService, stimulusDataProvider);
-  commands = new Commands(settings, connection);
-
-  htmlLanguageService = getLanguageService({
-    customDataProviders: [
-      stimulusDataProvider
-    ]
-  });
+  service = new Service(connection, params);
+  await service.init();
 
   const result: InitializeResult = {
     capabilities: {
@@ -65,7 +35,7 @@ connection.onInitialize(async (params: InitializeParams) => {
     }
   };
 
-  if (settings.hasWorkspaceFolderCapability) {
+  if (service.settings.hasWorkspaceFolderCapability) {
     result.capabilities.workspace = {
       workspaceFolders: {
         supported: true
@@ -77,12 +47,12 @@ connection.onInitialize(async (params: InitializeParams) => {
 });
 
 connection.onInitialized(() => {
-  if (settings.hasConfigurationCapability) {
+  if (service.settings.hasConfigurationCapability) {
     // Register for all configuration changes.
     connection.client.register(DidChangeConfigurationNotification.type, undefined);
   }
 
-  if (settings.hasWorkspaceFolderCapability) {
+  if (service.settings.hasWorkspaceFolderCapability) {
     connection.workspace.onDidChangeWorkspaceFolders(_event => {
       connection.console.log('Workspace folder change event received.');
     });
@@ -96,27 +66,16 @@ connection.onInitialized(() => {
 });
 
 connection.onDidChangeConfiguration(change => {
-  if (settings.hasConfigurationCapability) {
+  if (service.settings.hasConfigurationCapability) {
     // Reset all cached document settings
-    settings.documentSettings.clear();
+    service.settings.documentSettings.clear();
   } else {
-    settings.globalSettings = <StimulusSettings>(
-      (change.settings.languageServerStimulus || settings.defaultSettings)
+    service.settings.globalSettings = <StimulusSettings>(
+      (change.settings.languageServerStimulus || service.settings.defaultSettings)
     );
   }
 
-  diagnostics.refreshAllDocuments();
-});
-
-// Only keep settings for open documents
-documentService.onDidClose(e => {
-  settings.documentSettings.delete(e.document.uri);
-});
-
-// The content of a text document has changed. This event is emitted
-// when the text document first opened or when its content has changed.
-documentService.onDidChangeContent(change => {
-  diagnostics.refreshDocument(change.document);
+  service.diagnostics.refreshAllDocuments();
 });
 
 // connection.onDidOpenTextDocument(params => {
@@ -128,29 +87,26 @@ documentService.onDidChangeContent(change => {
 // })
 
 connection.onDefinition((params: DefinitionParams) => {
-  return definitions.onDefinition(params);
+  return service.definitions.onDefinition(params);
 });
 
-connection.onDidChangeWatchedFiles(async change => {
-  // Monitored files have change in VSCode
-  console.log('We received an file change event', change);
-
-  if (stimulusDataProvider) {
-    await stimulusDataProvider.refresh();
+connection.onDidChangeWatchedFiles(async _change => {
+  if (service.stimulusDataProvider) {
+    await service.stimulusDataProvider.refresh();
   }
 
-  diagnostics.refreshAllDocuments();
+  service.diagnostics.refreshAllDocuments();
 });
 
 connection.onCodeAction(params => {
-  return codeActions.onCodeAction(params);
+  return service.codeActions.onCodeAction(params);
 });
 
 connection.onExecuteCommand(async (params) => {
   if (params.command === "stimulus.controller.create" && params.arguments) {
     const [identifier, diagnostic] = params.arguments as [string, Diagnostic];
 
-    await commands.createController(identifier, diagnostic);
+    await service.commands.createController(identifier, diagnostic);
   } else {
     return;
   }
@@ -201,14 +157,14 @@ connection.onExecuteCommand(async (params) => {
 connection.onCompletion(async (textDocumentPosition, token) => {
   console.log("onCompletion", token);
 
-  const document = documentService.get(textDocumentPosition.textDocument.uri);
+  const document = service.documentService.get(textDocumentPosition.textDocument.uri);
 
   if (!document) return null;
 
-  return htmlLanguageService.doComplete(
+  return service.htmlLanguageService.doComplete(
     document,
     textDocumentPosition.position,
-    htmlLanguageService.parseHTMLDocument(document)
+    service.htmlLanguageService.parseHTMLDocument(document)
   );
 });
 
