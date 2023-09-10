@@ -2,6 +2,7 @@ import { Connection, Diagnostic, DiagnosticSeverity, Range } from 'vscode-langua
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { getLanguageService, Node, LanguageService } from 'vscode-html-languageservice';
 
+import { attributeValue, tokenList } from "./html_util"
 import { StimulusHTMLDataProvider } from './data_providers/stimulus_html_data_provider';
 
 export interface InvalidControllerDiagnosticData {
@@ -26,7 +27,7 @@ export class Diagnostics {
   }
 
   visitNode(node: Node, textDocument: TextDocument, service: LanguageService) {
-    const identifiers = this.tokenList(node, this.controllerAttribute)
+    const identifiers = tokenList(node, this.controllerAttribute)
     const invalidIdentifiers = identifiers.filter(identifier => !this.controllers.includes(identifier))
 
     invalidIdentifiers.forEach((identifier) => {
@@ -53,22 +54,6 @@ export class Diagnostics {
     this.sendDiagnosticsFor(textDocument);
   }
 
-  private attribute(node: Node, attribute: string) {
-    if (!node.attributes) return null
-
-    return this.unquote(node.attributes[attribute] || "")
-  }
-
-  private tokenList(node: Node, attribute: string) {
-    const value = (this.attribute(node, attribute) || "").trim()
-
-    return value.split(" ")
-  }
-
-  private unquote(string: String) {
-    return string.substr(1, string.length - 2)
-  }
-
   private rangeFromNode(textDocument: TextDocument, node: Node) {
     return Range.create(
       textDocument.positionAt(node.start),
@@ -77,7 +62,7 @@ export class Diagnostics {
   }
 
   private rangeForAttribute(textDocument: TextDocument, tagContent: string, node: Node, attribute: string, search: string) {
-    const value = this.attribute(node, attribute) || ""
+    const value = attributeValue(node, attribute) || ""
 
     const searchIndex = value.indexOf(search) || 0
     const attributeStartIndex = tagContent.indexOf(attribute);

@@ -1,6 +1,7 @@
 import { Range, DefinitionParams, Location } from 'vscode-languageserver/node';
 import { getLanguageService } from 'vscode-html-languageservice';
 
+import { tokenList } from "./html_util"
 import { DocumentService } from './document_service';
 import { StimulusHTMLDataProvider } from './data_providers/stimulus_html_data_provider';
 
@@ -28,15 +29,12 @@ export class Definitions {
     const offset = textDocument.offsetAt(params.position)
     const node = html.findNodeAt(offset)
 
-    const controllerIdentifier = node.attributes && node.attributes["data-controller"]
+    const identifiers = tokenList(node, "data-controller")
+    const controllers = this.controllers.filter(controller => identifiers.includes(controller.identifier))
+    const locations = controllers.map(controller => Location.create(controller.path, Range.create(0, 0, 0, 0)))
 
-    if (!controllerIdentifier) return
+    if (controllers.length === 1) return locations[0]
 
-    const identifier = controllerIdentifier.substring(1, controllerIdentifier.length - 1)
-    const controller = this.controllers.find(controller => controller.identifier === identifier)
-
-    if (!controller) return
-
-    return Location.create(controller.path, Range.create(0, 0, 0, 0));
+    return locations
   }
 }
