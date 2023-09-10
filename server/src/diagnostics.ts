@@ -6,6 +6,7 @@ import { parseActionDescriptorString } from "./action_descriptor"
 
 import { DocumentService } from "./document_service"
 import { attributeValue, tokenList } from "./html_util"
+import { didyoumean } from "./utils"
 import { StimulusHTMLDataProvider } from "./data_providers/stimulus_html_data_provider"
 
 export interface InvalidControllerDiagnosticData {
@@ -232,8 +233,14 @@ export class Diagnostics {
   }
 
   private createInvalidControllerDiagnosticFor(identifier: string, textDocument: TextDocument, range: Range) {
+    const match = didyoumean(
+      identifier,
+      this.controllers.map((controller) => controller.identifier)
+    )
+    const suggestion = match ? `Did you mean "${match}"?` : ""
+
     this.pushDiagnostic(
-      `"${identifier}" isn't a valid Stimulus controller.`,
+      `"${identifier}" isn't a valid Stimulus controller. ${suggestion}`,
       "stimulus.controller.invalid",
       range,
       textDocument,
@@ -253,8 +260,12 @@ export class Diagnostics {
     textDocument: TextDocument,
     range: Range
   ) {
+    const controller = this.controllers.find((controller) => controller.identifier === identifier)
+    const match = controller ? didyoumean(actionName, controller.methods) : null
+    const suggestion = match ? `Did you mean "${match}"?` : ""
+
     this.pushDiagnostic(
-      `"${actionName}" isn't a valid Controller Action on the "${identifier}" controller.`,
+      `"${actionName}" isn't a valid Controller Action on the "${identifier}" controller. ${suggestion}`,
       "stimulus.controller.action.invalid",
       range,
       textDocument,
@@ -268,8 +279,12 @@ export class Diagnostics {
     textDocument: TextDocument,
     range: Range
   ) {
+    const controller = this.controllers.find((controller) => controller.identifier === identifier)
+    const match = controller ? didyoumean(valueName, Object.keys(controller.values)) : null
+    const suggestion = match ? `Did you mean "${match}"?` : ""
+
     this.pushDiagnostic(
-      `"${valueName}" isn't a valid Stimulus Value name on the "${identifier}" controller.`,
+      `"${valueName}" isn't a valid Stimulus Value name on the "${identifier}" controller. ${suggestion}`,
       "stimulus.controller.value.missing",
       range,
       textDocument,
