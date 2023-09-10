@@ -24,12 +24,10 @@
     "test": "sh ./scripts/e2e.sh"
   },
   "devDependencies": {
-    "@types/mocha": "^8.2.2",
-    "@types/node": "^12.12.0",
-    "@typescript-eslint/eslint-plugin": "^4.23.0",
-    "@typescript-eslint/parser": "^4.23.0",
-    "eslint": "^7.26.0",
-    "mocha": "^8.3.2",
-    "typescript": "^4.3.2"
+    "@types/node": "^20.6.0",
+    "@typescript-eslint/eslint-plugin": "^6.6.0",
+    "@typescript-eslint/parser": "^6.6.0",
+    "eslint": "^8.49.0",
+    "typescript": "^5.2.2"
   }
 }

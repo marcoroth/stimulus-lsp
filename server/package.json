@@ -12,12 +12,9 @@
   "dependencies": {
     "@hotwired/stimulus": "https://github.com/hotwired/dev-builds/archive/refs/tags/@hotwired/stimulus/8cbca6d.tar.gz",
     "stimulus-parser": "^0.0.4",
+    "typescript": "^5.2.2",
+    "vscode-html-languageservice": "^4.0.5",
     "vscode-languageserver": "^7.0.0",
     "vscode-languageserver-textdocument": "^1.0.1"
-  },
-  "devDependencies": {
-    "vscode-html-languageservice": "^4.0.5",
-    "vscode-languageclient": "^7.0.0",
-    "vscode-uri": "^3.0.2"
   }
 }
