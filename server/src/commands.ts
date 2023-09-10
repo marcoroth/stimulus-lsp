@@ -1,6 +1,7 @@
 import { Connection, TextDocumentEdit, TextEdit, CreateFile, Range, Diagnostic } from "vscode-languageserver/node"
 
 import { Settings } from "./settings"
+import { ControllerDefinition } from "stimulus-parser"
 
 export class Commands {
   private readonly settings: Settings
@@ -15,7 +16,8 @@ export class Commands {
     if (identifier === undefined) return
     if (diagnostic === undefined) return
 
-    const newControllerPath = `${this.settings.controllersPath}/${identifier}_controller.js`
+    const path = ControllerDefinition.controllerPathForIdentifier(identifier)
+    const newControllerPath = `${this.settings.controllersPath}/${path}`
     const createFile: CreateFile = { kind: "create", uri: newControllerPath }
 
     await this.connection.workspace.applyEdit({ documentChanges: [createFile] })
