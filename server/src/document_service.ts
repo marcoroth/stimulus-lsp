@@ -25,6 +25,10 @@ export class DocumentService {
     return this.documents.onDidChangeContent;
   }
 
+  get onDidOpen() {
+    return this.documents.onDidOpen;
+  }
+
   get onDidClose() {
     return this.documents.onDidClose;
   }

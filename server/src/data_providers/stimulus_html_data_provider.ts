@@ -18,6 +18,10 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
     return this.project.controllerDefinitions;
   }
 
+  async refresh() {
+    await this.project.analyze();
+  }
+
   isApplicable() {
     return true;
   }

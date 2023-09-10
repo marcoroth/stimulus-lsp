@@ -2,6 +2,7 @@ import { Connection, Diagnostic, DiagnosticSeverity, Range } from 'vscode-langua
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { getLanguageService, Node, LanguageService } from 'vscode-html-languageservice';
 
+import { DocumentService } from "./document_service";
 import { attributeValue, tokenList } from "./html_util";
 import { StimulusHTMLDataProvider } from './data_providers/stimulus_html_data_provider';
 
@@ -12,14 +13,16 @@ export interface InvalidControllerDiagnosticData {
 export class Diagnostics {
   private readonly connection: Connection
   private readonly stimulusDataProvider: StimulusHTMLDataProvider
+  private readonly documentService: DocumentService
   private readonly diagnosticsSource = "Stimulus LSP"
   private diagnostics: Map<TextDocument, Diagnostic[]> = new Map();
 
   controllerAttribute = "data-controller"
 
-  constructor(connection: Connection, stimulusDataProvider: StimulusHTMLDataProvider) {
+  constructor(connection: Connection, stimulusDataProvider: StimulusHTMLDataProvider, documentService: DocumentService) {
     this.connection = connection;
     this.stimulusDataProvider = stimulusDataProvider;
+    this.documentService = documentService;
   }
 
   get controllers() {
@@ -52,6 +55,16 @@ export class Diagnostics {
     });
 
     this.sendDiagnosticsFor(textDocument);
+  }
+
+  refreshDocument(document: TextDocument) {
+    this.validateDataControllerAttributes(document);
+  }
+
+  refreshAllDocuments() {
+    this.documentService.getAll().forEach(document => {
+      this.refreshDocument(document);
+    });
   }
 
   private rangeFromNode(textDocument: TextDocument, node: Node) {

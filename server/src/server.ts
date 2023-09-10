@@ -3,11 +3,12 @@ import {
   ProposedFeatures,
   InitializeParams,
   DidChangeConfigurationNotification,
+  DidChangeWatchedFilesNotification,
   CompletionItem,
   TextDocumentSyncKind,
   InitializeResult,
   Diagnostic,
-  DefinitionParams
+  DefinitionParams,
 } from 'vscode-languageserver/node';
 
 import { getLanguageService, LanguageService } from 'vscode-html-languageservice';
@@ -34,10 +35,13 @@ let commands: Commands;
 const documentService = new DocumentService(connection);
 const codeActions: CodeActions = new CodeActions(documentService);
 
-connection.onInitialize((params: InitializeParams) => {
+connection.onInitialize(async (params: InitializeParams) => {
   settings = new Settings(params, connection);
+
   stimulusDataProvider = new StimulusHTMLDataProvider("id", settings.projectPath);
-  diagnostics = new Diagnostics(connection, stimulusDataProvider);
+  await stimulusDataProvider.refresh();
+
+  diagnostics = new Diagnostics(connection, stimulusDataProvider, documentService);
   definitions = new Definitions(documentService, stimulusDataProvider);
   commands = new Commands(settings, connection);
 
@@ -83,6 +87,12 @@ connection.onInitialized(() => {
       connection.console.log('Workspace folder change event received.');
     });
   }
+
+  connection.client.register(DidChangeWatchedFilesNotification.type, {
+    watchers: [
+      { globPattern: `**/app/javascript/**/*` },
+    ],
+  });
 });
 
 connection.onDidChangeConfiguration(change => {
@@ -95,10 +105,7 @@ connection.onDidChangeConfiguration(change => {
     );
   }
 
-  // Revalidate all open documents
-  if (diagnostics) {
-    documentService.getAll().forEach(diagnostics.validateDataControllerAttributes);
-  }
+  diagnostics.refreshAllDocuments();
 });
 
 // Only keep settings for open documents
@@ -109,18 +116,30 @@ documentService.onDidClose(e => {
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
 documentService.onDidChangeContent(change => {
-  if (diagnostics) {
-    diagnostics.validateDataControllerAttributes(change.document);
-  }
+  diagnostics.refreshDocument(change.document);
 });
+
+// connection.onDidOpenTextDocument(params => {
+//   const document = documentService.get(params.textDocument.uri)
+//
+//   if (document) {
+//     diagnostics.refreshDocument(document)
+//   }
+// })
 
 connection.onDefinition((params: DefinitionParams) => {
   return definitions.onDefinition(params);
 });
 
-connection.onDidChangeWatchedFiles(_change => {
+connection.onDidChangeWatchedFiles(async change => {
   // Monitored files have change in VSCode
-  connection.console.log('We received an file change event');
+  console.log('We received an file change event', change);
+
+  if (stimulusDataProvider) {
+    await stimulusDataProvider.refresh();
+  }
+
+  diagnostics.refreshAllDocuments();
 });
 
 connection.onCodeAction(params => {
