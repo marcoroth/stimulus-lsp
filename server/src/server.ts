@@ -78,13 +78,13 @@ connection.onDidChangeConfiguration(change => {
   service.diagnostics.refreshAllDocuments();
 });
 
-// connection.onDidOpenTextDocument(params => {
-//   const document = documentService.get(params.textDocument.uri)
-//
-//   if (document) {
-//     diagnostics.refreshDocument(document)
-//   }
-// })
+connection.onDidOpenTextDocument(params => {
+  const document = service.documentService.get(params.textDocument.uri)
+
+  if (document) {
+    service.diagnostics.refreshDocument(document)
+  }
+})
 
 connection.onDefinition((params: DefinitionParams) => {
   return service.definitions.onDefinition(params);
