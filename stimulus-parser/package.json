@@ -1,6 +1,6 @@
 {
   "name": "stimulus-parser",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Statically analyze Stimulus controllers",
   "main": "dist/index.js",
   "module": "dist/index.js",
