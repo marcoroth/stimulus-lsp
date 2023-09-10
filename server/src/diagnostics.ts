@@ -21,6 +21,7 @@ export class Diagnostics {
 
   controllerAttribute = "data-controller"
   actionAttribute = "data-action"
+  valueAttribute = /data-(.+)-(.+)-value/
 
   constructor(
     connection: Connection,
@@ -85,9 +86,71 @@ export class Diagnostics {
     })
   }
 
+  validateDataValueAttribute(node: Node, textDocument: TextDocument) {
+    const attributes = node.attributes || {}
+
+    const valueAttributeNames = Object.keys(attributes).filter(attribute => attribute.match(this.valueAttribute))
+
+    valueAttributeNames.forEach(attribute => {
+      const value = attributeValue(node, attribute) || ""
+      const attributeMatches = attribute.match(this.valueAttribute)
+
+      // TODO: skip when value contains <%= or %>
+
+      if (attributeMatches && Array.isArray(attributeMatches) && attributeMatches[1]) {
+        const identifier = attributeMatches[1]
+        const valueName = attributeMatches[2]
+
+        const controller = this.controllers.find(controller => controller.identifier === identifier)
+
+        const attributeNameStart = textDocument.getText().indexOf(attribute)
+        const attributeNameEnd = attributeNameStart + attribute.length
+
+        const attributeNameRange = Range.create(
+          textDocument.positionAt(attributeNameStart),
+          textDocument.positionAt(attributeNameEnd)
+        )
+
+        if (!controller)  {
+          this.createInvalidControllerDiagnosticFor(identifier, textDocument, attributeNameRange)
+
+          return
+        }
+
+        const valueDefiniton = controller.values[valueName]
+
+        if (controller && !valueDefiniton)  {
+          this.createMissingValueOnControllerDiagnosticFor(identifier, valueName, textDocument, attributeNameRange)
+
+          return
+        }
+
+        let actualType
+        const expectedType = valueDefiniton.type
+
+        try {
+          actualType = this.parseValueType(JSON.parse(value))
+        } catch(e) {
+          try {
+            actualType = this.parseValueType(JSON.parse(`"${value}"`))
+          } catch(e: any) {
+            actualType = e?.message || "unparsable"
+          }
+        }
+
+        if (actualType !== expectedType) {
+          const attributeRange = this.attributeRange(textDocument, node, attribute, value)
+
+          this.createValueMismatchOnControllerDiagnosticFor(identifier, valueName, expectedType, actualType, textDocument, attributeRange)
+        }
+      }
+    })
+  }
+
   visitNode(node: Node, textDocument: TextDocument) {
     this.validateDataControllerAttribute(node, textDocument)
     this.validateDataActionAttribute(node, textDocument)
+    this.validateDataValueAttribute(node, textDocument)
 
     node.children.forEach((child) => {
       this.visitNode(child, textDocument)
@@ -204,6 +267,56 @@ export class Diagnostics {
     this.diagnostics.set(textDocument, diagnostics)
   }
 
+  private createMissingValueOnControllerDiagnosticFor(
+    identifier: string,
+    valueName: string,
+    textDocument: TextDocument,
+    range: Range
+  ) {
+    const diagnostic: Diagnostic = {
+      severity: DiagnosticSeverity.Error,
+      range: range,
+      message: `"${valueName}" isn't a valid Stimulus Value name on the "${identifier}" controller.`,
+      source: this.diagnosticsSource,
+      code: "stimulus.controller.values.missing",
+      data: {
+        identifier,
+        valueName,
+      },
+    }
+
+    const diagnostics = this.diagnostics.get(textDocument) || []
+    diagnostics.push(diagnostic)
+
+    this.diagnostics.set(textDocument, diagnostics)
+  }
+
+  private createValueMismatchOnControllerDiagnosticFor(
+    identifier: string,
+    valueName: string,
+    expectedType: string,
+    actualType: string,
+    textDocument: TextDocument,
+    range: Range
+  ) {
+    const diagnostic: Diagnostic = {
+      severity: DiagnosticSeverity.Error,
+      range: range,
+      message: `The value you passed for the "${valueName}" Stimulus Value is of type "${actualType}". But the "${valueName}" Stimulus Value defined in the "${identifier}" controller is of type "${expectedType}".`,
+      source: this.diagnosticsSource,
+      code: "stimulus.controller.values.type_mismatch",
+      data: {
+        identifier,
+        valueName,
+      },
+    }
+
+    const diagnostics = this.diagnostics.get(textDocument) || []
+    diagnostics.push(diagnostic)
+
+    this.diagnostics.set(textDocument, diagnostics)
+  }
+
   private sendDiagnosticsFor(textDocument: TextDocument) {
     const diagnostics = this.diagnostics.get(textDocument) || []
 
@@ -213,5 +326,19 @@ export class Diagnostics {
     })
 
     this.diagnostics.delete(textDocument)
+  }
+
+  private parseValueType(string: any) {
+    switch (typeof string) {
+      case "boolean":
+        return "Boolean"
+      case "number":
+        return "Number"
+      case "string":
+        return "String"
+    }
+
+    if (Array.isArray(string)) return "Array"
+    if (Object.prototype.toString.call(string) === "[object Object]") return "Object"
   }
 }
