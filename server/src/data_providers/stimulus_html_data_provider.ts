@@ -36,18 +36,18 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
     console.log("provideAttributes", tag);
 
     const targetAttribtues = this.controllers.map((controller) => {
-      return { name: `data-${controller.dasherized}-target` };
+      return { name: `data-${controller.identifier}-target` };
     });
 
     const valueAttribtues = this.controllers.map((controller) => {
       return Object.keys(controller.values).map(value => {
-        return { name: `data-${controller.dasherized}-${value}-value` };
+        return { name: `data-${controller.identifier}-${value}-value` };
       });
     }).flat();
 
     const classAttribtues = this.controllers.map((controller) => {
       return controller.classes.map(klass => {
-        return { name: `data-${controller.dasherized}-${klass}-class` };
+        return { name: `data-${controller.identifier}-${klass}-class` };
       });
     }).flat();
 
@@ -65,7 +65,7 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
     console.log("provideValues", tag, attribute);
 
     if (attribute == "data-controller") {
-      return this.controllers.map(controller => ({ name: controller.dasherized }));
+      return this.controllers.map(controller => ({ name: controller.identifier }));
     }
 
     if (attribute == "data-action") {
@@ -73,7 +73,7 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
 
       const eventControllers = events.map(event => {
         return this.controllers.map(controller => {
-          return { name: `${event.name}->${controller.dasherized}`, controller };
+          return { name: `${event.name}->${controller.identifier}`, controller };
         });
       }).flat();
 
@@ -97,7 +97,7 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
     if (targetMatches && Array.isArray(targetMatches) && targetMatches[1]) {
       const dasherized = targetMatches[1];
 
-      return this.controllers.filter(c => c.dasherized == dasherized).map(c => c.targets).flat().map(target => {
+      return this.controllers.filter(c => c.identifier == dasherized).map(c => c.targets).flat().map(target => {
         return { name: target };
       });
     }
@@ -108,7 +108,7 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
       const dasherized = valueMatches[1];
       const value = valueMatches[2];
 
-      const controller = this.controllers.find(c => c.dasherized == dasherized);
+      const controller = this.controllers.find(c => c.identifier == dasherized);
 
       if (controller) {
         const valueDefiniton = controller.values[value];

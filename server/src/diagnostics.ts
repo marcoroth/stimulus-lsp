@@ -20,7 +20,7 @@ export class Diagnostics {
   }
 
   get controllers() {
-    return this.stimulusDataProvider.controllers.map((controller) => controller.dasherized);
+    return this.stimulusDataProvider.controllers.map((controller) => controller.identifier);
   }
 
   visitNode(node: Node, textDocument: TextDocument, service: LanguageService) {
