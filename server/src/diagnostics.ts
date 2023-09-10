@@ -1,6 +1,6 @@
 import { Connection, Diagnostic, DiagnosticSeverity, Range } from 'vscode-languageserver/node';
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import { getLanguageService, Node, LanguageService } from 'vscode-html-languageservice';
+import { getLanguageService, Node } from 'vscode-html-languageservice';
 
 import { parseActionDescriptorString } from "./action_descriptor";
 
