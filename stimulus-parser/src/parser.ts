@@ -2,15 +2,16 @@ import { simple } from "acorn-walk"
 import { Parser as AcornParser } from "acorn"
 import staticClassFeatures from "acorn-static-class-features"
 
-import { dasherize, camelize } from "./util"
-
+import { Project } from "./project"
 import { ControllerDefinition } from "./controller_definition"
 import { NodeElement, PropertyElement } from "./types"
 
 export class Parser {
+  private readonly project: Project
   private parser: typeof AcornParser
 
-  constructor() {
+  constructor(project: Project) {
+    this.project = project
     this.parser = AcornParser.extend(staticClassFeatures)
   }
 
@@ -23,21 +24,7 @@ export class Parser {
 
   parseController(code: string, filename: string) {
     const ast = this.parse(code)
-
-    // TODO also check for namespaced controllers
-    const splits = filename.split("/")
-    const fileName = splits[splits.length - 1]
-    const identifier = fileName.split("_controller.js")[0]
-
-    const controller: ControllerDefinition = {
-      path: filename,
-      identifier: identifier,
-      dasherized: dasherize(camelize(identifier)),
-      methods: [],
-      targets: [],
-      classes: [],
-      values: {},
-    }
+    const controller = new ControllerDefinition(this.project, filename)
 
     simple(ast, {
       MethodDefinition(node: any): void {

@@ -11,19 +11,32 @@ interface ControllerFile {
 
 export class Project {
   readonly projectPath: string
-  readonly controllerDefinitions: ControllerDefinition[] = []
+  readonly controllerPath = "app/javascript/controllers"
 
-  private controllersFiles: Array<ControllerFile> = []
-  private parser: Parser = new Parser()
+  controllerDefinitions: ControllerDefinition[] = []
+
+  private controllerFiles: Array<ControllerFile> = []
+  private parser: Parser = new Parser(this)
 
   constructor(projectPath: string) {
     this.projectPath = projectPath
   }
 
+  relativePath(path: string) {
+    return path.replace(`${this.projectPath}/`, "")
+  }
+
+  relativeControllerPath(path: string) {
+    return this.relativePath(path).replace(`${this.controllerPath}/`, "")
+  }
+
   async analyze() {
+    this.controllerFiles = []
+    this.controllerDefinitions = []
+
     await this.readControllerFiles()
 
-    this.controllersFiles.forEach((file: ControllerFile) => {
+    this.controllerFiles.forEach((file: ControllerFile) => {
       this.controllerDefinitions.push(this.parser.parseController(file.content, file.filename))
     })
   }
@@ -37,7 +50,7 @@ export class Project {
       controllerFiles.map(async (filename: string) => {
         const content = await fs.readFile(filename, "utf8")
 
-        this.controllersFiles.push({ filename, content })
+        this.controllerFiles.push({ filename, content })
       })
     )
   }
