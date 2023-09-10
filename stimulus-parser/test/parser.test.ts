@@ -79,5 +79,23 @@ test("parse values with with default values", () => {
     number: { type: "Number", default: 1 },
   })
 })
+
+// TODO
+test.skip("parse nested object/array default value types", () => {
+  const code = `
+    import { Controller } from "@hotwired/stimulus"
+
+    export default class extends Controller {
+      static values = {
+        object: { type: Object, default: { object: { some: { more: { levels: {} } } } } },
+        array: { type: Array, default: [["Array", "with", ["nested", ["values"]]]] },
+      }
+    }
+  `
+  const controller = parser.parseController(code, "value_controller.js")
+
+  expect(controller.values).toEqual({
+    object: { type: "Object", default: { object: { some: { more: { levels: {} } } } } },
+    array: { type: "Array", default: [["Array", "with", ["nested", ["values"]]]] },
   })
 })
