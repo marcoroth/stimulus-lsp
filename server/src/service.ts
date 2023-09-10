@@ -51,4 +51,10 @@ export class Service {
       this.diagnostics.refreshDocument(change.document);
     });
   }
+
+  async refresh() {
+    await this.stimulusDataProvider.refresh();
+
+    this.diagnostics.refreshAllDocuments();
+  }
 }

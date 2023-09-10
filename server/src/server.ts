@@ -4,11 +4,9 @@ import {
   InitializeParams,
   DidChangeConfigurationNotification,
   DidChangeWatchedFilesNotification,
-  CompletionItem,
   TextDocumentSyncKind,
   InitializeResult,
-  Diagnostic,
-  DefinitionParams,
+  Diagnostic
 } from 'vscode-languageserver/node';
 
 import { Service } from './service';
@@ -75,88 +73,30 @@ connection.onDidChangeConfiguration(change => {
     );
   }
 
-  service.diagnostics.refreshAllDocuments();
+  service.refresh();
 });
 
 connection.onDidOpenTextDocument(params => {
-  const document = service.documentService.get(params.textDocument.uri)
+  const document = service.documentService.get(params.textDocument.uri);
 
   if (document) {
-    service.diagnostics.refreshDocument(document)
-  }
-})
-
-connection.onDefinition((params: DefinitionParams) => {
-  return service.definitions.onDefinition(params);
-});
-
-connection.onDidChangeWatchedFiles(async _change => {
-  if (service.stimulusDataProvider) {
-    await service.stimulusDataProvider.refresh();
-  }
-
-  service.diagnostics.refreshAllDocuments();
-});
-
-connection.onCodeAction(params => {
-  return service.codeActions.onCodeAction(params);
-});
-
-connection.onExecuteCommand(async (params) => {
-  if (params.command === "stimulus.controller.create" && params.arguments) {
-    const [identifier, diagnostic] = params.arguments as [string, Diagnostic];
-
-    await service.commands.createController(identifier, diagnostic);
-  } else {
-    return;
+    service.diagnostics.refreshDocument(document);
   }
 });
 
-// This handler provides the initial list of the completion items.
-// connection.onCompletion((textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
-//     // The pass parameter contains the position of the text document in
-//     // which code complete got requested. For the example we ignore this
-//     // info and always provide the same completion items.
-//
-//     // textDocumentPosition.position
-//     //
-//     // document.getText()
-//
-//     return [
-//       {
-//         label: document.getText(),
-//         kind: CompletionItemKind.File,
-//         data: {
-//           detail: "abc",
-//           documentation: "def"
-//         }
-//       }
-//     ]
-//
-//     return [
-//       {
-//         label: `TypeScript ${textDocumentPosition.position.character}:${textDocumentPosition.position.line}`,
-//         kind: CompletionItemKind.Text,
-//         data: {
-//           detail : 'TypeScript details',
-//           documentation: 'TypeScript documentation'
-//         }
-//       },
-//       {
-//         label: 'JavaScript',
-//         kind: CompletionItemKind.Text,
-//         data: {
-//           detail : 'JavaScript details',
-//           documentation: 'JavaScript documentation'
-//         },
-//       }
-//     ];
-//   }
-// );
+connection.onDidChangeWatchedFiles(() => service.refresh());
+connection.onDefinition(params => service.definitions.onDefinition(params));
+connection.onCodeAction(params => service.codeActions.onCodeAction(params));
 
-connection.onCompletion(async (textDocumentPosition, token) => {
-  console.log("onCompletion", token);
+connection.onExecuteCommand(params => {
+  if (params.command !== "stimulus.controller.create" || !params.arguments) return;
 
+  const [identifier, diagnostic] = params.arguments as [string, Diagnostic];
+
+  service.commands.createController(identifier, diagnostic);
+});
+
+connection.onCompletion(textDocumentPosition => {
   const document = service.documentService.get(textDocumentPosition.textDocument.uri);
 
   if (!document) return null;
@@ -168,24 +108,15 @@ connection.onCompletion(async (textDocumentPosition, token) => {
   );
 });
 
-
 // This handler resolves additional information for the item selected in
 // the completion list.
-connection.onCompletionResolve(
-  (item: CompletionItem): CompletionItem => {
-    // const { detail, documentation } = item.data
+connection.onCompletionResolve(item => {
+  if (item.data?.detail) item.detail = item.data.detail;
+  if (item.data?.documentation) item.documentation = item.data.documentation;
+  if (item.data?.kind) item.kind = item.data.kind;
 
-
-    // if (item.data.detail && item.data.documentation) {
-    //   item.detail = item.data.detail
-    //   item.documentation = item.data.documentation
-    //   item.kind = CompletionItemKind.Class
-    // }
-
-
-    return item;
-  }
-);
+  return item;
+});
 
 // Listen on the connection
 connection.listen();
