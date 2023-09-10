@@ -46,9 +46,9 @@ export class Diagnostics {
     const invalidIdentifiers = identifiers.filter((identifier) => !this.controllerIdentifiers.includes(identifier))
 
     invalidIdentifiers.forEach((identifier) => {
-      const attributeRange = this.attributeRange(textDocument, node, this.controllerAttribute, identifier)
+      const attributeValueRange = this.attributeValueRange(textDocument, node, this.controllerAttribute, identifier)
 
-      this.createInvalidControllerDiagnosticFor(identifier, textDocument, attributeRange)
+      this.createInvalidControllerDiagnosticFor(identifier, textDocument, attributeValueRange)
     })
   }
 
@@ -61,9 +61,9 @@ export class Diagnostics {
       const methodName = actionDescriptor.methodName
 
       if (!identifier && !methodName) {
-        const attributeRange = this.attributeRange(textDocument, node, this.actionAttribute, action)
+        const attributeValueRange = this.attributeValueRange(textDocument, node, this.actionAttribute, action)
 
-        this.createInvalidActionDiagnosticFor(action, textDocument, attributeRange)
+        this.createInvalidActionDiagnosticFor(action, textDocument, attributeValueRange)
 
         return
       }
@@ -73,15 +73,15 @@ export class Diagnostics {
       const controller = identifier ? this.controllers.find((controller) => controller.identifier === identifier) : null
 
       if (!controller) {
-        const attributeRange = this.attributeRange(textDocument, node, this.actionAttribute, identifier)
+        const attributeValueRange = this.attributeValueRange(textDocument, node, this.actionAttribute, identifier)
 
-        this.createInvalidControllerDiagnosticFor(identifier, textDocument, attributeRange)
+        this.createInvalidControllerDiagnosticFor(identifier, textDocument, attributeValueRange)
       }
 
       if (controller && methodName && !controller.methods.includes(methodName)) {
-        const attributeRange = this.attributeRange(textDocument, node, this.actionAttribute, methodName)
+        const attributeValueRange = this.attributeValueRange(textDocument, node, this.actionAttribute, methodName)
 
-        this.createInvalidControllerActionDiagnosticFor(identifier, methodName, textDocument, attributeRange)
+        this.createInvalidControllerActionDiagnosticFor(identifier, methodName, textDocument, attributeValueRange)
       }
     })
   }
@@ -89,10 +89,10 @@ export class Diagnostics {
   validateDataValueAttribute(node: Node, textDocument: TextDocument) {
     const attributes = node.attributes || {}
 
-    const valueAttributeNames = Object.keys(attributes).filter(attribute => attribute.match(this.valueAttribute))
+    const valueAttributeNames = Object.keys(attributes).filter((attribute) => attribute.match(this.valueAttribute))
 
-    valueAttributeNames.forEach(attribute => {
-      const value = attributeValue(node, attribute) || ""
+    valueAttributeNames.forEach((attribute) => {
+      const value = attributeValue(node, attribute) || ""
       const attributeMatches = attribute.match(this.valueAttribute)
 
       // TODO: skip when value contains <%= or %>
@@ -101,17 +101,10 @@ export class Diagnostics {
         const identifier = attributeMatches[1]
         const valueName = attributeMatches[2]
 
-        const controller = this.controllers.find(controller => controller.identifier === identifier)
+        const controller = this.controllers.find((controller) => controller.identifier === identifier)
 
-        const attributeNameStart = textDocument.getText().indexOf(attribute)
-        const attributeNameEnd = attributeNameStart + attribute.length
-
-        const attributeNameRange = Range.create(
-          textDocument.positionAt(attributeNameStart),
-          textDocument.positionAt(attributeNameEnd)
-        )
-
-        if (!controller)  {
+        if (!controller) {
+          const attributeNameRange = this.attributeNameRange(textDocument, node, attribute, identifier)
           this.createInvalidControllerDiagnosticFor(identifier, textDocument, attributeNameRange)
 
           return
@@ -119,7 +112,8 @@ export class Diagnostics {
 
         const valueDefiniton = controller.values[valueName]
 
-        if (controller && !valueDefiniton)  {
+        if (controller && !valueDefiniton) {
+          const attributeNameRange = this.attributeNameRange(textDocument, node, attribute, valueName)
           this.createMissingValueOnControllerDiagnosticFor(identifier, valueName, textDocument, attributeNameRange)
 
           return
@@ -130,18 +124,25 @@ export class Diagnostics {
 
         try {
           actualType = this.parseValueType(JSON.parse(value))
-        } catch(e) {
+        } catch (e) {
           try {
             actualType = this.parseValueType(JSON.parse(`"${value}"`))
-          } catch(e: any) {
-            actualType = e?.message || "unparsable"
+          } catch (e: any) {
+            actualType = e?.message || "unparsable"
           }
         }
 
         if (actualType !== expectedType) {
-          const attributeRange = this.attributeRange(textDocument, node, attribute, value)
+          const attributeValueRange = this.attributeValueRange(textDocument, node, attribute, value)
 
-          this.createValueMismatchOnControllerDiagnosticFor(identifier, valueName, expectedType, actualType, textDocument, attributeRange)
+          this.createValueMismatchOnControllerDiagnosticFor(
+            identifier,
+            valueName,
+            expectedType,
+            actualType,
+            textDocument,
+            attributeValueRange
+          )
         }
       }
     })
@@ -182,14 +183,37 @@ export class Diagnostics {
     return Range.create(textDocument.positionAt(node.start), textDocument.positionAt(node.startTagEnd || node.end))
   }
 
-  private attributeRange(textDocument: TextDocument, node: Node, attribute: string, search: string) {
+  private attributeNameRange(textDocument: TextDocument, node: Node, attribute: string, search: string) {
     const range = this.rangeFromNode(textDocument, node)
     const startTagContent = textDocument.getText(range)
 
-    return this.rangeForAttribute(textDocument, startTagContent, node, attribute, search)
+    return this.rangeForAttributeName(textDocument, startTagContent, node, attribute, search)
   }
 
-  private rangeForAttribute(
+  private rangeForAttributeName(
+    textDocument: TextDocument,
+    tagContent: string,
+    node: Node,
+    attribute: string,
+    search: string
+  ) {
+    const searchIndex = attribute.indexOf(search) || 0
+    const attributeNameStartIndex = tagContent.indexOf(attribute)
+
+    const attributeNameStart = node.start + attributeNameStartIndex + searchIndex
+    const attributeNameEnd = attributeNameStart + search.length
+
+    return Range.create(textDocument.positionAt(attributeNameStart), textDocument.positionAt(attributeNameEnd))
+  }
+
+  private attributeValueRange(textDocument: TextDocument, node: Node, attribute: string, search: string) {
+    const range = this.rangeFromNode(textDocument, node)
+    const startTagContent = textDocument.getText(range)
+
+    return this.rangeForAttributeValue(textDocument, startTagContent, node, attribute, search)
+  }
+
+  private rangeForAttributeValue(
     textDocument: TextDocument,
     tagContent: string,
     node: Node,
@@ -208,39 +232,19 @@ export class Diagnostics {
   }
 
   private createInvalidControllerDiagnosticFor(identifier: string, textDocument: TextDocument, range: Range) {
-    const diagnostic: Diagnostic = {
-      severity: DiagnosticSeverity.Error,
-      range: range,
-      message: `"${identifier}" isn't a valid Stimulus controller.`,
-      source: this.diagnosticsSource,
-      code: "stimulus.controller.invalid",
-      data: {
-        identifier,
-      },
-    }
-
-    const diagnostics = this.diagnostics.get(textDocument) || []
-    diagnostics.push(diagnostic)
-
-    this.diagnostics.set(textDocument, diagnostics)
+    this.pushDiagnostic(
+      `"${identifier}" isn't a valid Stimulus controller.`,
+      "stimulus.controller.invalid",
+      range,
+      textDocument,
+      { identifier }
+    )
   }
 
   private createInvalidActionDiagnosticFor(action: string, textDocument: TextDocument, range: Range) {
-    const diagnostic: Diagnostic = {
-      severity: DiagnosticSeverity.Error,
-      range: range,
-      message: `"${action}" isn't a valid action descriptor`,
-      source: this.diagnosticsSource,
-      code: "stimulus.action.invalid",
-      data: {
-        action,
-      },
-    }
-
-    const diagnostics = this.diagnostics.get(textDocument) || []
-    diagnostics.push(diagnostic)
-
-    this.diagnostics.set(textDocument, diagnostics)
+    this.pushDiagnostic(`"${action}" isn't a valid action descriptor`, "stimulus.action.invalid", range, textDocument, {
+      action,
+    })
   }
 
   private createInvalidControllerActionDiagnosticFor(
@@ -249,22 +253,13 @@ export class Diagnostics {
     textDocument: TextDocument,
     range: Range
   ) {
-    const diagnostic: Diagnostic = {
-      severity: DiagnosticSeverity.Error,
-      range: range,
-      message: `"${actionName}" isn't a valid Controller Action on the "${identifier}" controller.`,
-      source: this.diagnosticsSource,
-      code: "stimulus.controller.invalid_action",
-      data: {
-        identifier,
-        actionName,
-      },
-    }
-
-    const diagnostics = this.diagnostics.get(textDocument) || []
-    diagnostics.push(diagnostic)
-
-    this.diagnostics.set(textDocument, diagnostics)
+    this.pushDiagnostic(
+      `"${actionName}" isn't a valid Controller Action on the "${identifier}" controller.`,
+      "stimulus.controller.action.invalid",
+      range,
+      textDocument,
+      { identifier, actionName }
+    )
   }
 
   private createMissingValueOnControllerDiagnosticFor(
@@ -273,22 +268,13 @@ export class Diagnostics {
     textDocument: TextDocument,
     range: Range
   ) {
-    const diagnostic: Diagnostic = {
-      severity: DiagnosticSeverity.Error,
-      range: range,
-      message: `"${valueName}" isn't a valid Stimulus Value name on the "${identifier}" controller.`,
-      source: this.diagnosticsSource,
-      code: "stimulus.controller.values.missing",
-      data: {
-        identifier,
-        valueName,
-      },
-    }
-
-    const diagnostics = this.diagnostics.get(textDocument) || []
-    diagnostics.push(diagnostic)
-
-    this.diagnostics.set(textDocument, diagnostics)
+    this.pushDiagnostic(
+      `"${valueName}" isn't a valid Stimulus Value name on the "${identifier}" controller.`,
+      "stimulus.controller.value.missing",
+      range,
+      textDocument,
+      { identifier, valueName }
+    )
   }
 
   private createValueMismatchOnControllerDiagnosticFor(
@@ -299,16 +285,30 @@ export class Diagnostics {
     textDocument: TextDocument,
     range: Range
   ) {
+    this.pushDiagnostic(
+      `The value you passed for the "${valueName}" Stimulus Value is of type "${actualType}". But the "${valueName}" Stimulus Value defined in the "${identifier}" controller is of type "${expectedType}".`,
+      "stimulus.controller.value.type_mismatch",
+      range,
+      textDocument,
+      { identifier, valueName }
+    )
+  }
+
+  private pushDiagnostic(
+    message: string,
+    code: string,
+    range: Range,
+    textDocument: TextDocument,
+    data = {},
+    severity = DiagnosticSeverity.Error
+  ) {
     const diagnostic: Diagnostic = {
-      severity: DiagnosticSeverity.Error,
-      range: range,
-      message: `The value you passed for the "${valueName}" Stimulus Value is of type "${actualType}". But the "${valueName}" Stimulus Value defined in the "${identifier}" controller is of type "${expectedType}".`,
       source: this.diagnosticsSource,
-      code: "stimulus.controller.values.type_mismatch",
-      data: {
-        identifier,
-        valueName,
-      },
+      severity,
+      range,
+      message,
+      code,
+      data,
     }
 
     const diagnostics = this.diagnostics.get(textDocument) || []
