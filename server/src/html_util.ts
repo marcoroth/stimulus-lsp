@@ -7,7 +7,7 @@ export function attributeValue(node: Node, attribute: string) {
 }
 
 export function tokenList(node: Node, attribute: string) {
-  const value = (attributeValue(node, attribute) || "").trim()
+  const value = (squish(attributeValue(node, attribute) || "")).trim()
 
   return value.split(" ")
 }
@@ -18,4 +18,8 @@ export function unquote(string: String) {
 
 export function reverseString(string: String) {
   return string.split("").reverse().join("")
+}
+
+export function squish(string: String) {
+  return string.replace(/\s+/g, ' ')
 }
