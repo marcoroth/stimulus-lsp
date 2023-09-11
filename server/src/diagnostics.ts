@@ -22,6 +22,7 @@ export class Diagnostics {
 
   controllerAttribute = "data-controller"
   actionAttribute = "data-action"
+  targetAttribute = /data-(.+)-target/
   valueAttribute = /data-(.+)-(.+)-value/
 
   constructor(
@@ -149,10 +150,41 @@ export class Diagnostics {
     })
   }
 
+  validateDataTargetAttribute(node: Node, textDocument: TextDocument) {
+    const attributes = node.attributes || {}
+
+    const targetAttributeNames = Object.keys(attributes).filter((attribute) => attribute.match(this.targetAttribute))
+
+    targetAttributeNames.forEach((attribute) => {
+      const targetName = attributeValue(node, attribute) || ""
+      const targetMatches = attribute.match(this.targetAttribute)
+      const matchedTarget = targetMatches && Array.isArray(targetMatches)
+      const identifier = matchedTarget && targetMatches[1]
+
+      if (identifier) {
+        const controller = this.controllers.find((controller) => controller.identifier === identifier)
+
+        if (!controller) {
+          const attributeNameRange = this.attributeNameRange(textDocument, node, attribute, identifier)
+          this.createInvalidControllerDiagnosticFor(identifier, textDocument, attributeNameRange)
+
+          return
+        }
+
+        if (controller && !controller.targets.includes(targetName)) {
+          const attributeNameRange = this.attributeValueRange(textDocument, node, attribute, targetName)
+
+          this.createMissingTargetOnControllerDiagnosticFor(identifier, targetName, textDocument, attributeNameRange)
+        }
+      }
+    })
+  }
+
   visitNode(node: Node, textDocument: TextDocument) {
     this.validateDataControllerAttribute(node, textDocument)
     this.validateDataActionAttribute(node, textDocument)
     this.validateDataValueAttribute(node, textDocument)
+    this.validateDataTargetAttribute(node, textDocument)
 
     node.children.forEach((child) => {
       this.visitNode(child, textDocument)
@@ -289,6 +321,25 @@ export class Diagnostics {
       range,
       textDocument,
       { identifier, valueName }
+    )
+  }
+
+  private createMissingTargetOnControllerDiagnosticFor(
+    identifier: string,
+    targetName: string,
+    textDocument: TextDocument,
+    range: Range
+  ) {
+    const controller = this.controllers.find((controller) => controller.identifier === identifier)
+    const match = controller ? didyoumean(targetName, controller.targets) : null
+    const suggestion = match ? `Did you mean "${match}"?` : ""
+
+    this.pushDiagnostic(
+      `"${targetName}" isn't a valid Stimulus Target on the "${identifier}" controller. ${suggestion}`,
+      "stimulus.controller.target.missing",
+      range,
+      textDocument,
+      { identifier, targetName }
     )
   }
 
