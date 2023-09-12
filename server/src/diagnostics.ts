@@ -59,8 +59,7 @@ export class Diagnostics {
 
     actions.forEach((action) => {
       const actionDescriptor = parseActionDescriptorString(action)
-      const { identifier, methodName } = actionDescriptor
-
+      const { identifier, methodName } = actionDescriptor
 
       if (!identifier || !methodName) {
         const attributeValueRange = this.attributeValueRange(textDocument, node, this.actionAttribute, action)
