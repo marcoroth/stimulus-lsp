@@ -69,7 +69,7 @@ export class Diagnostics {
         return
       }
 
-      const controller = identifier ? this.controllers.find((controller) => controller.identifier === identifier) : null
+      const controller = this.controllers.find((controller) => controller.identifier === identifier)
 
       if (!controller) {
         const attributeValueRange = this.attributeValueRange(textDocument, node, this.actionAttribute, identifier)
