@@ -1,5 +1,4 @@
 import { IHTMLDataProvider } from "vscode-html-languageservice"
-// import { CompletionItemKind } from 'vscode-languageserver/node';
 
 import { EVENTS } from "../events"
 
@@ -31,34 +30,30 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
   }
 
   provideTags() {
-    console.log("provideTags")
-
     return []
   }
 
-  provideAttributes(tag: string) {
-    console.log("provideAttributes", tag)
-
-    const targetAttribtues = this.controllers.map((controller) => {
-      const name = `data-${controller.identifier}-target`
-      return { name }
-    })
+  provideAttributes(_tag: string) {
+    const targetAttribtues = this.controllers
+      .filter(controller => controller.targets.length > 0)
+      .map((controller) => {
+        const name = `data-${controller.identifier}-target`
+        return { name }
+      })
 
     const valueAttribtues = this.controllers
-      .map((controller) => {
+      .flatMap((controller) => {
         return Object.keys(controller.values).map((value) => {
           return { name: `data-${controller.identifier}-${value}-value` }
         })
       })
-      .flat()
 
     const classAttribtues = this.controllers
-      .map((controller) => {
+      .flatMap((controller) => {
         return controller.classes.map((klass) => {
           return { name: `data-${controller.identifier}-${klass}-class` }
         })
       })
-      .flat()
 
     return [
       { name: "data-controller" },
@@ -70,53 +65,110 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
     ]
   }
 
-  provideValues(tag: string, attribute: string) {
-    console.log("provideValues", tag, attribute)
-
+  provideValues(_tag: string, attribute: string) {
     if (attribute == "data-controller") {
       return this.controllers.map((controller) => ({ name: controller.identifier }))
     }
 
     if (attribute == "data-action") {
       const events = EVENTS.map((name) => ({ name }))
+      const controllers = this.controllers.map((controller) => ({ name: `${controller.identifier}`, controller }))
 
-      const eventControllers = events.flatMap((event) => {
-        return this.controllers.map((controller) => {
-          return { name: `${event.name}->${controller.identifier}`, controller }
+      // const keys = [
+      //   "alt",
+      //   "ctrl",
+      //   "meta",
+      //   "shift",
+      //   "enter",
+      //   "tab",
+      //   "esc",
+      //   "space",
+      //   "up",
+      //   "down",
+      //   "left",
+      //   "right",
+      //   "home",
+      //   "end",
+      //   "page_up",
+      //   "page_down",
+      //   ..."abcdefghijklmnopqrstuvwxyz".split(""),
+      //   ..."0123456789".split(""),
+      // ]
+
+      const controllersWithEvents = EVENTS.flatMap((event) => {
+        return controllers.flatMap((item) => {
+          const { controller } = item
+
+          // const keyEvents = (["keydown", "keyup", "keypress"].includes(event)) ? keys.flatMap((key1) =>
+          //   keys.flatMap((key2) => [
+          //     { name: `${event}.${key1}+${key2}->${controller.identifier}`, controller },
+          //     { name: `${event}.${key1}+${key2}@window->${controller.identifier}`, controller },
+          //     { name: `${event}.${key1}+${key2}@document->${controller.identifier}`, controller }
+          //   ])
+          // ) : []
+
+          return [
+            { name: `${event}->${item.controller.identifier}`, controller },
+            { name: `${event}@window->${item.controller.identifier}`, controller },
+            { name: `${event}@document->${item.controller.identifier}`, controller },
+            // ...keyEvents
+          ]
         })
       })
 
-      const eventControllerActions = eventControllers.flatMap((eventController) => {
-        const actions = eventController.controller.methods
+      const controllersWithActions = controllers.concat(controllersWithEvents).flatMap((item) => {
+        const { controller } = item
+        const { methods } = controller
 
-        return actions.map((action) => {
-          return { name: `${eventController.name}#${action}` }
+        return methods.map((method) => {
+          return { name: `${item.name}#${method}`, controller }
         })
       })
 
-      return [...events, ...eventControllers, ...eventControllerActions]
+      // const options = [
+      //   "capture",
+      //   "once",
+      //   "passive",
+      //   "!passive",
+      //   "stop",
+      //   "self",
+      // ]
+
+      // const controllersWithActionOptions = controllersWithActions.flatMap((item) => {
+      //   const { controller } = item
+      //
+      //   return options.map((option) => {
+      //     return { name: `${item.name}:${option}`, controller }
+      //   })
+      // })
+
+      return [
+        ...events,
+        ...controllers,
+        ...controllersWithEvents,
+        ...controllersWithActions,
+        // ...controllersWithActionOptions,
+      ]
     }
 
     const targetMatches = attribute.match(/data-(.+)-target/)
 
     if (targetMatches && Array.isArray(targetMatches) && targetMatches[1]) {
-      const dasherized = targetMatches[1]
+      const identifier = targetMatches[1]
+      const controller = this.controllers.find((controller) => controller.identifier == identifier)
 
-      return this.controllers
-        .filter((c) => c.identifier == dasherized)
-        .flatMap((c) => c.targets)
-        .map((target) => {
-          return { name: target }
-        })
+      if (!controller) return []
+
+      return controller.targets.map((name) => ({ name }))
     }
 
     const valueMatches = attribute.match(/data-(.+)-(.+)-value/)
 
     if (valueMatches && Array.isArray(valueMatches) && valueMatches[1]) {
-      const dasherized = valueMatches[1]
+      const identifier = valueMatches[1]
       const value = valueMatches[2]
 
-      const controller = this.controllers.find((c) => c.identifier == dasherized)
+      const controller = this.controllers.find((controller) => controller.identifier == identifier)
 
       if (controller) {
         const valueDefiniton = controller.values[value]
@@ -164,7 +216,7 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
         if (valueDefiniton.type === "String") {
           return [
             { name: JSON.stringify(valueDefiniton.default) },
-            { name: dasherized },
+            { name: identifier },
             { name: value }
           ]
         }
