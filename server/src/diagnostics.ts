@@ -59,18 +59,16 @@ export class Diagnostics {
 
     actions.forEach((action) => {
       const actionDescriptor = parseActionDescriptorString(action)
-      const identifier = actionDescriptor.identifier
-      const methodName = actionDescriptor.methodName
+      const { identifier, methodName } = actionDescriptor
 
-      if (!identifier && !methodName) {
+
+      if (!identifier || !methodName) {
         const attributeValueRange = this.attributeValueRange(textDocument, node, this.actionAttribute, action)
 
         this.createInvalidActionDiagnosticFor(action, textDocument, attributeValueRange)
 
         return
       }
-
-      if (!identifier) return
 
       const controller = identifier ? this.controllers.find((controller) => controller.identifier === identifier) : null
 
