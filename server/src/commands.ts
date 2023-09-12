@@ -27,6 +27,11 @@ export class Commands {
     const textDocumentEdit = TextDocumentEdit.create({ uri: newControllerPath, version: 1 }, [textEdit])
 
     await this.connection.workspace.applyEdit({ documentChanges: [textDocumentEdit] })
+    await this.connection.window.showDocument({
+      uri: textDocumentEdit.textDocument.uri,
+      external: false,
+      takeFocus: true,
+    })
   }
 
   private controllerTemplateFor(identifier: string) {
