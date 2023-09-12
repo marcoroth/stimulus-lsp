@@ -1,11 +1,28 @@
 {
   "name": "stimulus-intellisense",
+  "displayName": "Stimulus LSP",
   "description": "Intelligent Stimulus JS tooling for Visual Studio Code",
-  "author": "Marco Roth",
   "license": "MIT",
+  "pricing": "Free",
   "version": "0.1.0",
+  "icon": "icon.png",
+  "publisher": "marcoroth",
+  "author": {
+    "name": "Marco Roth"
+  },
+  "categories": [
+    "Programming Languages",
+    "Language Packs",
+    "Linters"
+  ],
+  "keywords": [
+    "Stimulus",
+    "Hotwire",
+    "Ruby on Rails"
+  ],
+  "sponsor": "http://github.com/sponsors/marcoroth",
   "repository": "https://github.com/marcoroth/stimulus-intellisense",
-  "publisher": "Marco Roth",
+    "publisher": "Marco Roth",
   "engines": {
     "vscode": "^1.43.0"
   },
