@@ -55,7 +55,7 @@
     "vscode:prepublish": "yarn run build",
     "build": "tsc -b",
     "watch": "tsc -b -w",
-    "lint": "eslint client/**/*.ts server/**/*.ts stimulus-parser/**/*.ts --no-ignore",
+    "lint": "eslint client/**/*.ts server/**/*.ts --no-ignore",
     "format": "yarn lint --fix",
     "postinstall": "cd client && yarn install && cd ../server && yarn install && cd ..",
     "test": "sh ./scripts/e2e.sh"

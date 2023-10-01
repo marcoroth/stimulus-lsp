@@ -13,8 +13,6 @@
 .github/**
 scripts/**
 
-stimulus-parser/**
-
 client/node_modules/**
 !client/node_modules/vscode-jsonrpc/**
 !client/node_modules/vscode-languageclient/**

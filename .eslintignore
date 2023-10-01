@@ -3,6 +3,4 @@ client/node_modules/**
 client/out/**
 server/node_modules/**
 server/out/**
-stimulus-parser/node_modules/**
-stimulus-parser/dist/**
 **/*.d.ts
