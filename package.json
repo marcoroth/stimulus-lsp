@@ -32,7 +32,23 @@
   ],
   "main": "./client/out/extension",
   "contributes": {
-    "configuration": {}
+    "configuration": {
+      "type": "object",
+      "title": "Stimulus configuration",
+      "properties": {
+        "languageServerStimulus.trace.server": {
+          "scope": "window",
+          "type": "string",
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ],
+          "default": "verbose",
+          "description": "Traces the communication between VS Code and the language server."
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "yarn run build",
