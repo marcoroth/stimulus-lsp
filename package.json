@@ -53,6 +53,8 @@
   },
   "scripts": {
     "vscode:prepublish": "yarn run build",
+    "prebuild": "yarn run clean",
+    "clean": "yarn rimraf client/out && yarn rimraf server/out",
     "build": "tsc -b",
     "watch": "tsc -b -w",
     "lint": "eslint client/**/*.ts server/**/*.ts --no-ignore",
@@ -68,6 +70,7 @@
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
     "prettier": "^2.8.8",
+    "rimraf": "^5.0.5",
     "typescript": "^5.2.2"
   }
 }
