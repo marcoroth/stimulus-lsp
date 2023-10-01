@@ -10,7 +10,7 @@
       "args": ["--extensionDevelopmentPath=${workspaceRoot}"],
       "outFiles": ["${workspaceRoot}/client/out/**/*.js"],
       "preLaunchTask": {
-        "type": "yarn",
+        "type": "npm",
         "script": "watch"
       }
     },
