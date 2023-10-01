@@ -20,9 +20,10 @@
     "Hotwire",
     "Ruby on Rails"
   ],
-  "sponsor": "http://github.com/sponsors/marcoroth",
+  "sponsor": {
+    "url": "http://github.com/sponsors/marcoroth"
+  },
   "repository": "https://github.com/marcoroth/stimulus-intellisense",
-    "publisher": "Marco Roth",
   "engines": {
     "vscode": "^1.43.0"
   },
