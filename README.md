@@ -2,6 +2,9 @@
 
 Intelligent Stimulus tooling for Visual Studio Code
 
+
+![](/assets/stimulus-intellisense.png)
+
 ## Functionality
 
 This Language Server works for HTML and ERB files. It has the following language features:
