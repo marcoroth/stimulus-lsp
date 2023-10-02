@@ -1,7 +1,7 @@
 {
-  "name": "stimulus-intellisense",
+  "name": "stimulus-lsp",
   "displayName": "Stimulus LSP",
-  "description": "Intelligent Stimulus JS tooling for Visual Studio Code",
+  "description": "Intelligent Stimulus tooling",
   "license": "MIT",
   "pricing": "Free",
   "version": "0.1.0",
@@ -23,7 +23,7 @@
   "sponsor": {
     "url": "http://github.com/sponsors/marcoroth"
   },
-  "repository": "https://github.com/marcoroth/stimulus-intellisense",
+  "repository": "https://github.com/marcoroth/stimulus-lsp",
   "engines": {
     "vscode": "^1.43.0"
   },

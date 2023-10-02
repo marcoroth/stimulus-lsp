@@ -1,13 +1,13 @@
 {
-  "name": "stimulus-intellisense-client",
-  "description": "Intelligent Stimulus JS tooling for Visual Studio Code",
+  "name": "vscode-stimulus",
+  "description": "Intelligent Stimulus tooling for Visual Studio Code",
   "author": "Marco Roth",
   "license": "MIT",
   "version": "0.1.0",
   "publisher": "Marco Roth",
   "repository": {
     "type": "git",
-    "url": "https://github.com/marcoroth/stimulus-intellisense"
+    "url": "https://github.com/marcoroth/stimulus-lsp"
   },
   "engines": {
     "vscode": "^1.52.0"

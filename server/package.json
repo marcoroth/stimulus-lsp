@@ -1,13 +1,13 @@
 {
-  "name": "stimulus-intellisense-server",
-  "description": "Intelligent Stimulus JS tooling for Visual Studio Code",
+  "name": "stimulus-language-server",
+  "description": "Intelligent Stimulus tooling",
   "version": "0.1.0",
   "author": "Marco Roth",
   "license": "MIT",
   "engines": {
     "node": "*"
   },
-  "repository": "https://github.com/marcoroth/stimulus-intellisense",
+  "repository": "https://github.com/marcoroth/stimulus-lsp",
   "scripts": {},
   "dependencies": {
     "@hotwired/stimulus": "https://github.com/hotwired/dev-builds/archive/refs/tags/@hotwired/stimulus/8cbca6d.tar.gz",

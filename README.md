@@ -1,16 +1,32 @@
-# Stimulus Intellisense
+# Stimulus LSP
 
-Intelligent Stimulus JS tooling for Visual Studio Code
-
-Heavily documented sample code for https://code.visualstudio.com/api/language-extensions/language-server-extension-guide
+Intelligent Stimulus tooling for Visual Studio Code
 
 ## Functionality
 
-This Language Server works for plain text file. It has the following language features:
-- Completions
-- Diagnostics regenerated on each file change or configuration change
+This Language Server works for HTML and ERB files. It has the following language features:
 
-It also includes an End-to-End test.
+### Completions
+
+* Data Attributes
+* Completions for controller identifiers
+* Completions for controller actions
+* Completions for controller targets
+* Completions for controller values
+* Completions for controller classes
+
+### Diagnostics
+
+* Missing controllers (`stimulus.controller.invalid`)
+* Missing controller actions (`stimulus.action.invalid`)
+* Missing controller targets (`stimulus.controller.target.missing`)
+* Missing controller values (`stimulus.controller.value.missing`)
+* Invalid action descriptions (`stimulus.action.invalid`)
+* Controller values type mismatches (`stimulus.controller.value.type_mismatch`)
+
+### Quick-Fixes
+
+* Create unknown controllers (`stimulus.controller.create`)
 
 ## Structure
 
@@ -18,7 +34,6 @@ It also includes an End-to-End test.
 .
 ├── client // Language Client
 │   ├── src
-│   │   ├── test // End to End tests for Language Client / Server
 │   │   └── extension.ts // Language Client entry point
 ├── package.json // The extension manifest.
 └── server // Language Server
@@ -26,7 +41,7 @@ It also includes an End-to-End test.
         └── server.ts // Language Server entry point
 ```
 
-## Running the Sample
+## Running the extension locally
 
 - Run `yarn install` in this folder. This installs all necessary npm modules in both the client and server folder
 - Open VS Code on this folder.
@@ -35,6 +50,5 @@ It also includes an End-to-End test.
 - Select `Launch Client` from the drop down.
 - Run the launch config.
 - If you want to debug the server as well use the launch configuration `Attach to Server`
-- In the [Extension Development Host] instance of VSCode, open a document in 'plain text' language mode.
-  - Type `j` or `t` to see `Javascript` and `TypeScript` completion.
-  - Enter text content such as `AAA aaa BBB`. The extension will emit diagnostics for all words in all-uppercase.
+- In the [Extension Development Host] instance of VSCode, open a HTML file.
+  - Type `<div data-controller="|">`, place your cursor where the `|` is, hit Ctrl+Space and you should see completions.
