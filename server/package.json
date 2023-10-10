@@ -1,7 +1,7 @@
 {
   "name": "stimulus-language-server",
   "description": "Intelligent Stimulus tooling",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Marco Roth",
   "license": "MIT",
   "engines": {
