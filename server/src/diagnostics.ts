@@ -6,7 +6,7 @@ import { parseActionDescriptorString } from "./action_descriptor"
 
 import { DocumentService } from "./document_service"
 import { attributeValue, tokenList } from "./html_util"
-import { didyoumean } from "./utils"
+import { didyoumean, camelize } from "./utils"
 import { StimulusHTMLDataProvider } from "./data_providers/stimulus_html_data_provider"
 
 export interface InvalidControllerDiagnosticData {
@@ -97,10 +97,47 @@ export class Diagnostics {
       // TODO: skip when value contains <%= or %>
 
       if (attributeMatches && Array.isArray(attributeMatches) && attributeMatches[1]) {
-        const identifier = attributeMatches[1]
-        const valueName = attributeMatches[2]
+        let identifier = attributeMatches[1]
+        let valueName = attributeMatches[2]
 
-        const controller = this.controllers.find((controller) => controller.identifier === identifier)
+        let controller = this.controllers.find((controller) => controller.identifier === identifier)
+
+        if (!controller) {
+          const identifierSplits = identifier.split("--")
+
+          let potentialValuePart
+          let identifierNamespace
+
+          // has namespace
+          if (identifierSplits.length > 1) {
+            identifierNamespace = identifierSplits.slice(0, -1).join("--")
+            potentialValuePart = identifierSplits[identifierSplits.length - 1]
+          } else {
+            identifierNamespace = null
+            potentialValuePart = identifierSplits[0]
+          }
+
+          const allParts = potentialValuePart.split("-").concat(valueName.split("-"))
+
+          for (let i = 1; i <= allParts.length; i++) {
+            if (controller) continue
+
+            let potentialIdentifier = allParts.slice(0, i).join("-")
+
+            if (identifierNamespace) {
+              potentialIdentifier = `${identifierNamespace}--${potentialIdentifier}`
+            }
+
+            const potentialValueName = allParts.slice(i, allParts.length).join("-")
+
+            controller = this.controllers.find((controller) => controller.identifier === potentialIdentifier)
+
+            if (controller) {
+              identifier = potentialIdentifier
+              valueName = potentialValueName
+            }
+          }
+        }
 
         if (!controller) {
           const attributeNameRange = this.attributeNameRange(textDocument, node, attribute, identifier)
@@ -109,11 +146,17 @@ export class Diagnostics {
           return
         }
 
-        const valueDefiniton = controller.values[valueName]
+        const camelizedValueName = camelize(valueName)
+        const valueDefiniton = controller.values[camelizedValueName]
 
         if (controller && !valueDefiniton) {
           const attributeNameRange = this.attributeNameRange(textDocument, node, attribute, valueName)
-          this.createMissingValueOnControllerDiagnosticFor(identifier, valueName, textDocument, attributeNameRange)
+          this.createMissingValueOnControllerDiagnosticFor(
+            identifier,
+            camelizedValueName,
+            textDocument,
+            attributeNameRange
+          )
 
           return
         }
@@ -136,7 +179,7 @@ export class Diagnostics {
 
           this.createValueMismatchOnControllerDiagnosticFor(
             identifier,
-            valueName,
+            camelizedValueName,
             expectedType,
             actualType,
             textDocument,

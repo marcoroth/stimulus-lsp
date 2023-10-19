@@ -19,3 +19,7 @@ export function didyoumean(input: string, list: string[]): string | null {
 
   return scores[0].item
 }
+
+export function camelize(value: string) {
+  return value.replace(/(?:[_-])([a-z0-9])/g, (_, char) => char.toUpperCase())
+}
