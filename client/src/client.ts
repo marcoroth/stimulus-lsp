@@ -67,7 +67,10 @@ export class Client {
         { scheme: "file", language: "erb" },
         { scheme: "file", language: "haml" },
         { scheme: "file", language: "slim" },
+        { scheme: "file", language: "blade" },
+        { scheme: "untitled", language: "blade" },
         { scheme: "file", language: "php" },
+        { scheme: "untitled", language: "php" },
       ],
       synchronize: {
         // Notify the server about file changes to '.clientrc files contained in the workspace
