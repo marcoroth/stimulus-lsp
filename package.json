@@ -21,7 +21,7 @@
     "Ruby on Rails"
   ],
   "sponsor": {
-    "url": "http://github.com/sponsors/marcoroth"
+    "url": "https://github.com/sponsors/marcoroth"
   },
   "repository": "https://github.com/marcoroth/stimulus-lsp",
   "engines": {
@@ -60,7 +60,8 @@
     "lint": "eslint client/**/*.ts server/**/*.ts --no-ignore",
     "format": "yarn lint --fix",
     "postinstall": "cd client && yarn install && cd ../server && yarn install && cd ..",
-    "test": "sh ./scripts/e2e.sh"
+    "pretest": "yarn run build",
+    "test": "node ./client/out/test/runTest.js"
   },
   "devDependencies": {
     "@types/node": "^20.8.7",
@@ -69,8 +70,10 @@
     "eslint": "^8.51.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^4.2.1",
+    "mocha": "^10.2.0",
     "prettier": "^3.0.3",
     "rimraf": "^5.0.5",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "vscode-test": "^1.6.1"
   }
 }
