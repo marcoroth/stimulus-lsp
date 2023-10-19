@@ -8,9 +8,9 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
   private folder: string
   private project: Project
 
-  constructor(private id: string, private projectPath: string) {
+  constructor(private id: string, private projectPath: string, controllersPath: string) {
     this.folder = this.projectPath.replace("file://", "")
-    this.project = new Project(this.folder)
+    this.project = new Project(this.folder, controllersPath)
   }
 
   get controllers() {

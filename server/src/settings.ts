@@ -1,4 +1,6 @@
 import { ClientCapabilities, Connection, InitializeParams } from "vscode-languageserver/node"
+import { existsSync } from "fs"
+import path from "path"
 
 export interface StimulusSettings {}
 
@@ -43,7 +45,15 @@ export class Settings {
   }
 
   get controllersPath() {
-    return `${this.projectPath}/app/javascript/controllers`
+    return `${this.projectPath}/${this.controllersRelativePath}`
+  }
+
+  get controllersRelativePath() {
+    if (existsSync(path.join(this.projectPath, "artisan"))) {
+      return "resources/js/controllers"
+    }
+
+    return "app/javascript/controllers"
   }
 
   getDocumentSettings(resource: string): Thenable<StimulusSettings> {
