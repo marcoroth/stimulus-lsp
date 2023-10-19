@@ -105,27 +105,27 @@ export class Diagnostics {
         if (!controller) {
           const identifierSplits = identifier.split("--")
 
-          let potentialValuePart
-          let identifierNamespace
+          let valuePart
+          let namespacePart
 
           // has namespace
           if (identifierSplits.length > 1) {
-            identifierNamespace = identifierSplits.slice(0, -1).join("--")
-            potentialValuePart = identifierSplits[identifierSplits.length - 1]
+            namespacePart = identifierSplits.slice(0, -1).join("--")
+            valuePart = identifierSplits[identifierSplits.length - 1]
           } else {
-            identifierNamespace = null
-            potentialValuePart = identifierSplits[0]
+            namespacePart = null
+            valuePart = identifierSplits[0]
           }
 
-          const allParts = potentialValuePart.split("-").concat(valueName.split("-"))
+          const allParts = valuePart.split("-").concat(valueName.split("-"))
 
           for (let i = 1; i <= allParts.length; i++) {
             if (controller) continue
 
             let potentialIdentifier = allParts.slice(0, i).join("-")
 
-            if (identifierNamespace) {
-              potentialIdentifier = `${identifierNamespace}--${potentialIdentifier}`
+            if (namespacePart) {
+              potentialIdentifier = `${namespacePart}--${potentialIdentifier}`
             }
 
             const potentialValueName = allParts.slice(i, allParts.length).join("-")
