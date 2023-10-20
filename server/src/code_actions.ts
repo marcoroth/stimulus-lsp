@@ -27,19 +27,29 @@ export class CodeActions {
     if (diagnostics.length === 0) return undefined
 
     return diagnostics.flatMap(diagnostic => {
-      const identifier = (diagnostic.data as InvalidControllerDiagnosticData).identifier
+      const { identifier, suggestion } = (diagnostic.data as InvalidControllerDiagnosticData)
       const manyRoots = this.project.controllerRoots.length > 1
 
-      return this.project.controllerRoots.map(root => {
-        const folder = `${manyRoots ? ` in "${root}/"` : ''}`
-        const title = `Create "${identifier}" Stimulus Controller${folder}`
+      const updateTitle = `Replace "${identifier}" with suggestion: "${suggestion}"`
+      const updateReferenceAction = CodeAction.create(
+        updateTitle,
+        Command.create(updateTitle, "stimulus.controller.update", identifier, diagnostic, suggestion),
+        CodeActionKind.QuickFix
+      )
 
-        return CodeAction.create(
-          title,
-          Command.create(title, "stimulus.controller.create", identifier, diagnostic, root),
-          CodeActionKind.QuickFix
-        )
-      })
+      return [
+        updateReferenceAction,
+        ...this.project.controllerRoots.map(root => {
+          const folder = `${manyRoots ? ` in "${root}/"` : ''}`
+          const title = `Create "${identifier}" Stimulus Controller${folder}`
+
+          return CodeAction.create(
+            title,
+            Command.create(title, "stimulus.controller.create", identifier, diagnostic, root),
+            CodeActionKind.QuickFix
+          )
+        })
+      ]
     })
   }
 }

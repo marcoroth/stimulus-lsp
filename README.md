@@ -31,6 +31,7 @@ This Language Server works for HTML and ERB files. It has the following language
 ### Quick-Fixes
 
 * Create unknown controllers (`stimulus.controller.create`)
+* Update controller identifier with did you mean suggestion (`stimulus.controller.update`)
 
 ## Structure
 
