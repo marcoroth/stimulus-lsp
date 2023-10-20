@@ -25,6 +25,7 @@ This Language Server works for HTML and ERB files. It has the following language
 * Missing controller targets (`stimulus.controller.target.missing`)
 * Missing controller values (`stimulus.controller.value.missing`)
 * Invalid action descriptions (`stimulus.action.invalid`)
+* Data attributes format mismatches (`stimulus.attribute.mismatch`)
 * Controller values type mismatches (`stimulus.controller.value.type_mismatch`)
 
 ### Quick-Fixes

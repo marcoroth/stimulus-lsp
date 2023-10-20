@@ -6,7 +6,7 @@ import { parseActionDescriptorString } from "./action_descriptor"
 
 import { DocumentService } from "./document_service"
 import { attributeValue, tokenList } from "./html_util"
-import { didyoumean, camelize } from "./utils"
+import { didyoumean, camelize, dasherize } from "./utils"
 import { StimulusHTMLDataProvider } from "./data_providers/stimulus_html_data_provider"
 
 export interface InvalidControllerDiagnosticData {
@@ -146,6 +146,20 @@ export class Diagnostics {
           return
         }
 
+        const hasUppercaseLetter = valueName.match(/[A-Z]/g)
+
+        if (hasUppercaseLetter) {
+          const attributeNameRange = this.attributeNameRange(textDocument, node, attribute, valueName)
+          this.createAttributeFormatMismatchDiagnosticFor(
+            identifier,
+            valueName,
+            textDocument,
+            attributeNameRange
+          )
+
+          return
+        }
+
         const camelizedValueName = camelize(valueName)
         const valueDefiniton = controller.values[camelizedValueName]
 
@@ -190,6 +204,10 @@ export class Diagnostics {
     })
   }
 
+  validateDataClassAttribute(_node: Node, _textDocument: TextDocument) {
+    // TODO: implemenet
+  }
+
   validateDataTargetAttribute(node: Node, textDocument: TextDocument) {
     const attributes = node.attributes || {}
 
@@ -224,6 +242,7 @@ export class Diagnostics {
     this.validateDataControllerAttribute(node, textDocument)
     this.validateDataActionAttribute(node, textDocument)
     this.validateDataValueAttribute(node, textDocument)
+    this.validateDataClassAttribute(node, textDocument)
     this.validateDataTargetAttribute(node, textDocument)
 
     node.children.forEach((child) => {
@@ -342,6 +361,21 @@ export class Diagnostics {
       range,
       textDocument,
       { identifier, actionName }
+    )
+  }
+
+  private createAttributeFormatMismatchDiagnosticFor(
+    identifier: string,
+    valueName: string,
+    textDocument: TextDocument,
+    range: Range
+  ) {
+    this.pushDiagnostic(
+      `The data attribute for "${valueName}" on the "${identifier}" controller is camelCased, but should be dasherized ("${dasherize(valueName)}"). Please use dashes to separate the Stimulus data attributes.`,
+      "stimulus.attribute.mismatch",
+      range,
+      textDocument,
+      { identifier, valueName }
     )
   }
 
