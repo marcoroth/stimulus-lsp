@@ -3,6 +3,7 @@ import { IHTMLDataProvider } from "vscode-html-languageservice"
 import { EVENTS } from "../events"
 
 import { Project } from "stimulus-parser"
+import { dasherize } from "../utils"
 
 export class StimulusHTMLDataProvider implements IHTMLDataProvider {
   private folder: string
@@ -44,14 +45,14 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
     const valueAttribtues = this.controllers
       .flatMap((controller) => {
         return Object.keys(controller.values).map((value) => {
-          return { name: `data-${controller.identifier}-${value}-value` }
+          return { name: `data-${controller.identifier}-${dasherize(value)}-value` }
         })
       })
 
     const classAttribtues = this.controllers
       .flatMap((controller) => {
         return controller.classes.map((klass) => {
-          return { name: `data-${controller.identifier}-${klass}-class` }
+          return { name: `data-${controller.identifier}-${dasherize(klass)}-class` }
         })
       })
 
