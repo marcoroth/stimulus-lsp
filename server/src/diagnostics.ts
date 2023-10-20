@@ -372,7 +372,7 @@ export class Diagnostics {
     range: Range
   ) {
     this.pushDiagnostic(
-      `The data attribute for "${valueName}" on the "${identifier}" controller is camelCased, but should be dasherized ("${dasherize(valueName)}"). Please use dashes to for Stimulus data attributes.`,
+      `The data attribute for "${valueName}" on the "${identifier}" controller is camelCased, but should be dasherized ("${dasherize(valueName)}"). Please use dashes for Stimulus data attributes.`,
       "stimulus.attribute.mismatch",
       range,
       textDocument,
