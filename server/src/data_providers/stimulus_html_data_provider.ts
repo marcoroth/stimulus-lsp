@@ -6,20 +6,11 @@ import { Project } from "stimulus-parser"
 import { dasherize } from "../utils"
 
 export class StimulusHTMLDataProvider implements IHTMLDataProvider {
-  private folder: string
-  private project: Project
-
-  constructor(private id: string, private projectPath: string) {
-    this.folder = this.projectPath.replace("file://", "")
-    this.project = new Project(this.folder)
+  constructor(private id: string, private project: Project) {
   }
 
   get controllers() {
     return this.project.controllerDefinitions
-  }
-
-  async refresh() {
-    await this.project.analyze()
   }
 
   isApplicable() {
