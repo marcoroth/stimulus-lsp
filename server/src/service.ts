@@ -8,6 +8,7 @@ import { Diagnostics } from "./diagnostics"
 import { Definitions } from "./definitions"
 import { Commands } from "./commands"
 import { CodeActions } from "./code_actions"
+import { Project } from "stimulus-parser"
 
 export class Service {
   connection: Connection
@@ -19,16 +20,18 @@ export class Service {
   commands: Commands
   documentService: DocumentService
   codeActions: CodeActions
+  project: Project
 
   constructor(connection: Connection, params: InitializeParams) {
     this.connection = connection
     this.settings = new Settings(params, this.connection)
     this.documentService = new DocumentService(this.connection)
-    this.codeActions = new CodeActions(this.documentService)
-    this.stimulusDataProvider = new StimulusHTMLDataProvider("id", this.settings.projectPath)
+    this.project = new Project(this.settings.projectPath.replace("file://", ""))
+    this.codeActions = new CodeActions(this.documentService, this.project)
+    this.stimulusDataProvider = new StimulusHTMLDataProvider("id", this.project)
     this.diagnostics = new Diagnostics(this.connection, this.stimulusDataProvider, this.documentService)
     this.definitions = new Definitions(this.documentService, this.stimulusDataProvider)
-    this.commands = new Commands(this.settings, this.connection)
+    this.commands = new Commands(this.project, this.connection)
 
     this.htmlLanguageService = getLanguageService({
       customDataProviders: [this.stimulusDataProvider],
@@ -36,7 +39,7 @@ export class Service {
   }
 
   async init() {
-    await this.stimulusDataProvider.refresh()
+    await this.project.analyze()
 
     // Only keep settings for open documents
     this.documentService.onDidClose((change) => {
@@ -51,7 +54,7 @@ export class Service {
   }
 
   async refresh() {
-    await this.stimulusDataProvider.refresh()
+    await this.project.analyze()
 
     this.diagnostics.refreshAllDocuments()
   }

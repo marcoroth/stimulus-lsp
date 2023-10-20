@@ -89,9 +89,9 @@ connection.onCodeAction((params) => service.codeActions.onCodeAction(params))
 connection.onExecuteCommand((params) => {
   if (params.command !== "stimulus.controller.create" || !params.arguments) return
 
-  const [identifier, diagnostic] = params.arguments as [string, Diagnostic]
+  const [identifier, diagnostic, controllerRoot] = params.arguments as [string, Diagnostic, string]
 
-  service.commands.createController(identifier, diagnostic)
+  service.commands.createController(identifier, diagnostic, controllerRoot)
 })
 
 connection.onCompletion((textDocumentPosition) => {

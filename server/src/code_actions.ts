@@ -3,11 +3,15 @@ import { CodeAction, CodeActionKind, CodeActionParams, Command } from "vscode-la
 import { DocumentService } from "./document_service"
 import { InvalidControllerDiagnosticData } from "./diagnostics"
 
+import { Project } from "stimulus-parser"
+
 export class CodeActions {
   private readonly documentService: DocumentService
+  private readonly project: Project
 
-  constructor(documentService: DocumentService) {
+  constructor(documentService: DocumentService, project: Project) {
     this.documentService = documentService
+    this.project = project
   }
 
   onCodeAction(params: CodeActionParams) {
@@ -22,15 +26,20 @@ export class CodeActions {
 
     if (diagnostics.length === 0) return undefined
 
-    return diagnostics.map((diagnostic) => {
+    return diagnostics.flatMap(diagnostic => {
       const identifier = (diagnostic.data as InvalidControllerDiagnosticData).identifier
-      const title = `Create "${identifier}" Stimulus Controller`
+      const manyRoots = this.project.controllerRoots.length > 1
 
-      return CodeAction.create(
-        title,
-        Command.create(title, "stimulus.controller.create", identifier, diagnostic),
-        CodeActionKind.QuickFix
-      )
+      return this.project.controllerRoots.map(root => {
+        const folder = `${manyRoots ? ` in "${root}/"` : ''}`
+        const title = `Create "${identifier}" Stimulus Controller${folder}`
+
+        return CodeAction.create(
+          title,
+          Command.create(title, "stimulus.controller.create", identifier, diagnostic, root),
+          CodeActionKind.QuickFix
+        )
+      })
     })
   }
 }

@@ -224,10 +224,10 @@ signal-exit@^4.0.1:
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-4.1.0.tgz#952188c1cbd546070e2dd20d0f41c0ae0530cb04"
   integrity sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==
 
-stimulus-parser@^0.0.8:
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/stimulus-parser/-/stimulus-parser-0.0.8.tgz#b087b14fb35a759aeefe756d3d49dfaa17535ca3"
-  integrity sha512-5VU3/Y11zVCbUHBqwUQtHIT9QVIBKx2l1bWp5YFHXoXRtP1HbkFM7xLrgyJCIxQx+1MNtfUMmApINz+9rm5zWQ==
+stimulus-parser@^0.0.11:
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/stimulus-parser/-/stimulus-parser-0.0.11.tgz#7106f7ec6f8fe8657c7a6e8662334a1565104bc3"
+  integrity sha512-8FmA5kBpQLQ+xyxih+5h3dBzKqQ7sGiExguZ1MIL2ZLATvEFYleblFGJPdHQwDpVCm3fnFKWC7wOdttZQuIssQ==
   dependencies:
     "@hotwired/stimulus-webpack-helpers" "^1.0.1"
     acorn "^8.8.2"
