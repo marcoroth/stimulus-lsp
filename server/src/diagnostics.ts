@@ -370,9 +370,6 @@ export class Diagnostics {
     textDocument: TextDocument,
     range: Range
   ) {
-    const controller = this.controllers.find((controller) => controller.identifier === identifier)
-    const match = controller ? didyoumean(valueName, Object.keys(controller.values)) : null
-
     this.pushDiagnostic(
       `The data attribute for "${valueName}" on the "${identifier}" controller is camelCased, but should be dasherized ("${dasherize(valueName)}"). Please use dashes to separate the Stimulus data attributes.`,
       "stimulus.attribute.mismatch",
