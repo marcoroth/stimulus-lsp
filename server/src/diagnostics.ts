@@ -11,6 +11,7 @@ import { StimulusHTMLDataProvider } from "./data_providers/stimulus_html_data_pr
 
 export interface InvalidControllerDiagnosticData {
   identifier: string
+  suggestion: string
 }
 
 export class Diagnostics {
@@ -335,7 +336,7 @@ export class Diagnostics {
       "stimulus.controller.invalid",
       range,
       textDocument,
-      { identifier }
+      { identifier, suggestion: match, textDocument, range }
     )
   }
 

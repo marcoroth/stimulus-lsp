@@ -2,6 +2,14 @@ import { Connection, TextDocumentEdit, TextEdit, CreateFile, Range, Diagnostic }
 
 import { Project, ControllerDefinition } from "stimulus-parser"
 
+type SerializedTextDocument = {
+  _uri: string
+  _languageId: string
+  _version: number
+  _content: string
+  _lineOffsets: number[]
+}
+
 export class Commands {
   private readonly project: Project
   private readonly connection: Connection
@@ -9,6 +17,21 @@ export class Commands {
   constructor(project: Project, connection: Connection) {
     this.project = project
     this.connection = connection
+  }
+
+  async updateControllerReference(identifier: string, diagnostic: Diagnostic, suggestion: string) {
+    if (identifier === undefined) return
+    if (diagnostic === undefined) return
+    if (suggestion === undefined) return
+
+    const { textDocument, range } = diagnostic.data as { textDocument: SerializedTextDocument, range: Range}
+
+    const document = { uri: textDocument._uri, version: textDocument._version }
+    const textEdit: TextEdit = { range, newText: suggestion }
+
+    const documentChanges: TextDocumentEdit[] = [TextDocumentEdit.create(document, [textEdit])]
+
+    await this.connection.workspace.applyEdit({ documentChanges })
   }
 
   async createController(identifier: string, diagnostic: Diagnostic, controllerRoot: string) {
