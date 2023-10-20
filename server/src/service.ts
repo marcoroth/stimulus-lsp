@@ -26,8 +26,8 @@ export class Service {
     this.connection = connection
     this.settings = new Settings(params, this.connection)
     this.documentService = new DocumentService(this.connection)
-    this.codeActions = new CodeActions(this.documentService)
     this.project = new Project(this.settings.projectPath.replace("file://", ""))
+    this.codeActions = new CodeActions(this.documentService, this.project)
     this.stimulusDataProvider = new StimulusHTMLDataProvider("id", this.project)
     this.diagnostics = new Diagnostics(this.connection, this.stimulusDataProvider, this.documentService)
     this.definitions = new Definitions(this.documentService, this.stimulusDataProvider)

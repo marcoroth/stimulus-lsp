@@ -1,23 +1,23 @@
 import { Connection, TextDocumentEdit, TextEdit, CreateFile, Range, Diagnostic } from "vscode-languageserver/node"
 
-import { Settings } from "./settings"
-import { ControllerDefinition } from "stimulus-parser"
+import { Project, ControllerDefinition } from "stimulus-parser"
 
 export class Commands {
-  private readonly settings: Settings
+  private readonly project: Project
   private readonly connection: Connection
 
-  constructor(settings: Settings, connection: Connection) {
-    this.settings = settings
+  constructor(project: Project, connection: Connection) {
+    this.project = project
     this.connection = connection
   }
 
-  async createController(identifier: string, diagnostic: Diagnostic) {
+  async createController(identifier: string, diagnostic: Diagnostic, controllerRoot: string) {
     if (identifier === undefined) return
     if (diagnostic === undefined) return
+    if (controllerRoot === undefined) controllerRoot = this.project.controllerRoot
 
     const path = ControllerDefinition.controllerPathForIdentifier(identifier)
-    const newControllerPath = `${this.settings.controllersPath}/${path}`
+    const newControllerPath = `${this.project.projectPath}/${controllerRoot}/${path}`
     const createFile: CreateFile = { kind: "create", uri: newControllerPath }
 
     await this.connection.workspace.applyEdit({ documentChanges: [createFile] })
