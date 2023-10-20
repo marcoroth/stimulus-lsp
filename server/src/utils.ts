@@ -23,3 +23,7 @@ export function didyoumean(input: string, list: string[]): string | null {
 export function camelize(value: string) {
   return value.replace(/(?:[_-])([a-z0-9])/g, (_, char) => char.toUpperCase())
 }
+
+export function dasherize(value: string) {
+  return value.replace(/([A-Z])/g, (_, char) => `-${char.toLowerCase()}`)
+}
