@@ -13,6 +13,10 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
     return this.project.controllerDefinitions
   }
 
+  get controllerRoots() {
+    return this.project.controllerRoots
+  }
+
   isApplicable() {
     return true
   }

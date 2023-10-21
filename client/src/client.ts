@@ -62,12 +62,13 @@ export class Client {
   private get clientOptions(): LanguageClientOptions {
     return {
       documentSelector: [
-        { scheme: "file", language: "html" },
         { scheme: "file", language: "ruby" },
         { scheme: "file", language: "erb" },
         { scheme: "file", language: "haml" },
         { scheme: "file", language: "slim" },
+        { scheme: "file", language: "blade" },
         { scheme: "file", language: "php" },
+        { scheme: "file", language: "html" },
       ],
       synchronize: {
         // Notify the server about file changes to '.clientrc files contained in the workspace

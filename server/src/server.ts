@@ -60,7 +60,7 @@ connection.onInitialized(() => {
   }
 
   connection.client.register(DidChangeWatchedFilesNotification.type, {
-    watchers: [{ globPattern: `**/app/javascript/**/*` }],
+    watchers: service.stimulusDataProvider.controllerRoots.map((root) => ({ globPattern: `**/${root}/**/*` })),
   })
 })
 
