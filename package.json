@@ -28,8 +28,13 @@
     "vscode": "^1.43.0"
   },
   "activationEvents": [
-    "onLanguage:html",
-    "onLanguage:erb"
+    "onLanguage:ruby",
+    "onLanguage:erb",
+    "onLanguage:haml",
+    "onLanguage:slim",
+    "onLanguage:blade",
+    "onLanguage:php",
+    "onLanguage:html"
   ],
   "main": "./client/out/extension",
   "contributes": {
