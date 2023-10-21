@@ -6,11 +6,12 @@ import { parseActionDescriptorString } from "./action_descriptor"
 
 import { DocumentService } from "./document_service"
 import { attributeValue, tokenList } from "./html_util"
-import { didyoumean } from "./utils"
+import { didyoumean, camelize, dasherize } from "./utils"
 import { StimulusHTMLDataProvider } from "./data_providers/stimulus_html_data_provider"
 
 export interface InvalidControllerDiagnosticData {
   identifier: string
+  suggestion: string
 }
 
 export class Diagnostics {
@@ -97,10 +98,47 @@ export class Diagnostics {
       // TODO: skip when value contains <%= or %>
 
       if (attributeMatches && Array.isArray(attributeMatches) && attributeMatches[1]) {
-        const identifier = attributeMatches[1]
-        const valueName = attributeMatches[2]
+        let identifier = attributeMatches[1]
+        let valueName = attributeMatches[2]
 
-        const controller = this.controllers.find((controller) => controller.identifier === identifier)
+        let controller = this.controllers.find((controller) => controller.identifier === identifier)
+
+        if (!controller) {
+          const identifierSplits = identifier.split("--")
+
+          let valuePart
+          let namespacePart
+
+          // has namespace
+          if (identifierSplits.length > 1) {
+            namespacePart = identifierSplits.slice(0, -1).join("--")
+            valuePart = identifierSplits[identifierSplits.length - 1]
+          } else {
+            namespacePart = null
+            valuePart = identifierSplits[0]
+          }
+
+          const allParts = valuePart.split("-").concat(valueName.split("-"))
+
+          for (let i = 1; i <= allParts.length; i++) {
+            if (controller) continue
+
+            let potentialIdentifier = allParts.slice(0, i).join("-")
+
+            if (namespacePart) {
+              potentialIdentifier = `${namespacePart}--${potentialIdentifier}`
+            }
+
+            const potentialValueName = allParts.slice(i, allParts.length).join("-")
+
+            controller = this.controllers.find((controller) => controller.identifier === potentialIdentifier)
+
+            if (controller) {
+              identifier = potentialIdentifier
+              valueName = potentialValueName
+            }
+          }
+        }
 
         if (!controller) {
           const attributeNameRange = this.attributeNameRange(textDocument, node, attribute, identifier)
@@ -109,11 +147,31 @@ export class Diagnostics {
           return
         }
 
-        const valueDefiniton = controller.values[valueName]
+        const hasUppercaseLetter = valueName.match(/[A-Z]/g)
+
+        if (hasUppercaseLetter) {
+          const attributeNameRange = this.attributeNameRange(textDocument, node, attribute, valueName)
+          this.createAttributeFormatMismatchDiagnosticFor(
+            identifier,
+            valueName,
+            textDocument,
+            attributeNameRange
+          )
+
+          return
+        }
+
+        const camelizedValueName = camelize(valueName)
+        const valueDefiniton = controller.values[camelizedValueName]
 
         if (controller && !valueDefiniton) {
           const attributeNameRange = this.attributeNameRange(textDocument, node, attribute, valueName)
-          this.createMissingValueOnControllerDiagnosticFor(identifier, valueName, textDocument, attributeNameRange)
+          this.createMissingValueOnControllerDiagnosticFor(
+            identifier,
+            camelizedValueName,
+            textDocument,
+            attributeNameRange
+          )
 
           return
         }
@@ -136,7 +194,7 @@ export class Diagnostics {
 
           this.createValueMismatchOnControllerDiagnosticFor(
             identifier,
-            valueName,
+            camelizedValueName,
             expectedType,
             actualType,
             textDocument,
@@ -145,6 +203,10 @@ export class Diagnostics {
         }
       }
     })
+  }
+
+  validateDataClassAttribute(_node: Node, _textDocument: TextDocument) {
+    // TODO: implemenet
   }
 
   validateDataTargetAttribute(node: Node, textDocument: TextDocument) {
@@ -181,6 +243,7 @@ export class Diagnostics {
     this.validateDataControllerAttribute(node, textDocument)
     this.validateDataActionAttribute(node, textDocument)
     this.validateDataValueAttribute(node, textDocument)
+    this.validateDataClassAttribute(node, textDocument)
     this.validateDataTargetAttribute(node, textDocument)
 
     node.children.forEach((child) => {
@@ -273,7 +336,7 @@ export class Diagnostics {
       "stimulus.controller.invalid",
       range,
       textDocument,
-      { identifier }
+      { identifier, suggestion: match, textDocument, range }
     )
   }
 
@@ -299,6 +362,21 @@ export class Diagnostics {
       range,
       textDocument,
       { identifier, actionName }
+    )
+  }
+
+  private createAttributeFormatMismatchDiagnosticFor(
+    identifier: string,
+    valueName: string,
+    textDocument: TextDocument,
+    range: Range
+  ) {
+    this.pushDiagnostic(
+      `The data attribute for "${valueName}" on the "${identifier}" controller is camelCased, but should be dasherized ("${dasherize(valueName)}"). Please use dashes for Stimulus data attributes.`,
+      "stimulus.attribute.mismatch",
+      range,
+      textDocument,
+      { identifier, valueName }
     )
   }
 

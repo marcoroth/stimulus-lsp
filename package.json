@@ -4,7 +4,7 @@
   "description": "Intelligent Stimulus tooling",
   "license": "MIT",
   "pricing": "Free",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "icon": "icon.png",
   "publisher": "marcoroth",
   "author": {
@@ -55,6 +55,7 @@
     "vscode:prepublish": "yarn run build",
     "prebuild": "yarn run clean",
     "clean": "yarn rimraf client/out && yarn rimraf server/out",
+    "deploy": "vsce publish --yarn",
     "build": "tsc -b",
     "watch": "tsc -b -w",
     "lint": "eslint client/**/*.ts server/**/*.ts --no-ignore",
@@ -63,13 +64,14 @@
     "test": "sh ./scripts/e2e.sh"
   },
   "devDependencies": {
-    "@types/node": "^20.6.0",
+    "@types/node": "^20.8.7",
     "@typescript-eslint/eslint-plugin": "^6.6.0",
-    "@typescript-eslint/parser": "^6.6.0",
-    "eslint": "^8.49.0",
-    "eslint-config-prettier": "^8.8.0",
+    "@typescript-eslint/parser": "^6.8.0",
+    "@vscode/vsce": "^2.21.1",
+    "eslint": "^8.51.0",
+    "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "prettier": "^2.8.8",
+    "prettier": "^3.0.3",
     "rimraf": "^5.0.5",
     "typescript": "^5.2.2"
   }

@@ -28,7 +28,10 @@ connection.onInitialize(async (params: InitializeParams) => {
       codeActionProvider: true,
       definitionProvider: true,
       executeCommandProvider: {
-        commands: ["stimulus.controller.create"],
+        commands: [
+          "stimulus.controller.create",
+          "stimulus.controller.update",
+        ],
       },
     },
   }
@@ -87,11 +90,19 @@ connection.onDefinition((params) => service.definitions.onDefinition(params))
 connection.onCodeAction((params) => service.codeActions.onCodeAction(params))
 
 connection.onExecuteCommand((params) => {
-  if (params.command !== "stimulus.controller.create" || !params.arguments) return
+  if (!params.arguments) return
 
-  const [identifier, diagnostic] = params.arguments as [string, Diagnostic]
+  if (params.command === "stimulus.controller.create") {
+    const [identifier, diagnostic, controllerRoot] = params.arguments as [string, Diagnostic, string]
 
-  service.commands.createController(identifier, diagnostic)
+    service.commands.createController(identifier, diagnostic, controllerRoot)
+  }
+
+  if (params.command === "stimulus.controller.update") {
+    const [identifier, diagnostic, suggestion] = params.arguments as [string, Diagnostic, string]
+
+    service.commands.updateControllerReference(identifier, diagnostic, suggestion)
+  }
 })
 
 connection.onCompletion((textDocumentPosition) => {
