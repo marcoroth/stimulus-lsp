@@ -11,12 +11,13 @@
   "repository": "https://github.com/marcoroth/stimulus-lsp",
   "homepage": "https://hotwire.io/ecosystem/tooling/stimulus-lsp",
   "bin": {
-    "stimulus-language-server": "./out/server.js"
+    "stimulus-language-server": "./out/stimulus-language-server"
   },
   "scripts": {
     "clean": "rimraf out",
     "prebuild": "yarn run clean",
     "build": "tsc -b",
+    "postbuild": "node scripts/executable.mjs",
     "watch": "tsc -b -w"
   },
   "files": [
