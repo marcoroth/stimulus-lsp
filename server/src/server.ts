@@ -57,7 +57,7 @@ connection.onInitialized(() => {
   }
 
   connection.client.register(DidChangeWatchedFilesNotification.type, {
-    watchers: [{ globPattern: `**/app/javascript/**/*` }, { globPattern: `**/resources/js/**/*` }],
+    watchers: this.project.controllerRoots(root => { globPattern: `**/${root}/**/*` })
   })
 })
 
