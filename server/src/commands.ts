@@ -1,3 +1,5 @@
+import dedent from "dedent"
+
 import { Connection, TextDocumentEdit, TextEdit, CreateFile, Range, Diagnostic } from "vscode-languageserver/node"
 
 import { Project, ControllerDefinition } from "stimulus-parser"
@@ -58,12 +60,14 @@ export class Commands {
   }
 
   private controllerTemplateFor(identifier: string) {
-    return `import { Controller } from "@hotwired/stimulus"
+    return dedent`
+      import { Controller } from "@hotwired/stimulus"
 
-export default class extends Controller {
-  connect() {
-    console.log("${identifier} controller connected")
-  }
-}`
+      export default class extends Controller {
+        connect() {
+          console.log("${identifier} controller connected")
+        }
+      }
+    `
   }
 }
