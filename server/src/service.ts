@@ -25,11 +25,7 @@ export class Service {
     this.settings = new Settings(params, this.connection)
     this.documentService = new DocumentService(this.connection)
     this.codeActions = new CodeActions(this.documentService)
-    this.stimulusDataProvider = new StimulusHTMLDataProvider(
-      "id",
-      this.settings.projectPath,
-      this.settings.controllersRelativePath
-    )
+    this.stimulusDataProvider = new StimulusHTMLDataProvider("id", this.settings.projectPath)
     this.diagnostics = new Diagnostics(this.connection, this.stimulusDataProvider, this.documentService)
     this.definitions = new Definitions(this.documentService, this.stimulusDataProvider)
     this.commands = new Commands(this.settings, this.connection)
