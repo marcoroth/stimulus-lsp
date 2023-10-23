@@ -59,3 +59,25 @@ Currently, this Language Server only works for HTML, though its utility extends 
 - If you want to debug the server as well use the launch configuration `Attach to Server`
 - In the [Extension Development Host] instance of VSCode, open a HTML file.
   - Type `<div data-controller="|">`, place your cursor where the `|` is, hit Ctrl+Space and you should see completions.
+
+## Install instructions: Neovim
+
+- Install the `stimulus-language-server` package globally
+
+It can be installed by `npm`
+```
+npm install -g stimulus-language-server
+```
+
+or by `yarn`
+```
+yarn global add stimulus-language-server
+```
+
+- To enable `stimulus-language-server` in Neovim, the plugin `nvim-lspconfig` ([click](https://github.com/neovim/nvim-lspconfig)) is used.
+
+After installing `nvim-lspconfig`, add the lanugage server setup to your init.lua.
+
+```
+require'lspconfig'.stimulus_lsp.setup{}
+```
