@@ -30,8 +30,6 @@
   "activationEvents": [
     "onLanguage:ruby",
     "onLanguage:erb",
-    "onLanguage:haml",
-    "onLanguage:slim",
     "onLanguage:blade",
     "onLanguage:php",
     "onLanguage:html"

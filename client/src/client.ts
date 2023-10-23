@@ -64,8 +64,6 @@ export class Client {
       documentSelector: [
         { scheme: "file", language: "ruby" },
         { scheme: "file", language: "erb" },
-        { scheme: "file", language: "haml" },
-        { scheme: "file", language: "slim" },
         { scheme: "file", language: "blade" },
         { scheme: "file", language: "php" },
         { scheme: "file", language: "html" },

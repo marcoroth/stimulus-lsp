@@ -7,7 +7,7 @@ Intelligent Stimulus tooling for Visual Studio Code
 
 ## Functionality
 
-This Language Server works for HTML and ERB files. It has the following language features:
+Currently, this Language Server only works for HTML, though its utility extends to various file types such as ERB, PHP, or Blade files.
 
 ### Completions
 
@@ -37,10 +37,12 @@ This Language Server works for HTML and ERB files. It has the following language
 
 ```
 .
-├── client // Language Client
-│   ├── src
-│   │   └── extension.ts // Language Client entry point
 ├── package.json // The extension manifest.
+|
+├── client // Language Client
+│   └── src
+│      └── extension.ts // Language Client entry point
+|
 └── server // Language Server
     └── src
         └── server.ts // Language Server entry point
