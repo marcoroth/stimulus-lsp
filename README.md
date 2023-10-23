@@ -59,3 +59,7 @@ Currently, this Language Server only works for HTML, though its utility extends 
 - If you want to debug the server as well use the launch configuration `Attach to Server`
 - In the [Extension Development Host] instance of VSCode, open a HTML file.
   - Type `<div data-controller="|">`, place your cursor where the `|` is, hit Ctrl+Space and you should see completions.
+
+## Install instructions: Neovim
+
+[Install instructions can be found at nvim-lspconfig](https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md#stimulus_ls)
