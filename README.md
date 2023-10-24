@@ -3,7 +3,7 @@
 Intelligent Stimulus tooling for Visual Studio Code
 
 
-![](/assets/stimulus-intellisense.png)
+![](/assets/stimulus-lsp.png)
 
 ## Functionality
 
@@ -24,7 +24,7 @@ Currently, this Language Server only works for HTML, though its utility extends 
 * Missing controller actions (`stimulus.action.invalid`)
 * Missing controller targets (`stimulus.controller.target.missing`)
 * Missing controller values (`stimulus.controller.value.missing`)
-* Invalid action descriptions (`stimulus.action.invalid`)
+* Invalid action descriptors (`stimulus.action.invalid`)
 * Data attributes format mismatches (`stimulus.attribute.mismatch`)
 * Controller values type mismatches (`stimulus.controller.value.type_mismatch`)
 
