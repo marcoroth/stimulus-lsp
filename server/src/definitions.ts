@@ -54,7 +54,7 @@ export class Definitions {
     }
 
     const controllers = this.controllers.filter((controller) => identifiers.includes(controller.identifier))
-    const locations = controllers.map((controller) => Location.create(controller.path, Range.create(0, 0, 0, 0)))
+    const locations = controllers.map((controller) => Location.create(`file://${controller.path}`, Range.create(0, 0, 0, 0)))
 
     if (controllers.length === 1) return locations[0]
 
