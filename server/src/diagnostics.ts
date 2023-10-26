@@ -95,7 +95,12 @@ export class Diagnostics {
       const value = attributeValue(node, attribute) || ""
       const attributeMatches = attribute.match(this.valueAttribute)
 
-      // TODO: skip when value contains <%= or %>
+      // cannot analyze value if it is interpolated       
+      const skippableTags = ["<%=", "<%-", "%>", "<?=", "<?php", "?>", "{{", "}}"]
+      const foundSkippableTags = skippableTags.filter((tag) => value.includes(tag)).length
+      if (foundSkippableTags) {
+            return
+      }
 
       if (attributeMatches && Array.isArray(attributeMatches) && attributeMatches[1]) {
         let identifier = attributeMatches[1]
