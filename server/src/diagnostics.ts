@@ -46,7 +46,7 @@ export class Diagnostics {
 
   validateDataControllerAttribute(node: Node, textDocument: TextDocument) {
     const identifiers = tokenList(node, this.controllerAttribute)
-    const invalidIdentifiers = identifiers.filter((identifier) => !this.controllerIdentifiers.includes(identifier))
+    const invalidIdentifiers = identifiers.filter((identifier) => !this.controllerIdentifiers.includes(identifier) && !this.foundSkippableTags(identifier))
 
     invalidIdentifiers.forEach((identifier) => {
       const attributeValueRange = this.attributeValueRange(textDocument, node, this.controllerAttribute, identifier)
@@ -96,10 +96,8 @@ export class Diagnostics {
       const attributeMatches = attribute.match(this.valueAttribute)
 
       // cannot analyze value if it is interpolated       
-      const skippableTags = ["<%=", "<%-", "%>", "<?=", "<?php", "?>", "{{", "}}"]
-      const foundSkippableTags = skippableTags.filter((tag) => value.includes(tag)).length
-      if (foundSkippableTags) {
-            return
+      if (this.foundSkippableTags(value)) {
+        return
       }
 
       if (attributeMatches && Array.isArray(attributeMatches) && attributeMatches[1]) {
@@ -486,5 +484,10 @@ export class Diagnostics {
 
     if (Array.isArray(string)) return "Array"
     if (Object.prototype.toString.call(string) === "[object Object]") return "Object"
+  }
+
+  private foundSkippableTags(value: string) {
+    const skippableTags = ["<%", "<%=", "<%-", "%>", "<?=", "<?php", "?>", "{{", "}}"]
+    return skippableTags.some((tag) => value.includes(tag))
   }
 }
