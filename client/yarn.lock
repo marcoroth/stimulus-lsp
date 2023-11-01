@@ -12,12 +12,24 @@ balanced-match@^1.0.0:
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.2.tgz#e83e3a7e3f300b34cb9d87f615fa0cbf357690ee"
   integrity sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==
 
+balanced-match@^3.0.0:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-3.0.1.tgz#e854b098724b15076384266497392a271f4a26a0"
+  integrity sha512-vjtV3hiLqYDNRoiAv0zC4QaGAMPomEoq83PRmYIofPswwZurCeWR5LByXm7SyoL0Zh5+2z0+HC7jG8gSZJUh0w==
+
 brace-expansion@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/brace-expansion/-/brace-expansion-2.0.1.tgz#1edc459e0f0c548486ecf9fc99f2221364b9a0ae"
   integrity sha512-XnAIvQ8eM+kC6aULx6wuQiwVsnzsi9d3WxzV3FpWTGA19F621kwdbsAcFKXgKUHZWsy+mY6iL1sHTxWEFCytDA==
   dependencies:
     balanced-match "^1.0.0"
+
+brace-expansion@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/brace-expansion/-/brace-expansion-3.0.0.tgz#2ba8d16a84bb3b440107587dae0fa59cf8672452"
+  integrity sha512-P+6OwxY7i0tsp0Xdei2CjvVOQke51REB4c2d2wCckcMn6NBElNqLuzr6PsxFCdJ3i/cpGEkZ/Nng5I7ZkLo0CA==
+  dependencies:
+    balanced-match "^3.0.0"
 
 lru-cache@^6.0.0:
   version "6.0.0"
