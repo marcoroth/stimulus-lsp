@@ -233,7 +233,7 @@ export class Diagnostics {
           return
         }
 
-        if (controller && !controller.targets.includes(targetName)) {
+        if (controller && !controller.targets.includes(targetName) && !this.foundSkippableTags(targetName)) {
           const attributeNameRange = this.attributeValueRange(textDocument, node, attribute, targetName)
 
           this.createMissingTargetOnControllerDiagnosticFor(identifier, targetName, textDocument, attributeNameRange)
