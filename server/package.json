@@ -28,8 +28,8 @@
     "dedent": "^1.5.1",
     "stimulus-parser": "^0.0.11",
     "typescript": "^5.2.2",
-    "vscode-html-languageservice": "^4.0.5",
-    "vscode-languageserver": "^7.0.0",
+    "vscode-html-languageservice": "^5.1.1",
+    "vscode-languageserver": "^9.0.1",
     "vscode-languageserver-textdocument": "^1.0.1"
   },
   "devDependencies": {
