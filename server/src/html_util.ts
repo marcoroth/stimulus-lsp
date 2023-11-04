@@ -18,8 +18,9 @@ export function tokenList(node: Node, attribute: string) {
   value = squish(value).trim()
 
   if (value.length === 0) return []
-
-   return split_ignore_tags(value);
+  if (attribute === "data-action") return [value]
+    
+  return split_ignore_tags(value);
 }
 
 export function unquote(string: string) {

@@ -72,13 +72,13 @@ export class Diagnostics {
 
       const controller = this.controllers.find((controller) => controller.identifier === identifier)
 
-      if (!controller) {
+      if (!controller && !this.foundSkippableTags(identifier)) {
         const attributeValueRange = this.attributeValueRange(textDocument, node, this.actionAttribute, identifier)
 
         this.createInvalidControllerDiagnosticFor(identifier, textDocument, attributeValueRange)
       }
 
-      if (controller && methodName && !controller.methods.includes(methodName)) {
+      if (controller && methodName && !controller.methods.includes(methodName) && !this.foundSkippableTags(methodName)) {
         const attributeValueRange = this.attributeValueRange(textDocument, node, this.actionAttribute, methodName)
 
         this.createInvalidControllerActionDiagnosticFor(identifier, methodName, textDocument, attributeValueRange)
@@ -233,7 +233,7 @@ export class Diagnostics {
           return
         }
 
-        if (controller && !controller.targets.includes(targetName) && !this.foundSkippableTags(targetName)) {
+        if (controller && !controller.targets.includes(targetName) && this.foundSkippableTags(targetName)) {
           const attributeNameRange = this.attributeValueRange(textDocument, node, attribute, targetName)
 
           this.createMissingTargetOnControllerDiagnosticFor(identifier, targetName, textDocument, attributeNameRange)
