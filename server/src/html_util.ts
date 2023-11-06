@@ -18,9 +18,8 @@ export function tokenList(node: Node, attribute: string) {
   value = squish(value).trim()
 
   if (value.length === 0) return []
-  if (attribute === "data-action") return [value]
     
-  return split_ignore_tags(value);
+  return split_on_space_ignore_tags(value);
 }
 
 export function unquote(string: string) {
@@ -35,13 +34,11 @@ export function squish(string: string) {
   return string.replace(/\s+/g, " ")
 }
 
-export function split_ignore_tags(string: string) {
-    const regex = /<%=(.*?)%>|<%.*?%>|<\?php.*?\?>|<\?=.*?\?>|\{\{.*?\}\}|(\S+)|\s+/g;
-    const splitted_string = string.match(regex);
-
-    if (!splitted_string || splitted_string.length === 1) {
-        return [string];
-    }
-
-    return splitted_string.filter(match => match !== " " && match.trim() !== "");
+export function split_on_space_ignore_tags(string: string) {
+    // All spaces inside certain opening/closing tags are ignored in this regex pattern
+    // Supported tags:
+    // - Opening: <%=, <%, <%-, <?php, <?=, {{
+    // - Closing: %>, ?>, }}
+    const pattern = /(?<!<%=|<%|<%-|<\?php|<\?=|\{\{.*?)\s+(?![^<]*?%>|\?>|\}\})/g;
+    return string.split(pattern);
 }
