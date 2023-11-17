@@ -27,6 +27,7 @@ Currently, this Language Server only works for HTML, though its utility extends 
 * Invalid action descriptors (`stimulus.action.invalid`)
 * Data attributes format mismatches (`stimulus.attribute.mismatch`)
 * Controller values type mismatches (`stimulus.controller.value.type_mismatch`)
+* Controller parsing errors (`stimulus.controller.parse_error`)
 
 ### Quick-Fixes
 
