@@ -25,7 +25,9 @@
   ],
   "dependencies": {
     "@hotwired/stimulus": "https://github.com/hotwired/dev-builds/archive/refs/tags/@hotwired/stimulus/8cbca6d.tar.gz",
+    "@ruby/prism": "^0.18.0",
     "dedent": "^1.5.1",
+    "ejs": "^3.1.9",
     "stimulus-parser": "^0.0.11",
     "typescript": "^5.2.2",
     "vscode-html-languageservice": "^5.1.1",
