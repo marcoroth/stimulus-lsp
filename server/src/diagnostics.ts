@@ -46,16 +46,14 @@ export class Diagnostics {
 
   validateParsedControllerWithoutErrors(node: Node, textDocument: TextDocument) {
     const identifiers = tokenList(node, this.controllerAttribute)
-    const failedIdentifiers = identifiers.filter((identifier) => {
+
+    identifiers.forEach((identifier) => {
       const controller = this.controllers.find((controller) => controller.identifier === identifier)
 
-      return controller && controller.parseError !== undefined
-    })
+      if (!controller || controller.parseError === undefined) return
 
-    failedIdentifiers.forEach((identifier) => {
       const attributeValueRange = this.attributeValueRange(textDocument, node, this.controllerAttribute, identifier)
-
-      this.createParseErrorDiagnosticFor(identifier, textDocument, attributeValueRange)
+      this.createParseErrorDiagnosticFor(identifier, controller.parseError, textDocument, attributeValueRange)
     })
   }
 
@@ -346,9 +344,9 @@ export class Diagnostics {
     return Range.create(textDocument.positionAt(attributeValueStart), textDocument.positionAt(attributeValueEnd))
   }
 
-  private createParseErrorDiagnosticFor(identifier: string, textDocument: TextDocument, range: Range) {
+  private createParseErrorDiagnosticFor(identifier: string, error: string, textDocument: TextDocument, range: Range) {
     this.pushDiagnostic(
-      `There was an error parsing the "${identifier}" Stimulus controller. Please check the controller for syntax errors.`,
+      `There was an error parsing the "${identifier}" Stimulus controller. Please check the controller for the following error: ${error}`,
       "stimulus.controller.parse_error",
       range,
       textDocument,
