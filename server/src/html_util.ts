@@ -18,7 +18,7 @@ export function tokenList(node: Node, attribute: string) {
   value = squish(value).trim()
 
   if (value.length === 0) return []
-    
+
   return splitOnSpaceIgnoreTags(value);
 }
 
@@ -38,7 +38,7 @@ export function splitOnSpaceIgnoreTags(string: string) {
     // All spaces inside certain opening/closing tags are ignored in this regex pattern
     // Supported tags:
     // - Opening: <%=, <%, <%-, <?php, <?=, {{
-    // - Closing: %>, ?>, }}
-    const pattern = /(?<!<%=|<%|<%-|<\?php|<\?=|\{\{.*?)\s+(?![^<]*?%>|\?>|\}\})/g;
+    // - Closing: %>, -%>, ?>, }}
+    const pattern = /(?<!<%=|<%|<%-|<\?php|<\?=|\{\{.*?)\s+(?![^<]*?%>|-%>|\?>|\}\})/g;
     return string.split(pattern);
 }
