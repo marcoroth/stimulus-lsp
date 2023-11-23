@@ -44,6 +44,19 @@ export class Diagnostics {
     return this.controllers.map((controller) => controller.identifier)
   }
 
+  validateParsedControllerWithoutErrors(node: Node, textDocument: TextDocument) {
+    const identifiers = tokenList(node, this.controllerAttribute)
+
+    identifiers.forEach((identifier) => {
+      const controller = this.controllers.find((controller) => controller.identifier === identifier)
+
+      if (!controller || controller.parseError === undefined) return
+
+      const attributeValueRange = this.attributeValueRange(textDocument, node, this.controllerAttribute, identifier)
+      this.createParseErrorDiagnosticFor(identifier, controller.parseError, textDocument, attributeValueRange)
+    })
+  }
+
   validateDataControllerAttribute(node: Node, textDocument: TextDocument) {
     const identifiers = tokenList(node, this.controllerAttribute)
     const invalidIdentifiers = identifiers.filter((identifier) => !this.controllerIdentifiers.includes(identifier) && !this.foundSkippableTags(identifier))
@@ -78,7 +91,13 @@ export class Diagnostics {
         this.createInvalidControllerDiagnosticFor(identifier, textDocument, attributeValueRange)
       }
 
+<<<<<<< HEAD
       if (controller && methodName && !controller.methods.includes(methodName) && !this.foundSkippableTags(methodName)) {
+=======
+      if (controller && controller.parseError) return
+
+      if (controller && methodName && !controller.methods.includes(methodName)) {
+>>>>>>> main
         const attributeValueRange = this.attributeValueRange(textDocument, node, this.actionAttribute, methodName)
 
         this.createInvalidControllerActionDiagnosticFor(identifier, methodName, textDocument, attributeValueRange)
@@ -167,6 +186,8 @@ export class Diagnostics {
         const camelizedValueName = camelize(valueName)
         const valueDefiniton = controller.values[camelizedValueName]
 
+        if (controller && controller.parseError) return
+
         if (controller && !valueDefiniton) {
           const attributeNameRange = this.attributeNameRange(textDocument, node, attribute, valueName)
           this.createMissingValueOnControllerDiagnosticFor(
@@ -209,7 +230,7 @@ export class Diagnostics {
   }
 
   validateDataClassAttribute(_node: Node, _textDocument: TextDocument) {
-    // TODO: implemenet
+    // TODO: implement
   }
 
   validateDataTargetAttribute(node: Node, textDocument: TextDocument) {
@@ -233,6 +254,8 @@ export class Diagnostics {
           return
         }
 
+        if (controller && controller.parseError) return
+
         if (controller && !controller.targets.includes(targetName) && this.foundSkippableTags(targetName)) {
           const attributeNameRange = this.attributeValueRange(textDocument, node, attribute, targetName)
 
@@ -243,6 +266,7 @@ export class Diagnostics {
   }
 
   visitNode(node: Node, textDocument: TextDocument) {
+    this.validateParsedControllerWithoutErrors(node, textDocument)
     this.validateDataControllerAttribute(node, textDocument)
     this.validateDataActionAttribute(node, textDocument)
     this.validateDataValueAttribute(node, textDocument)
@@ -325,6 +349,16 @@ export class Diagnostics {
     const attributeValueEnd = attributeValueStart + search.length
 
     return Range.create(textDocument.positionAt(attributeValueStart), textDocument.positionAt(attributeValueEnd))
+  }
+
+  private createParseErrorDiagnosticFor(identifier: string, error: string, textDocument: TextDocument, range: Range) {
+    this.pushDiagnostic(
+      `There was an error parsing the "${identifier}" Stimulus controller. Please check the controller for the following error: ${error}`,
+      "stimulus.controller.parse_error",
+      range,
+      textDocument,
+      { identifier },
+    )
   }
 
   private createInvalidControllerDiagnosticFor(identifier: string, textDocument: TextDocument, range: Range) {
