@@ -59,7 +59,7 @@ export class Diagnostics {
 
   validateDataControllerAttribute(node: Node, textDocument: TextDocument) {
     const identifiers = tokenList(node, this.controllerAttribute)
-    const invalidIdentifiers = identifiers.filter((identifier) => !this.controllerIdentifiers.includes(identifier))
+    const invalidIdentifiers = identifiers.filter((identifier) => !this.controllerIdentifiers.includes(identifier) && !this.foundSkippableTags(identifier))
 
     invalidIdentifiers.forEach((identifier) => {
       const attributeValueRange = this.attributeValueRange(textDocument, node, this.controllerAttribute, identifier)
@@ -85,7 +85,7 @@ export class Diagnostics {
 
       const controller = this.controllers.find((controller) => controller.identifier === identifier)
 
-      if (!controller) {
+      if (!controller && !this.foundSkippableTags(identifier)) {
         const attributeValueRange = this.attributeValueRange(textDocument, node, this.actionAttribute, identifier)
 
         this.createInvalidControllerDiagnosticFor(identifier, textDocument, attributeValueRange)
@@ -93,7 +93,7 @@ export class Diagnostics {
 
       if (controller && controller.parseError) return
 
-      if (controller && methodName && !controller.methods.includes(methodName)) {
+      if (controller && methodName && !controller.methods.includes(methodName) && !this.foundSkippableTags(methodName)) {
         const attributeValueRange = this.attributeValueRange(textDocument, node, this.actionAttribute, methodName)
 
         this.createInvalidControllerActionDiagnosticFor(identifier, methodName, textDocument, attributeValueRange)
@@ -110,7 +110,10 @@ export class Diagnostics {
       const value = attributeValue(node, attribute) || ""
       const attributeMatches = attribute.match(this.valueAttribute)
 
-      // TODO: skip when value contains <%= or %>
+      // cannot analyze value if it is interpolated       
+      if (this.foundSkippableTags(value)) {
+        return
+      }
 
       if (attributeMatches && Array.isArray(attributeMatches) && attributeMatches[1]) {
         let identifier = attributeMatches[1]
@@ -249,7 +252,7 @@ export class Diagnostics {
 
         if (controller && controller.parseError) return
 
-        if (controller && !controller.targets.includes(targetName)) {
+        if (controller && !controller.targets.includes(targetName) && this.foundSkippableTags(targetName)) {
           const attributeNameRange = this.attributeValueRange(textDocument, node, attribute, targetName)
 
           this.createMissingTargetOnControllerDiagnosticFor(identifier, targetName, textDocument, attributeNameRange)
@@ -511,5 +514,10 @@ export class Diagnostics {
 
     if (Array.isArray(string)) return "Array"
     if (Object.prototype.toString.call(string) === "[object Object]") return "Object"
+  }
+
+  private foundSkippableTags(value: string) {
+    const skippableTags = ["<%", "<%=", "<%-", "%>", "<?=", "<?php", "?>", "{{", "}}"]
+    return skippableTags.some((tag) => value.includes(tag))
   }
 }
