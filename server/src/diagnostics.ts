@@ -91,13 +91,9 @@ export class Diagnostics {
         this.createInvalidControllerDiagnosticFor(identifier, textDocument, attributeValueRange)
       }
 
-<<<<<<< HEAD
-      if (controller && methodName && !controller.methods.includes(methodName) && !this.foundSkippableTags(methodName)) {
-=======
       if (controller && controller.parseError) return
 
-      if (controller && methodName && !controller.methods.includes(methodName)) {
->>>>>>> main
+      if (controller && methodName && !controller.methods.includes(methodName) && !this.foundSkippableTags(methodName)) {
         const attributeValueRange = this.attributeValueRange(textDocument, node, this.actionAttribute, methodName)
 
         this.createInvalidControllerActionDiagnosticFor(identifier, methodName, textDocument, attributeValueRange)
