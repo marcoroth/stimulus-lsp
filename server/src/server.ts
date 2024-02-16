@@ -62,6 +62,10 @@ connection.onInitialized(() => {
   connection.client.register(DidChangeWatchedFilesNotification.type, {
     watchers: service.stimulusDataProvider.controllerRoots.map((root) => ({ globPattern: `**/${root}/**/*` })),
   })
+
+  connection.client.register(DidChangeWatchedFilesNotification.type, {
+    watchers: [{ globPattern: `**/**/*.{ts,js}` }],
+  })
 })
 
 connection.onDidChangeConfiguration((change) => {
@@ -128,7 +132,7 @@ connection.onCompletionResolve((item) => {
 })
 
 connection.onRequest("stimulus-lsp/controllerDefinitions", async (_handler) => {
-  const controllerDefinitions = service.project.controllerDefinitions.sort((a, b) =>
+  const controllerDefinitions = service.project.registeredControllers.sort((a, b) =>
     a.identifier.localeCompare(b.identifier),
   )
 

@@ -33,6 +33,8 @@
     "onLanguage:blade",
     "onLanguage:php",
     "onLanguage:html",
+    "onLanguage:javascript",
+    "onLanguage:typescript",
     "onView:controllerDefinitions"
   ],
   "main": "./client/out/extension",

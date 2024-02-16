@@ -1,4 +1,4 @@
-import { Connection, Diagnostic, DiagnosticSeverity, Range } from "vscode-languageserver/node"
+import { Connection, Diagnostic, DiagnosticSeverity, Position, Range } from "vscode-languageserver/node"
 import { TextDocument } from "vscode-languageserver-textdocument"
 import { getLanguageService, Node } from "vscode-html-languageservice"
 
@@ -8,6 +8,8 @@ import { DocumentService } from "./document_service"
 import { attributeValue, tokenList } from "./html_util"
 import { didyoumean, camelize, dasherize } from "./utils"
 import { StimulusHTMLDataProvider } from "./data_providers/stimulus_html_data_provider"
+
+import type { SourceFile } from "stimulus-parser"
 
 export interface InvalidControllerDiagnosticData {
   identifier: string
@@ -50,16 +52,59 @@ export class Diagnostics {
     identifiers.forEach((identifier) => {
       const controller = this.controllers.find((controller) => controller.identifier === identifier)
 
-      if (!controller || controller.parseError === undefined) return
+      if (!controller || !controller.controllerDefinition.hasErrors) return
 
       const attributeValueRange = this.attributeValueRange(textDocument, node, this.controllerAttribute, identifier)
-      this.createParseErrorDiagnosticFor(identifier, controller.parseError, textDocument, attributeValueRange)
+
+      this.populateSourceFileErrorsAsDiagnostics([controller.classDeclaration.sourceFile])
+
+      controller.controllerDefinition.errors.forEach((error) => {
+        this.createParseErrorDiagnosticFor(identifier, error.message || "", textDocument, attributeValueRange)
+      })
+    })
+  }
+
+  populateSourceFileErrorsAsDiagnostics(sourceFiles: SourceFile[]) {
+    sourceFiles.forEach((sourceFile) => {
+      const textDocument = this.documentService.get(`file://${sourceFile.path}`)
+
+      if (!textDocument) return
+
+      const errors = sourceFile.errors.concat(
+        sourceFile.classDeclarations.flatMap((classDeclaration) => classDeclaration.controllerDefinition?.errors || []),
+      )
+
+      errors.map((error) => {
+        let range = Range.create(textDocument.positionAt(0), textDocument.positionAt(0))
+
+        if (error.loc) {
+          const start = Position.create(error.loc.start.line - 1, error.loc.start.column)
+          const end = Position.create(error.loc.end.line - 1, error.loc.end.column)
+
+          range = Range.create(start, end)
+        }
+
+        this.pushDiagnostic(
+          error.message,
+          "stimulus.source_file.error",
+          range,
+          textDocument,
+          {},
+          DiagnosticSeverity.Warning,
+        )
+      })
+
+      if (errors.length === 0) return
+
+      this.sendDiagnosticsFor(textDocument)
     })
   }
 
   validateDataControllerAttribute(node: Node, textDocument: TextDocument) {
     const identifiers = tokenList(node, this.controllerAttribute)
-    const invalidIdentifiers = identifiers.filter((identifier) => !this.controllerIdentifiers.includes(identifier) && !this.foundSkippableTags(identifier))
+    const invalidIdentifiers = identifiers.filter(
+      (identifier) => !this.controllerIdentifiers.includes(identifier) && !this.foundSkippableTags(identifier),
+    )
 
     invalidIdentifiers.forEach((identifier) => {
       const attributeValueRange = this.attributeValueRange(textDocument, node, this.controllerAttribute, identifier)
@@ -91,9 +136,14 @@ export class Diagnostics {
         this.createInvalidControllerDiagnosticFor(identifier, textDocument, attributeValueRange)
       }
 
-      if (controller && controller.parseError) return
+      if (controller && controller.controllerDefinition.hasErrors) return
 
-      if (controller && methodName && !controller.methods.includes(methodName) && !this.foundSkippableTags(methodName)) {
+      if (
+        controller &&
+        methodName &&
+        !controller.controllerDefinition.actionNames.includes(methodName) &&
+        !this.foundSkippableTags(methodName)
+      ) {
         const attributeValueRange = this.attributeValueRange(textDocument, node, this.actionAttribute, methodName)
 
         this.createInvalidControllerActionDiagnosticFor(identifier, methodName, textDocument, attributeValueRange)
@@ -110,7 +160,7 @@ export class Diagnostics {
       const value = attributeValue(node, attribute) || ""
       const attributeMatches = attribute.match(this.valueAttribute)
 
-      // cannot analyze value if it is interpolated       
+      // cannot analyze value if it is interpolated
       if (this.foundSkippableTags(value)) {
         return
       }
@@ -169,20 +219,15 @@ export class Diagnostics {
 
         if (hasUppercaseLetter) {
           const attributeNameRange = this.attributeNameRange(textDocument, node, attribute, valueName)
-          this.createAttributeFormatMismatchDiagnosticFor(
-            identifier,
-            valueName,
-            textDocument,
-            attributeNameRange
-          )
+          this.createAttributeFormatMismatchDiagnosticFor(identifier, valueName, textDocument, attributeNameRange)
 
           return
         }
 
         const camelizedValueName = camelize(valueName)
-        const valueDefiniton = controller.values[camelizedValueName]
+        const valueDefiniton = controller.controllerDefinition.values.find(definition => definition.name === camelizedValueName)
 
-        if (controller && controller.parseError) return
+        if (controller && controller.controllerDefinition.hasErrors) return
 
         if (controller && !valueDefiniton) {
           const attributeNameRange = this.attributeNameRange(textDocument, node, attribute, valueName)
@@ -190,11 +235,13 @@ export class Diagnostics {
             identifier,
             camelizedValueName,
             textDocument,
-            attributeNameRange
+            attributeNameRange,
           )
 
           return
         }
+
+        if (!valueDefiniton) return
 
         let actualType
         const expectedType = valueDefiniton.type
@@ -218,7 +265,7 @@ export class Diagnostics {
             expectedType,
             actualType,
             textDocument,
-            attributeValueRange
+            attributeValueRange,
           )
         }
       }
@@ -250,9 +297,13 @@ export class Diagnostics {
           return
         }
 
-        if (controller && controller.parseError) return
+        if (controller && controller.controllerDefinition.hasErrors) return
 
-        if (controller && !controller.targets.includes(targetName) && this.foundSkippableTags(targetName)) {
+        if (
+          controller &&
+          !controller.controllerDefinition.targetNames.includes(targetName) &&
+          this.foundSkippableTags(targetName)
+        ) {
           const attributeNameRange = this.attributeValueRange(textDocument, node, attribute, targetName)
 
           this.createMissingTargetOnControllerDiagnosticFor(identifier, targetName, textDocument, attributeNameRange)
@@ -311,7 +362,7 @@ export class Diagnostics {
     tagContent: string,
     node: Node,
     attribute: string,
-    search: string
+    search: string,
   ) {
     const searchIndex = attribute.indexOf(search) || 0
     const attributeNameStartIndex = tagContent.indexOf(attribute)
@@ -334,7 +385,7 @@ export class Diagnostics {
     tagContent: string,
     node: Node,
     attribute: string,
-    search: string
+    search: string,
   ) {
     const value = attributeValue(node, attribute) || ""
 
@@ -360,7 +411,7 @@ export class Diagnostics {
   private createInvalidControllerDiagnosticFor(identifier: string, textDocument: TextDocument, range: Range) {
     const match = didyoumean(
       identifier,
-      this.controllers.map((controller) => controller.identifier)
+      this.controllers.map((controller) => controller.identifier),
     )
     const suggestion = match ? `Did you mean "${match}"?` : ""
 
@@ -369,7 +420,7 @@ export class Diagnostics {
       "stimulus.controller.invalid",
       range,
       textDocument,
-      { identifier, suggestion: match, textDocument, range }
+      { identifier, suggestion: match, textDocument, range },
     )
   }
 
@@ -383,10 +434,10 @@ export class Diagnostics {
     identifier: string,
     actionName: string,
     textDocument: TextDocument,
-    range: Range
+    range: Range,
   ) {
     const controller = this.controllers.find((controller) => controller.identifier === identifier)
-    const match = controller ? didyoumean(actionName, controller.methods) : null
+    const match = controller ? didyoumean(actionName, controller.controllerDefinition.actionNames) : null
     const suggestion = match ? `Did you mean "${match}"?` : ""
 
     this.pushDiagnostic(
@@ -394,7 +445,7 @@ export class Diagnostics {
       "stimulus.controller.action.invalid",
       range,
       textDocument,
-      { identifier, actionName }
+      { identifier, actionName },
     )
   }
 
@@ -402,14 +453,14 @@ export class Diagnostics {
     identifier: string,
     valueName: string,
     textDocument: TextDocument,
-    range: Range
+    range: Range,
   ) {
     this.pushDiagnostic(
       `The data attribute for "${valueName}" on the "${identifier}" controller is camelCased, but should be dasherized ("${dasherize(valueName)}"). Please use dashes for Stimulus data attributes.`,
       "stimulus.attribute.mismatch",
       range,
       textDocument,
-      { identifier, valueName }
+      { identifier, valueName },
     )
   }
 
@@ -417,10 +468,10 @@ export class Diagnostics {
     identifier: string,
     valueName: string,
     textDocument: TextDocument,
-    range: Range
+    range: Range,
   ) {
     const controller = this.controllers.find((controller) => controller.identifier === identifier)
-    const match = controller ? didyoumean(valueName, Object.keys(controller.values)) : null
+    const match = controller ? didyoumean(valueName, Object.keys(controller.controllerDefinition.values)) : null
     const suggestion = match ? `Did you mean "${match}"?` : ""
 
     this.pushDiagnostic(
@@ -428,7 +479,7 @@ export class Diagnostics {
       "stimulus.controller.value.missing",
       range,
       textDocument,
-      { identifier, valueName }
+      { identifier, valueName },
     )
   }
 
@@ -436,10 +487,10 @@ export class Diagnostics {
     identifier: string,
     targetName: string,
     textDocument: TextDocument,
-    range: Range
+    range: Range,
   ) {
     const controller = this.controllers.find((controller) => controller.identifier === identifier)
-    const match = controller ? didyoumean(targetName, controller.targets) : null
+    const match = controller ? didyoumean(targetName, controller.controllerDefinition.targetNames) : null
     const suggestion = match ? `Did you mean "${match}"?` : ""
 
     this.pushDiagnostic(
@@ -447,7 +498,7 @@ export class Diagnostics {
       "stimulus.controller.target.missing",
       range,
       textDocument,
-      { identifier, targetName }
+      { identifier, targetName },
     )
   }
 
@@ -457,14 +508,14 @@ export class Diagnostics {
     expectedType: string,
     actualType: string,
     textDocument: TextDocument,
-    range: Range
+    range: Range,
   ) {
     this.pushDiagnostic(
       `The value you passed for the "${valueName}" Stimulus Value is of type "${actualType}". But the "${valueName}" Stimulus Value defined in the "${identifier}" controller is of type "${expectedType}".`,
       "stimulus.controller.value.type_mismatch",
       range,
       textDocument,
-      { identifier, valueName }
+      { identifier, valueName },
     )
   }
 
@@ -474,7 +525,7 @@ export class Diagnostics {
     range: Range,
     textDocument: TextDocument,
     data = {},
-    severity = DiagnosticSeverity.Error
+    severity: DiagnosticSeverity = DiagnosticSeverity.Error,
   ) {
     const diagnostic: Diagnostic = {
       source: this.diagnosticsSource,
@@ -489,6 +540,8 @@ export class Diagnostics {
     diagnostics.push(diagnostic)
 
     this.diagnostics.set(textDocument, diagnostics)
+
+    return diagnostic
   }
 
   private sendDiagnosticsFor(textDocument: TextDocument) {

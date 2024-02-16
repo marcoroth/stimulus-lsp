@@ -10,7 +10,7 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
   }
 
   get controllers() {
-    return this.project.controllerDefinitions
+    return this.project.registeredControllers
   }
 
   get controllerRoots() {
@@ -31,25 +31,23 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
 
   provideAttributes(_tag: string) {
     const targetAttribtues = this.controllers
-      .filter(controller => controller.targets.length > 0)
+      .filter((controller) => controller.controllerDefinition.targetNames.length > 0)
       .map((controller) => {
         const name = `data-${controller.identifier}-target`
         return { name }
       })
 
-    const valueAttribtues = this.controllers
-      .flatMap((controller) => {
-        return Object.keys(controller.values).map((value) => {
-          return { name: `data-${controller.identifier}-${dasherize(value)}-value` }
-        })
+    const valueAttribtues = this.controllers.flatMap((controller) => {
+      return Object.keys(controller.controllerDefinition.values).map((value) => {
+        return { name: `data-${controller.identifier}-${dasherize(value)}-value` }
       })
+    })
 
-    const classAttribtues = this.controllers
-      .flatMap((controller) => {
-        return controller.classes.map((klass) => {
-          return { name: `data-${controller.identifier}-${dasherize(klass)}-class` }
-        })
+    const classAttribtues = this.controllers.flatMap((controller) => {
+      return controller.controllerDefinition.classNames.map((klass) => {
+        return { name: `data-${controller.identifier}-${dasherize(klass)}-class` }
       })
+    })
 
     return [
       { name: "data-controller" },
@@ -114,10 +112,10 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
 
       const controllersWithActions = controllers.concat(controllersWithEvents).flatMap((item) => {
         const { controller } = item
-        const { methods } = controller
+        const { actionNames } = controller.controllerDefinition
 
-        return methods.map((method) => {
-          return { name: `${item.name}#${method}`, controller }
+        return actionNames.map((action) => {
+          return { name: `${item.name}#${action}`, controller }
         })
       })
 
@@ -155,7 +153,7 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
 
       if (!controller) return []
 
-      return controller.targets.map((name) => ({ name }))
+      return controller.controllerDefinition.targetNames.map((name) => ({ name }))
     }
 
     const valueMatches = attribute.match(/data-(.+)-(.+)-value/)
@@ -167,7 +165,9 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
       const controller = this.controllers.find((controller) => controller.identifier == identifier)
 
       if (controller) {
-        const valueDefiniton = controller.values[value]
+        const valueDefiniton = controller.controllerDefinition.values.find(definition => definition.name === value)
+
+        if (!valueDefiniton) return []
 
         if (valueDefiniton.type === "Boolean") {
           return [
@@ -196,25 +196,15 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
         }
 
         if (valueDefiniton.type === "Object") {
-          return [
-            { name: JSON.stringify(valueDefiniton.default) },
-            { name: "{}" },
-          ]
+          return [{ name: JSON.stringify(valueDefiniton.default) }, { name: "{}" }]
         }
 
         if (valueDefiniton.type === "Array") {
-          return [
-            { name: JSON.stringify(valueDefiniton.default) },
-            { name: "[]" },
-          ]
+          return [{ name: JSON.stringify(valueDefiniton.default) }, { name: "[]" }]
         }
 
         if (valueDefiniton.type === "String") {
-          return [
-            { name: JSON.stringify(valueDefiniton.default) },
-            { name: identifier },
-            { name: value }
-          ]
+          return [{ name: JSON.stringify(valueDefiniton.default) }, { name: identifier }, { name: value }]
         }
       }
     }
