@@ -39,7 +39,7 @@ export class Service {
   }
 
   async init() {
-    await this.project.analyze()
+    await this.project.initialize()
 
     // Only keep settings for open documents
     this.documentService.onDidClose((change) => {
@@ -54,8 +54,10 @@ export class Service {
   }
 
   async refresh() {
-    await this.project.analyze()
+    await this.project.refresh()
 
     this.diagnostics.refreshAllDocuments()
+
+    this.diagnostics.populateSourceFileErrorsAsDiagnostics(this.project.projectFiles)
   }
 }

@@ -86,6 +86,8 @@ export class Client {
         { scheme: "file", language: "blade" },
         { scheme: "file", language: "php" },
         { scheme: "file", language: "html" },
+        { scheme: "file", language: "javascript" },
+        { scheme: "file", language: "typescript" },
       ],
       synchronize: {
         // Notify the server about file changes to '.clientrc files contained in the workspace
