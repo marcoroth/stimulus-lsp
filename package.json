@@ -32,7 +32,8 @@
     "onLanguage:erb",
     "onLanguage:blade",
     "onLanguage:php",
-    "onLanguage:html"
+    "onLanguage:html",
+    "onView:controllerDefinitions"
   ],
   "main": "./client/out/extension",
   "contributes": {
@@ -52,7 +53,40 @@
           "description": "Traces the communication between VS Code and the language server."
         }
       }
-    }
+    },
+    "views": {
+      "explorer": [
+        {
+          "id": "controllerDefinitions",
+          "name": "Stimulus Controllers",
+          "icon": "assets/stimulus.svg",
+          "description": "View and inspect detected Stimulus Controllers",
+          "contextualTitle": "Stimulus Controllers"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "controllerDefinitions.refreshEntry",
+        "title": "Refresh Stimulus Controller Definitions",
+        "icon": "$(refresh)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "controllerDefinitions.refreshEntry",
+          "when": "view == controllerDefinitions",
+          "group": "navigation"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "controllerDefinitions",
+        "contents": "No Stimulus Controller found [learn more](https://stimulus.hotwired.dev/handbook/installing)."
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "yarn run build",

@@ -127,5 +127,16 @@ connection.onCompletionResolve((item) => {
   return item
 })
 
+connection.onRequest("stimulus-lsp/controllerDefinitions", async (_handler) => {
+  const controllerDefinitions = service.project.controllerDefinitions.sort((a, b) =>
+    a.identifier.localeCompare(b.identifier),
+  )
+
+  return controllerDefinitions.map(({ path, identifier }) => ({
+    path,
+    identifier,
+  }))
+})
+
 // Listen on the connection
 connection.listen()
