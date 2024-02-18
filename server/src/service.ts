@@ -8,6 +8,8 @@ import { Diagnostics } from "./diagnostics"
 import { Definitions } from "./definitions"
 import { Commands } from "./commands"
 import { CodeActions } from "./code_actions"
+import { CodeLensProvider as CodeLens } from "./code_lens"
+
 import { Project } from "stimulus-parser"
 
 export class Service {
@@ -21,6 +23,7 @@ export class Service {
   documentService: DocumentService
   codeActions: CodeActions
   project: Project
+  codeLens: CodeLens
 
   constructor(connection: Connection, params: InitializeParams) {
     this.connection = connection
@@ -32,6 +35,7 @@ export class Service {
     this.diagnostics = new Diagnostics(this.connection, this.stimulusDataProvider, this.documentService)
     this.definitions = new Definitions(this.documentService, this.stimulusDataProvider)
     this.commands = new Commands(this.project, this.connection)
+    this.codeLens = new CodeLens(this.documentService, this.project)
 
     this.htmlLanguageService = getLanguageService({
       customDataProviders: [this.stimulusDataProvider],
