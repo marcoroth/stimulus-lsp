@@ -3,26 +3,33 @@ import * as path from "path"
 import { workspace, ExtensionContext } from "vscode"
 import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from "vscode-languageclient/node"
 
+import { ControllerTreeView } from "./controller_tree_view"
+import type { ControllerDefinitionsRequest } from "./types"
+
 export class Client {
   private client: LanguageClient
   private serverModule: string
   private languageClientId = "languageServerStimulus"
   private languageClientName = "Stimulus LSP"
+  private context: ExtensionContext
 
   constructor(context: ExtensionContext) {
+    this.context = context
+
     this.serverModule = context.asAbsolutePath(path.join("server", "out", "server.js"))
 
     this.client = new LanguageClient(
       this.languageClientId,
       this.languageClientName,
       this.serverOptions,
-      this.clientOptions
+      this.clientOptions,
     )
   }
 
   async start() {
     try {
       this.client.start()
+      this.context.subscriptions.push(new ControllerTreeView(this))
     } catch (error: any) {
       console.error(`Error restarting the server: ${error.message}`)
       return
@@ -33,6 +40,18 @@ export class Client {
     if (this.client) {
       await this.client.stop()
     }
+  }
+
+  async sendNotification(method: string, params: any) {
+    return await this.client.sendNotification(method, params)
+  }
+
+  async sendRequest<T>(method: string, params: any) {
+    return await this.client.sendRequest<T>(method, params)
+  }
+
+  async requestControllerDefinitions(): Promise<ControllerDefinitionsRequest> {
+    return (await this.sendRequest<ControllerDefinitionsRequest>("stimulus-lsp/controllerDefinitions", {})) || []
   }
 
   // The debug options for the server
