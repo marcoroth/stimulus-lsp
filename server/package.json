@@ -34,6 +34,7 @@
   },
   "devDependencies": {
     "@types/estree": "^1.0.5",
+    "@types/vscode": "^1.86.0",
     "acorn": "^8.11.3",
     "astring": "^1.8.6",
     "rimraf": "^5.0.5",
