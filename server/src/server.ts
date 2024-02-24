@@ -12,6 +12,8 @@ import {
 import { Service } from "./service"
 import { StimulusSettings } from "./settings"
 
+import type { ControllerDefinitionsRequest, ControllerDefinitionsResponse } from "./requests"
+
 let service: Service
 const connection = createConnection(ProposedFeatures.all)
 
@@ -127,7 +129,7 @@ connection.onCompletionResolve((item) => {
   return item
 })
 
-connection.onRequest("stimulus-lsp/controllerDefinitions", async (_handler) => {
+connection.onRequest("stimulus-lsp/controllerDefinitions", async (_request: ControllerDefinitionsRequest): Promise<ControllerDefinitionsResponse> => {
   const controllerDefinitions = service.project.controllerDefinitions.sort((a, b) =>
     a.identifier.localeCompare(b.identifier),
   )

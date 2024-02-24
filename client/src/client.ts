@@ -4,7 +4,7 @@ import { workspace, ExtensionContext } from "vscode"
 import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from "vscode-languageclient/node"
 
 import { ControllerTreeView } from "./controller_tree_view"
-import type { ControllerDefinitionsRequest } from "./types"
+import type { ControllerDefinitionsResponse } from "./requests"
 
 export class Client {
   private client: LanguageClient
@@ -50,8 +50,8 @@ export class Client {
     return await this.client.sendRequest<T>(method, params)
   }
 
-  async requestControllerDefinitions(): Promise<ControllerDefinitionsRequest> {
-    return (await this.sendRequest<ControllerDefinitionsRequest>("stimulus-lsp/controllerDefinitions", {})) || []
+  async requestControllerDefinitions(): Promise<ControllerDefinitionsResponse> {
+    return await this.sendRequest<ControllerDefinitionsResponse>("stimulus-lsp/controllerDefinitions", {})
   }
 
   // The debug options for the server
