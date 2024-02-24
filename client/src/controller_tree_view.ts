@@ -14,26 +14,13 @@ import * as vscode from "vscode"
 
 import { Client } from "./client"
 
-class ControllerTreeItem extends TreeItem {
-  constructor(identifier: string, path: string) {
-    super(identifier, TreeItemCollapsibleState.None)
+import type { ControllerDefinition, ControllerDefinitionsResponse, ControllerDefinitionsOrigin } from "./requests"
 
-    this.tooltip = path
-    this.id = `${path}-${identifier}`
-    this.iconPath = new ThemeIcon("outline-view-icon")
-    this.resourceUri = Uri.parse(`file://${path}`)
+type ControllerDefinitionTreeItem = ControllerTreeItem | ControllerDefinitionsStateItem
 
-    this.command = {
-      command: "vscode.open",
-      title: "Open",
-      arguments: [this.resourceUri],
-    }
-  }
-}
-
-export class ControllerTreeView implements TreeDataProvider<ControllerTreeItem>, Disposable {
+export class ControllerTreeView implements TreeDataProvider<ControllerDefinitionTreeItem>, Disposable {
   private client: Client
-  private readonly treeView: TreeView<ControllerTreeItem>
+  private readonly treeView: TreeView<ControllerDefinitionTreeItem>
   private readonly subscriptions: Disposable[] = []
   private _onDidChangeTreeData: EventEmitter<any> = new EventEmitter<any>()
   readonly onDidChangeTreeData: Event<any> = this._onDidChangeTreeData.event
@@ -60,21 +47,86 @@ export class ControllerTreeView implements TreeDataProvider<ControllerTreeItem>,
     this.treeView.dispose()
   }
 
-  getTreeItem(element: ControllerTreeItem) {
+  getTreeItem(element: ControllerDefinitionTreeItem) {
     return element
   }
 
-  getChildren(_element?: ControllerTreeItem) {
-    return this.requestControllerDefinitions()
+  async getChildren(element?: ControllerDefinitionTreeItem) {
+    if (element) {
+      return element.getChildren()
+    } else {
+      const response = await this.requestControllerDefinitions()
+
+      return [
+        new ControllerDefinitionsStateItem("Unregistered", [response.unregistered.project, ...response.unregistered.nodeModules]),
+        new ControllerDefinitionsStateItem("Registered", [response.registered]),
+      ]
+    }
   }
 
   refresh() {
     this._onDidChangeTreeData.fire(undefined)
   }
 
-  private async requestControllerDefinitions(): Promise<ControllerTreeItem[]> {
-    const controllerDefinitions = await this.client.requestControllerDefinitions()
 
-    return controllerDefinitions.map(({ path, identifier }) => new ControllerTreeItem(identifier, path))
+  private async requestControllerDefinitions(): Promise<ControllerDefinitionsResponse> {
+    return await this.client.requestControllerDefinitions()
+  }
+}
+
+class ControllerDefinitionsStateItem extends TreeItem {
+  public children: ControllerDefinitionsOrigin[] = []
+
+  constructor(name: string, children: ControllerDefinitionsOrigin[]) {
+    const collapisbleState = name === "Registered" ? TreeItemCollapsibleState.Expanded : TreeItemCollapsibleState.Collapsed
+
+    super(name, collapisbleState)
+
+    this.tooltip = name
+    this.children = children
+
+    const controllersCount = this.children.flatMap(c => c.controllerDefinitions).length
+    this.description = `(${controllersCount} controller${controllersCount == 1 ? "" : "s"})`
+  }
+
+  getChildren() {
+    return this.controllerTreeItems.sort((a, b) => a.label.toString().localeCompare(b.label.toString()))
+  }
+
+  private get controllerTreeItems() {
+    return this.controllerDefinitions.flatMap(([definition, child]) => new ControllerTreeItem(definition, child))
+  }
+
+  private get controllerDefinitions(): [ControllerDefinition, ControllerDefinitionsOrigin][] {
+    return this.children.map(child => child.controllerDefinitions.map(definition => [definition, child] as [ControllerDefinition, ControllerDefinitionsOrigin])).flat(1)
+  }
+}
+
+class ControllerTreeItem extends TreeItem {
+  public registered: boolean = false
+
+  constructor(item: ControllerDefinition, origin: ControllerDefinitionsOrigin) {
+    super(item.identifier, TreeItemCollapsibleState.None)
+
+    this.id = `${item.path}-${item.identifier}-${item.registered}`
+    this.tooltip = item.path
+    this.registered = item.registered
+    this.iconPath = new ThemeIcon("outline-view-icon")
+    this.resourceUri = Uri.parse(`file://${item.path}`)
+    this.contextValue = `controllerDefinition-${item.registered ? "registered" : "unregistered"}`
+
+    if (!item.registered) {
+      this.description = `(${origin.name})`
+    }
+
+    this.command = {
+      command: "vscode.open",
+      title: "Open",
+      arguments: [this.resourceUri],
+    }
+  }
+
+  getChildren() {
+    return []
   }
 }
