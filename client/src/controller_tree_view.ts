@@ -34,6 +34,9 @@ export class ControllerTreeView implements TreeDataProvider<ControllerDefinition
     })
 
     vscode.commands.registerCommand("controllerDefinitions.refreshEntry", () => this.refresh())
+    vscode.commands.registerCommand("controllerDefinitions.registerControllerDefinition", (item) =>
+      this.registerControllerDefinition(item),
+    )
 
     this.subscriptions.push(
       this.treeView.onDidChangeVisibility(() => this.refresh()),
@@ -69,6 +72,19 @@ export class ControllerTreeView implements TreeDataProvider<ControllerDefinition
 
   refresh() {
     this._onDidChangeTreeData.fire(undefined)
+  }
+
+  registerControllerDefinition(item: ControllerTreeItem) {
+    if (item.isImportable) {
+      this.client.sendRequest("workspace/executeCommand", {
+        command: "stimulus.controller.register",
+        arguments: [
+          item.controllerDefinition.importStatement,
+          item.controllerDefinition.identifier,
+          item.controllerDefinition.localName,
+        ],
+      })
+    }
   }
 
   private async requestControllerDefinitions(): Promise<ControllerDefinitionsResponse> {
@@ -113,16 +129,18 @@ class ControllerDefinitionsStateItem extends TreeItem {
 
 class ControllerTreeItem extends TreeItem {
   public registered: boolean = false
+  public controllerDefinition: ControllerDefinition
 
   constructor(item: ControllerDefinition, origin: ControllerDefinitionsOrigin) {
     super(item.identifier, TreeItemCollapsibleState.None)
 
+    this.controllerDefinition = item
     this.id = `${item.path}-${item.identifier}-${item.registered}`
     this.tooltip = item.path
     this.registered = item.registered
     this.iconPath = new ThemeIcon("outline-view-icon")
     this.resourceUri = Uri.parse(`file://${item.path}`)
-    this.contextValue = `controllerDefinition-${item.registered ? "registered" : "unregistered"}`
+    this.contextValue = `controllerDefinition-${item.registered ? "registered" : "unregistered"}${this.isImportable ? "importable" : "non-importable"}`
 
     if (!item.registered) {
       this.description = `(${origin.name})`
@@ -133,6 +151,14 @@ class ControllerTreeItem extends TreeItem {
       title: "Open",
       arguments: [this.resourceUri],
     }
+  }
+
+  get isImportable() {
+    return (
+      !!this.controllerDefinition.importStatement &&
+      !!this.controllerDefinition.identifier &&
+      !!this.controllerDefinition.localName
+    )
   }
 
   getChildren() {

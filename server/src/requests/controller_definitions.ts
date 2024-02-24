@@ -3,6 +3,8 @@ import { RegisteredController, ControllerDefinition, ClassDeclarationNode } from
 
 import { Service } from "../service"
 
+import { importStatementForController } from "../utils"
+
 import type {
   ControllerDefinition as ControllerDefinitionRequestType,
   ControllerDefinitionsRequest as ControllerDefinitionsRequestType,
@@ -46,11 +48,15 @@ export class ControllerDefinitionsRequest {
     const registered = false
     const position = this.positionFromNode(classDeclaration.node)
 
+    const { localName, importStatement } = importStatementForController(controllerDefinition, this.service.project)
+
     return {
       path,
       identifier,
       position,
       registered,
+      importStatement,
+      localName,
     }
   }
 
@@ -91,16 +97,21 @@ export class ControllerDefinitionsRequest {
   }
 
   private get nodeModuleControllers() {
-    const nodeModules = this.detectedNodeModules.map((detectedModule) => {
-      const { name } = detectedModule
+    // Stimulus-Use's controllers are "abstract" and meant to be extended. So we shouldn't suggest to register them.
+    const excludeList = ["stimulus-use"]
 
-      const controllerDefinitions = detectedModule.controllerDefinitions
-        .filter((definition) => !this.registeredControllerPaths.includes(definition.path))
-        .map(this.mapControllerDefinition)
-        .sort(this.controllerSort)
+    const nodeModules = this.detectedNodeModules
+      .filter((module) => !excludeList.includes(module.name))
+      .map((detectedModule) => {
+        const { name } = detectedModule
 
-      return { name, controllerDefinitions }
-    })
+        const controllerDefinitions = detectedModule.controllerDefinitions
+          .filter((definition) => !this.registeredControllerPaths.includes(definition.path))
+          .map(this.mapControllerDefinition)
+          .sort(this.controllerSort)
+
+        return { name, controllerDefinitions }
+      })
 
     return nodeModules.filter((m) => m.controllerDefinitions.length > 0).sort((a, b) => a.name.localeCompare(b.name))
   }
