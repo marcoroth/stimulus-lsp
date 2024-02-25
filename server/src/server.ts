@@ -24,9 +24,8 @@ connection.onInitialize(async (params: InitializeParams) => {
   const result: InitializeResult = {
     capabilities: {
       textDocumentSync: TextDocumentSyncKind.Incremental,
-      completionProvider: {
-        resolveProvider: true,
-      },
+      completionProvider: { resolveProvider: true },
+      codeLensProvider: { resolveProvider: true },
       codeActionProvider: true,
       definitionProvider: true,
       executeCommandProvider: {
@@ -91,6 +90,8 @@ connection.onDidOpenTextDocument((params) => {
 connection.onDidChangeWatchedFiles(() => service.refresh())
 connection.onDefinition((params) => service.definitions.onDefinition(params))
 connection.onCodeAction((params) => service.codeActions.onCodeAction(params))
+connection.onCodeLens((params) => service.codeLens.onCodeLens(params))
+connection.onCodeLensResolve((codeLens) => service.codeLens.onCodeLensResolve(codeLens))
 
 connection.onExecuteCommand((params) => {
   if (!params.arguments) return
