@@ -7,12 +7,18 @@ import {
   TextDocumentSyncKind,
   InitializeResult,
   Diagnostic,
+  Position,
 } from "vscode-languageserver/node"
 
 import { Service } from "./service"
 import { StimulusSettings } from "./settings"
+import { RegisteredController, ControllerDefinition } from "stimulus-parser"
 
-import type { ControllerDefinitionsRequest, ControllerDefinitionsResponse } from "./requests"
+import type {
+  ControllerDefinition as ControllerDefinitionRequestType,
+  ControllerDefinitionsRequest,
+  ControllerDefinitionsResponse,
+} from "./requests"
 
 let service: Service
 const connection = createConnection(ProposedFeatures.all)
@@ -134,14 +140,59 @@ connection.onCompletionResolve((item) => {
 connection.onRequest(
   "stimulus-lsp/controllerDefinitions",
   async (_request: ControllerDefinitionsRequest): Promise<ControllerDefinitionsResponse> => {
-    const controllerDefinitions = service.project.registeredControllers.sort((a, b) =>
-      a.identifier.localeCompare(b.identifier),
-    )
+    const sort = (a: ControllerDefinitionRequestType, b: ControllerDefinitionRequestType) =>
+      a.identifier.localeCompare(b.identifier)
 
-    return controllerDefinitions.map(({ path, identifier }) => ({
+    const mapRegisteredController = ({ path, identifier, classDeclaration: { node } }: RegisteredController) => ({
       path,
       identifier,
-    }))
+      registered: true,
+      position: Position.create(node?.loc?.start.line || 1, node?.loc?.start.column || 1),
+    })
+
+    const mapControllerDefinition = ({
+      path,
+      guessedIdentifier,
+      classDeclaration: { node },
+    }: ControllerDefinition) => ({
+      path,
+      identifier: guessedIdentifier,
+      registered: false,
+      position: Position.create(node?.loc?.start.line || 1, node?.loc?.start.column || 1),
+    })
+
+    const registeredControllerPaths = service.project.registeredControllers.map((c) => c.path)
+    const unregisteredControllerDefinitions = service.project.controllerDefinitions.filter(
+      (definition) => !registeredControllerPaths.includes(definition.path),
+    )
+
+    const registered = service.project.registeredControllers.map(mapRegisteredController).sort(sort)
+    const unregistered = unregisteredControllerDefinitions.map(mapControllerDefinition).sort(sort)
+
+    const nodeModules = service.project.detectedNodeModules
+      .map(({ name, controllerDefinitions }) => ({
+        name,
+        controllerDefinitions: controllerDefinitions
+          .filter((definition) => !registeredControllerPaths.includes(definition.path))
+          .map(mapControllerDefinition)
+          .sort(sort),
+      }))
+      .filter((m) => m.controllerDefinitions.length > 0)
+      .sort((a, b) => a.name.localeCompare(b.name))
+
+    return {
+      registered: {
+        name: "project",
+        controllerDefinitions: registered,
+      },
+      unregistered: {
+        project: {
+          name: "project",
+          controllerDefinitions: unregistered,
+        },
+        nodeModules,
+      },
+    }
   },
 )
 
