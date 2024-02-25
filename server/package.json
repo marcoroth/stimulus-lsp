@@ -33,6 +33,10 @@
     "vscode-languageserver-textdocument": "^1.0.1"
   },
   "devDependencies": {
-    "rimraf": "^5.0.5"
+    "@types/estree": "^1.0.5",
+    "acorn": "^8.11.3",
+    "astring": "^1.8.6",
+    "rimraf": "^5.0.5",
+    "source-map": "^0.7.4"
   }
 }
