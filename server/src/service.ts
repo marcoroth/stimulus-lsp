@@ -11,6 +11,7 @@ import { CodeActions } from "./code_actions"
 import { CodeLensProvider as CodeLens } from "./code_lens"
 
 import { Project } from "stimulus-parser"
+import { InlayHints } from "./inlay_hints"
 
 export class Service {
   connection: Connection
@@ -24,6 +25,7 @@ export class Service {
   codeActions: CodeActions
   project: Project
   codeLens: CodeLens
+  inlayHints: InlayHints
 
   constructor(connection: Connection, params: InitializeParams) {
     this.connection = connection
@@ -36,6 +38,7 @@ export class Service {
     this.definitions = new Definitions(this.documentService, this.stimulusDataProvider)
     this.commands = new Commands(this.project, this.connection)
     this.codeLens = new CodeLens(this.documentService, this.project)
+    this.inlayHints = new InlayHints(this.documentService, this.project)
 
     this.htmlLanguageService = getLanguageService({
       customDataProviders: [this.stimulusDataProvider],

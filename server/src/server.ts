@@ -32,6 +32,10 @@ connection.onInitialize(async (params: InitializeParams) => {
       textDocumentSync: TextDocumentSyncKind.Incremental,
       completionProvider: { resolveProvider: true },
       codeLensProvider: { resolveProvider: true },
+      inlayHintProvider: {
+        resolveProvider: true,
+        documentSelector: ["js"],
+      },
       codeActionProvider: true,
       definitionProvider: true,
       executeCommandProvider: {
@@ -98,6 +102,7 @@ connection.onDefinition((params) => service.definitions.onDefinition(params))
 connection.onCodeAction((params) => service.codeActions.onCodeAction(params))
 connection.onCodeLens((params) => service.codeLens.onCodeLens(params))
 connection.onCodeLensResolve((codeLens) => service.codeLens.onCodeLensResolve(codeLens))
+connection.onRequest("stimulus-lsp/inlayHints", (params) => service.inlayHints.onInlayHints(params))
 
 connection.onExecuteCommand((params) => {
   if (!params.arguments) return

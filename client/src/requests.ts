@@ -1,4 +1,4 @@
-import { Position } from "vscode-languageclient"
+import type { Position, TextDocument } from "vscode"
 
 export type ControllerDefinition = {
   identifier: string
@@ -24,3 +24,15 @@ export type ControllerDefinitionsResponse = {
     nodeModules: ControllerDefinitionsOrigin[]
   }
 }
+
+type InlayHint = {
+  text: string
+  tooltip: string
+  position: Position
+}
+
+export type InlayHintsRequest = {
+  document: TextDocument
+}
+
+export type InlayHintsResponse = InlayHint[]

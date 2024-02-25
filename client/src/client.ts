@@ -1,10 +1,10 @@
 import * as path from "path"
 
-import { workspace, ExtensionContext } from "vscode"
+import { workspace, languages, ExtensionContext, InlayHint, InlayHintKind, TextDocument, Range, CancellationToken } from "vscode"
 import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from "vscode-languageclient/node"
 
 import { ControllerTreeView } from "./controller_tree_view"
-import type { ControllerDefinitionsResponse } from "./requests"
+import type { ControllerDefinitionsResponse, InlayHintsResponse } from "./requests"
 
 export class Client {
   private client: LanguageClient
@@ -30,6 +30,7 @@ export class Client {
     try {
       this.client.start()
       this.context.subscriptions.push(new ControllerTreeView(this))
+      this.registerInlayHints()
     } catch (error: any) {
       console.error(`Error restarting the server: ${error.message}`)
       return
@@ -52,6 +53,14 @@ export class Client {
 
   async requestControllerDefinitions(): Promise<ControllerDefinitionsResponse> {
     return await this.sendRequest<ControllerDefinitionsResponse>("stimulus-lsp/controllerDefinitions", {})
+  }
+
+  async requestInlayHints(document: TextDocument, range: Range, token: CancellationToken): Promise<InlayHintsResponse> {
+    return await this.sendRequest<InlayHintsResponse>("stimulus-lsp/inlayHints", {
+      document,
+      range,
+      token,
+    })
   }
 
   // The debug options for the server
@@ -94,5 +103,21 @@ export class Client {
         fileEvents: workspace.createFileSystemWatcher("**/.clientrc"),
       },
     }
+  }
+
+  private registerInlayHints() {
+    languages.registerInlayHintsProvider("javascript", {
+      provideInlayHints: async (document, range, token) => {
+        const inlayHints = await this.requestInlayHints(document, range, token)
+
+        return inlayHints.map(({ text, position, tooltip }) => {
+          const hint = new InlayHint(position, text, InlayHintKind.Parameter)
+          hint.tooltip = tooltip
+
+          return hint
+        })
+      },
+      resolveInlayHint: (hint, _token) => hint,
+    })
   }
 }
