@@ -26,7 +26,7 @@ export class Commands {
     if (diagnostic === undefined) return
     if (suggestion === undefined) return
 
-    const { textDocument, range } = diagnostic.data as { textDocument: SerializedTextDocument, range: Range}
+    const { textDocument, range } = diagnostic.data as { textDocument: SerializedTextDocument; range: Range }
 
     const document = { uri: textDocument._uri, version: textDocument._version }
     const textEdit: TextEdit = { range, newText: suggestion }

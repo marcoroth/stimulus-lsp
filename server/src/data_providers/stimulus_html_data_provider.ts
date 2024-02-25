@@ -6,8 +6,10 @@ import { Project } from "stimulus-parser"
 import { dasherize } from "../utils"
 
 export class StimulusHTMLDataProvider implements IHTMLDataProvider {
-  constructor(private id: string, private project: Project) {
-  }
+  constructor(
+    private id: string,
+    private project: Project,
+  ) {}
 
   get controllers() {
     return this.project.registeredControllers
@@ -165,7 +167,7 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
       const controller = this.controllers.find((controller) => controller.identifier == identifier)
 
       if (controller) {
-        const valueDefiniton = controller.controllerDefinition.values.find(definition => definition.name === value)
+        const valueDefiniton = controller.controllerDefinition.values.find((definition) => definition.name === value)
 
         if (!valueDefiniton) return []
 

@@ -19,7 +19,7 @@ export function tokenList(node: Node, attribute: string) {
 
   if (value.length === 0) return []
 
-  return splitOnSpaceIgnoreTags(value);
+  return splitOnSpaceIgnoreTags(value)
 }
 
 export function unquote(string: string) {
@@ -35,10 +35,10 @@ export function squish(string: string) {
 }
 
 export function splitOnSpaceIgnoreTags(string: string) {
-    // All spaces inside certain opening/closing tags are ignored in this regex pattern
-    // Supported tags:
-    // - Opening: <%=, <%, <%-, <?php, <?=, {{
-    // - Closing: %>, -%>, ?>, }}
-    const pattern = /(?<!<%=|<%|<%-|<\?php|<\?=|\{\{.*?)\s+(?![^<]*?%>|-%>|\?>|\}\})/g;
-    return string.split(pattern);
+  // All spaces inside certain opening/closing tags are ignored in this regex pattern
+  // Supported tags:
+  // - Opening: <%=, <%, <%-, <?php, <?=, {{
+  // - Closing: %>, -%>, ?>, }}
+  const pattern = /(?<!<%=|<%|<%-|<\?php|<\?=|\{\{.*?)\s+(?![^<]*?%>|-%>|\?>|\}\})/g
+  return string.split(pattern)
 }

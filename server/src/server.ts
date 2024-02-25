@@ -30,10 +30,7 @@ connection.onInitialize(async (params: InitializeParams) => {
       codeActionProvider: true,
       definitionProvider: true,
       executeCommandProvider: {
-        commands: [
-          "stimulus.controller.create",
-          "stimulus.controller.update",
-        ],
+        commands: ["stimulus.controller.create", "stimulus.controller.update"],
       },
     },
   }
@@ -119,7 +116,7 @@ connection.onCompletion((textDocumentPosition) => {
   return service.htmlLanguageService.doComplete(
     document,
     textDocumentPosition.position,
-    service.htmlLanguageService.parseHTMLDocument(document)
+    service.htmlLanguageService.parseHTMLDocument(document),
   )
 })
 
@@ -133,16 +130,19 @@ connection.onCompletionResolve((item) => {
   return item
 })
 
-connection.onRequest("stimulus-lsp/controllerDefinitions", async (_request: ControllerDefinitionsRequest): Promise<ControllerDefinitionsResponse> => {
-  const controllerDefinitions = service.project.registeredControllers.sort((a, b) =>
-    a.identifier.localeCompare(b.identifier),
-  )
+connection.onRequest(
+  "stimulus-lsp/controllerDefinitions",
+  async (_request: ControllerDefinitionsRequest): Promise<ControllerDefinitionsResponse> => {
+    const controllerDefinitions = service.project.registeredControllers.sort((a, b) =>
+      a.identifier.localeCompare(b.identifier),
+    )
 
-  return controllerDefinitions.map(({ path, identifier }) => ({
-    path,
-    identifier,
-  }))
-})
+    return controllerDefinitions.map(({ path, identifier }) => ({
+      path,
+      identifier,
+    }))
+  },
+)
 
 // Listen on the connection
 connection.listen()

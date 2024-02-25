@@ -3,5 +3,5 @@ type ControllerDefinition = {
   path: string
 }
 
-export type ControllerDefinitionsRequest = {}
+export type ControllerDefinitionsRequest = object
 export type ControllerDefinitionsResponse = ControllerDefinition[]

@@ -31,7 +31,7 @@ export class Diagnostics {
   constructor(
     connection: Connection,
     stimulusDataProvider: StimulusHTMLDataProvider,
-    documentService: DocumentService
+    documentService: DocumentService,
   ) {
     this.connection = connection
     this.stimulusDataProvider = stimulusDataProvider
@@ -225,7 +225,9 @@ export class Diagnostics {
         }
 
         const camelizedValueName = camelize(valueName)
-        const valueDefiniton = controller.controllerDefinition.values.find(definition => definition.name === camelizedValueName)
+        const valueDefiniton = controller.controllerDefinition.values.find(
+          (definition) => definition.name === camelizedValueName,
+        )
 
         if (controller && controller.controllerDefinition.hasErrors) return
 

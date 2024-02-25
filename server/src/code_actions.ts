@@ -21,7 +21,7 @@ export class CodeActions {
     if (params.context.diagnostics.length === 0) return undefined
 
     const diagnostics = params.context.diagnostics.filter(
-      (diagnostic) => diagnostic.code === "stimulus.controller.invalid"
+      (diagnostic) => diagnostic.code === "stimulus.controller.invalid",
     )
 
     if (diagnostics.length === 0) return undefined
@@ -39,7 +39,7 @@ export class CodeActions {
       const updateReferenceAction = CodeAction.create(
         updateTitle,
         Command.create(updateTitle, "stimulus.controller.update", identifier, diagnostic, suggestion),
-        CodeActionKind.QuickFix
+        CodeActionKind.QuickFix,
       )
 
       return [
@@ -51,9 +51,9 @@ export class CodeActions {
           return CodeAction.create(
             title,
             Command.create(title, "stimulus.controller.create", identifier, diagnostic, root),
-            CodeActionKind.QuickFix
+            CodeActionKind.QuickFix,
           )
-        })
+        }),
       ]
     })
   }
