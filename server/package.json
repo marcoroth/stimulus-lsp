@@ -26,13 +26,17 @@
   "dependencies": {
     "@hotwired/stimulus": "https://github.com/hotwired/dev-builds/archive/refs/tags/@hotwired/stimulus/8cbca6d.tar.gz",
     "dedent": "^1.5.1",
-    "stimulus-parser": "^0.0.14",
+    "stimulus-parser": "^0.1.1",
     "typescript": "^5.2.2",
     "vscode-html-languageservice": "^5.1.1",
     "vscode-languageserver": "^9.0.1",
     "vscode-languageserver-textdocument": "^1.0.1"
   },
   "devDependencies": {
-    "rimraf": "^5.0.5"
+    "@types/estree": "^1.0.5",
+    "acorn": "^8.11.3",
+    "astring": "^1.8.6",
+    "rimraf": "^5.0.5",
+    "source-map": "^0.7.4"
   }
 }
