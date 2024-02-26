@@ -8,19 +8,19 @@ export type ControllerDefinition = {
 }
 
 export interface ControllerDefinitionsOrigin {
-  name: string,
+  name: string
   controllerDefinitions: ControllerDefinition[]
 }
 
 export interface ProjectControllerDefinitions extends ControllerDefinitionsOrigin {
-  name: "project",
+  name: "project"
 }
 
 export type ControllerDefinitionsRequest = object
 export type ControllerDefinitionsResponse = {
   registered: ProjectControllerDefinitions
   unregistered: {
-    project: ProjectControllerDefinitions,
+    project: ProjectControllerDefinitions
     nodeModules: ControllerDefinitionsOrigin[]
   }
 }

@@ -16,7 +16,7 @@ import { Client } from "./client"
 
 import type { ControllerDefinition, ControllerDefinitionsResponse, ControllerDefinitionsOrigin } from "./requests"
 
-type ControllerDefinitionTreeItem = ControllerTreeItem | ControllerDefinitionsStateItem
+type ControllerDefinitionTreeItem = ControllerTreeItem | ControllerDefinitionsStateItem
 
 export class ControllerTreeView implements TreeDataProvider<ControllerDefinitionTreeItem>, Disposable {
   private client: Client
@@ -58,7 +58,10 @@ export class ControllerTreeView implements TreeDataProvider<ControllerDefinition
       const response = await this.requestControllerDefinitions()
 
       return [
-        new ControllerDefinitionsStateItem("Unregistered", [response.unregistered.project, ...response.unregistered.nodeModules]),
+        new ControllerDefinitionsStateItem("Unregistered", [
+          response.unregistered.project,
+          ...response.unregistered.nodeModules,
+        ]),
         new ControllerDefinitionsStateItem("Registered", [response.registered]),
       ]
     }
@@ -67,7 +70,6 @@ export class ControllerTreeView implements TreeDataProvider<ControllerDefinition
   refresh() {
     this._onDidChangeTreeData.fire(undefined)
   }
-
 
   private async requestControllerDefinitions(): Promise<ControllerDefinitionsResponse> {
     return await this.client.requestControllerDefinitions()
@@ -78,14 +80,15 @@ class ControllerDefinitionsStateItem extends TreeItem {
   public children: ControllerDefinitionsOrigin[] = []
 
   constructor(name: string, children: ControllerDefinitionsOrigin[]) {
-    const collapisbleState = name === "Registered" ? TreeItemCollapsibleState.Expanded : TreeItemCollapsibleState.Collapsed
+    const collapisbleState =
+      name === "Registered" ? TreeItemCollapsibleState.Expanded : TreeItemCollapsibleState.Collapsed
 
     super(name, collapisbleState)
 
     this.tooltip = name
     this.children = children
 
-    const controllersCount = this.children.flatMap(c => c.controllerDefinitions).length
+    const controllersCount = this.children.flatMap((c) => c.controllerDefinitions).length
     this.description = `(${controllersCount} controller${controllersCount == 1 ? "" : "s"})`
   }
 
@@ -98,7 +101,13 @@ class ControllerDefinitionsStateItem extends TreeItem {
   }
 
   private get controllerDefinitions(): [ControllerDefinition, ControllerDefinitionsOrigin][] {
-    return this.children.map(child => child.controllerDefinitions.map(definition => [definition, child] as [ControllerDefinition, ControllerDefinitionsOrigin])).flat(1)
+    return this.children
+      .map((child) =>
+        child.controllerDefinitions.map(
+          (definition) => [definition, child] as [ControllerDefinition, ControllerDefinitionsOrigin],
+        ),
+      )
+      .flat(1)
   }
 }
 
