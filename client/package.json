@@ -13,7 +13,7 @@
     "vscode": "^1.52.0"
   },
   "dependencies": {
-    "brace-expansion": "^3.0.0",
+    "brace-expansion": "^4.0.0",
     "minimatch": "^9.0.3",
     "vscode-languageclient": "^9.0.1"
   },
