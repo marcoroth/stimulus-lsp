@@ -3,7 +3,6 @@ import dedent from "dedent"
 import { Connection, TextDocumentEdit, TextEdit, CreateFile, Range, Diagnostic } from "vscode-languageserver/node"
 
 import { Project, ControllerDefinition } from "stimulus-parser"
-import { DocumentService } from "./document_service"
 
 type SerializedTextDocument = {
   _uri: string
@@ -14,12 +13,10 @@ type SerializedTextDocument = {
 }
 
 export class Commands {
-  private readonly documentService: DocumentService
   private readonly project: Project
   private readonly connection: Connection
 
-  constructor(documentService: DocumentService, project: Project, connection: Connection) {
-    this.documentService = documentService
+  constructor(project: Project, connection: Connection) {
     this.project = project
     this.connection = connection
   }
@@ -100,16 +97,13 @@ export class Commands {
 `,
     }
 
-    const textDocument = this.documentService.get(`file://${controller.sourceFile.path}`)
-
-    if (!textDocument) return
-
-    const document = { uri: textDocument.uri, version: textDocument.version }
+    const uri = `file://${controller.sourceFile.path}`
+    const document = { uri, version: null }
     const documentChanges: TextDocumentEdit[] = [TextDocumentEdit.create(document, [textEdit])]
 
     await this.connection.workspace.applyEdit({ documentChanges })
     await this.connection.window.showDocument({
-      uri: textDocument.uri,
+      uri,
       external: false,
       takeFocus: true,
     })

@@ -34,7 +34,7 @@ export class Service {
     this.stimulusDataProvider = new StimulusHTMLDataProvider("id", this.project)
     this.diagnostics = new Diagnostics(this.connection, this.stimulusDataProvider, this.documentService)
     this.definitions = new Definitions(this.documentService, this.stimulusDataProvider)
-    this.commands = new Commands(this.documentService, this.project, this.connection)
+    this.commands = new Commands(this.project, this.connection)
     this.codeLens = new CodeLens(this.documentService, this.project)
 
     this.htmlLanguageService = getLanguageService({
