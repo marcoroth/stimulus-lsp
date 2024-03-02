@@ -439,10 +439,10 @@ source-map@^0.7.4:
   resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.7.4.tgz#a9bbe705c9d8846f4e08ff6765acf0f1b0898656"
   integrity sha512-l3BikUxvPOcn5E74dZiq5BGsTb5yEwhaTSzccU6t4sDOH8NWJCstKO5QT2CvtFoK6F0saL7p9xHAqHOlCPJygA==
 
-stimulus-parser@^0.1.2:
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/stimulus-parser/-/stimulus-parser-0.1.2.tgz#5ed1d7f3125263875c8dfde10f242d0a8debd2af"
-  integrity sha512-jUYMWI/Z0euScG4QevBKLBgJes64b4hgo/1K72Wk1rJ9vFbobbjgOOgI2DOb6MARd9Vr8Q202b78WqfUZ/iubA==
+stimulus-parser@^0.1.3:
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/stimulus-parser/-/stimulus-parser-0.1.3.tgz#b8aab899fb04f96256be77c644670acb7f1433b4"
+  integrity sha512-cgkWeiyK0w3Yhzq0RtcjitOPTJNzlxwIrJrQObongRgnTaNKTnVpjT/Y9K+XNaAuWs6emommpGcmxqq9I5FiTg==
   dependencies:
     "@hotwired/stimulus-webpack-helpers" "^1.0.1"
     "@typescript-eslint/typescript-estree" "^7.0.1"
