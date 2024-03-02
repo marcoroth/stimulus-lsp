@@ -36,6 +36,32 @@ export class Commands {
     await this.connection.workspace.applyEdit({ documentChanges })
   }
 
+  async registerControllerDefinition(importStatement: string, identifier: string, localName: string) {
+    if (importStatement === undefined) return
+    if (identifier === undefined) return
+    if (localName === undefined) return
+    if (!this.project.controllersFile) return
+
+    // TODO: there must be a better way to get the end of the file without having the textDocument
+    const endOfFile = { line: 10000000, character: 0 }
+
+    const uri = `file://${this.project.controllersFile.path}`
+    const document = { uri, version: null }
+    const textEdit: TextEdit = {
+      range: { start: endOfFile, end: endOfFile },
+      newText: `\n\n${importStatement}\napplication.register("${identifier}", ${localName})\n`,
+    }
+
+    const documentChanges: TextDocumentEdit[] = [TextDocumentEdit.create(document, [textEdit])]
+
+    await this.connection.workspace.applyEdit({ documentChanges })
+    await this.connection.window.showDocument({
+      uri,
+      external: false,
+      takeFocus: true,
+    })
+  }
+
   async createController(identifier: string, diagnostic: Diagnostic, controllerRoot: string) {
     if (identifier === undefined) return
     if (diagnostic === undefined) return

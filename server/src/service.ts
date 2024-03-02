@@ -1,4 +1,4 @@
-import { Connection, InitializeParams } from "vscode-languageserver/node"
+import { Connection, FileEvent, InitializeParams } from "vscode-languageserver/node"
 import { getLanguageService, LanguageService } from "vscode-html-languageservice"
 
 import { StimulusHTMLDataProvider } from "./data_providers/stimulus_html_data_provider"
@@ -45,6 +45,9 @@ export class Service {
   async init() {
     await this.project.initialize()
 
+    // TODO: we need to setup a file listener to check when new packages get installed
+    await this.project.detectAvailablePackages()
+
     // Only keep settings for open documents
     this.documentService.onDidClose((change) => {
       this.settings.documentSettings.delete(change.document.uri)
@@ -63,5 +66,14 @@ export class Service {
     this.diagnostics.refreshAllDocuments()
 
     this.diagnostics.populateSourceFileErrorsAsDiagnostics(this.project.projectFiles)
+  }
+
+  async refreshFile(changeEvent: FileEvent) {
+    const path = changeEvent.uri.replace("file://", "")
+    const sourceFile = await this.project.refreshFile(path)
+
+    if (sourceFile) {
+      this.diagnostics.populateSourceFileErrorsAsDiagnostics([sourceFile])
+    }
   }
 }

@@ -37,6 +37,7 @@ connection.onInitialize(async (params: InitializeParams) => {
         commands: [
           "stimulus.controller.create",
           "stimulus.controller.update",
+          "stimulus.controller.register",
           "stimulus.controller.action.update",
           "stimulus.controller.action.implement",
         ],
@@ -68,7 +69,7 @@ connection.onInitialized(() => {
   }
 
   connection.client.register(DidChangeWatchedFilesNotification.type, {
-    watchers: service.stimulusDataProvider.controllerRoots.map((root) => ({ globPattern: `**/${root}/**/*` })),
+    watchers: service.project.controllerRoots.map((root) => ({ globPattern: `**/${root}/**/*` })),
   })
 
   connection.client.register(DidChangeWatchedFilesNotification.type, {
@@ -97,7 +98,14 @@ connection.onDidOpenTextDocument((params) => {
   }
 })
 
-connection.onDidChangeWatchedFiles(() => service.refresh())
+connection.onDidChangeWatchedFiles((_params) => {
+  // params.changes.forEach((event) => {
+  //   service.refreshFile(event)
+  // })
+
+  service.refresh()
+})
+
 connection.onDefinition((params) => service.definitions.onDefinition(params))
 connection.onCodeAction((params) => service.codeActions.onCodeAction(params))
 connection.onCodeLens((params) => service.codeLens.onCodeLens(params))
@@ -128,6 +136,12 @@ connection.onExecuteCommand((params) => {
     const [identifer, actionName, diagnostic] = params.arguments as [string, string, Diagnostic]
 
     service.commands.implementControllerAction(identifer, actionName, diagnostic)
+  }
+
+  if (params.command === "stimulus.controller.register") {
+    const [importStatement, identifier, localName] = params.arguments as [string, string, string]
+
+    service.commands.registerControllerDefinition(importStatement, identifier, localName)
   }
 })
 
