@@ -65,7 +65,7 @@ export class CodeActions {
 
   private handleInvalidActionDiagnostics(diagnostics: Diagnostic[]) {
     return diagnostics.flatMap((diagnostic) => {
-      const { actionName, suggestion } = diagnostic.data as InvalidActionDiagnosticData
+      const { actionName, suggestion, identifier } = diagnostic.data as InvalidActionDiagnosticData
 
       const updateTitle = `Replace "${actionName}" with suggestion: "${suggestion}"`
 
@@ -75,7 +75,15 @@ export class CodeActions {
         CodeActionKind.QuickFix,
       )
 
-      return [updateReferenceAction]
+      const implementTitle = `Implement "${actionName}" action on "${identifier}" controller`
+
+      const implementControllerAction = CodeAction.create(
+        implementTitle,
+        Command.create(implementTitle, "stimulus.controller.action.implement", actionName, identifier, diagnostic),
+        CodeActionKind.QuickFix,
+      )
+
+      return [updateReferenceAction, implementControllerAction]
     })
   }
 }

@@ -34,7 +34,12 @@ connection.onInitialize(async (params: InitializeParams) => {
       codeActionProvider: true,
       definitionProvider: true,
       executeCommandProvider: {
-        commands: ["stimulus.controller.create", "stimulus.controller.update", "stimulus.controller.action.update"],
+        commands: [
+          "stimulus.controller.create",
+          "stimulus.controller.update",
+          "stimulus.controller.action.update",
+          "stimulus.controller.action.implement",
+        ],
       },
     },
   }
@@ -117,6 +122,12 @@ connection.onExecuteCommand((params) => {
     const [actionName, diagnostic, suggestion] = params.arguments as [string, Diagnostic, string]
 
     service.commands.updateControllerActionReference(actionName, diagnostic, suggestion)
+  }
+
+  if (params.command === "stimulus.controller.action.implement") {
+    const [identifer, actionName, diagnostic] = params.arguments as [string, string, Diagnostic]
+
+    service.commands.implementControllerAction(identifer, actionName, diagnostic)
   }
 })
 

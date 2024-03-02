@@ -74,6 +74,41 @@ export class Commands {
     await this.connection.workspace.applyEdit({ documentChanges })
   }
 
+  async implementControllerAction(actionName: string, identifier: string, diagnostic: Diagnostic) {
+    if (identifier === undefined) return
+    if (actionName === undefined) return
+    if (diagnostic === undefined) return
+
+    const controller = this.project.registeredControllers.find((controller) => controller.identifier === identifier)
+    if (controller === undefined) return
+
+    const loc = controller.controllerDefinition.classDeclaration?.node?.loc
+
+    if (!loc) return
+
+    const position = { line: loc.end.line - 1, character: 0 }
+
+    const textEdit: TextEdit = {
+      range: { start: position, end: position },
+      newText: `
+  ${actionName}(event) {
+    console.log("${identifier}#${actionName}", event)
+  }
+`,
+    }
+
+    const uri = `file://${controller.sourceFile.path}`
+    const document = { uri, version: null }
+    const documentChanges: TextDocumentEdit[] = [TextDocumentEdit.create(document, [textEdit])]
+
+    await this.connection.workspace.applyEdit({ documentChanges })
+    await this.connection.window.showDocument({
+      uri,
+      external: false,
+      takeFocus: true,
+    })
+  }
+
   private controllerTemplateFor(identifier: string) {
     return dedent`
       import { Controller } from "@hotwired/stimulus"
