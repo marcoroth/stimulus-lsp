@@ -26,7 +26,7 @@ export class Diagnostics {
   private readonly connection: Connection
   private readonly stimulusDataProvider: StimulusHTMLDataProvider
   private readonly documentService: DocumentService
-  private readonly diagnosticsSource = "Stimulus LSP"
+  private readonly diagnosticsSource = "Stimulus LSP "
   private diagnostics: Map<TextDocument, Diagnostic[]> = new Map()
 
   controllerAttribute = "data-controller"
