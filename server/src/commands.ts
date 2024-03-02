@@ -59,6 +59,21 @@ export class Commands {
     })
   }
 
+  async updateControllerActionReference(actionName: string, diagnostic: Diagnostic, suggestion: string) {
+    if (actionName === undefined) return
+    if (diagnostic === undefined) return
+    if (suggestion === undefined) return
+
+    const { textDocument, range } = diagnostic.data as { textDocument: SerializedTextDocument; range: Range }
+
+    const document = { uri: textDocument._uri, version: textDocument._version }
+    const textEdit: TextEdit = { range, newText: suggestion }
+
+    const documentChanges: TextDocumentEdit[] = [TextDocumentEdit.create(document, [textEdit])]
+
+    await this.connection.workspace.applyEdit({ documentChanges })
+  }
+
   private controllerTemplateFor(identifier: string) {
     return dedent`
       import { Controller } from "@hotwired/stimulus"

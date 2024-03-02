@@ -16,6 +16,12 @@ export interface InvalidControllerDiagnosticData {
   suggestion: string
 }
 
+export interface InvalidActionDiagnosticData {
+  identifier: string
+  actionName: string
+  suggestion: string
+}
+
 export class Diagnostics {
   private readonly connection: Connection
   private readonly stimulusDataProvider: StimulusHTMLDataProvider
@@ -447,7 +453,7 @@ export class Diagnostics {
       "stimulus.controller.action.invalid",
       range,
       textDocument,
-      { identifier, actionName },
+      { identifier, actionName, suggestion: match, textDocument, range },
     )
   }
 
