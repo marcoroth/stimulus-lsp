@@ -37,29 +37,38 @@ export class CodeActions {
       const controllerRootsInProject = this.project.controllerRoots.filter(
         (project) => !project.includes("node_modules"),
       )
+
       const manyRoots = controllerRootsInProject.length > 1
+
       if (controllerRootsInProject.length === 0) controllerRootsInProject.push(this.project.controllerRootFallback)
 
-      const updateTitle = `Replace "${identifier}" with suggestion: "${suggestion}"`
-      const updateReferenceAction = CodeAction.create(
-        updateTitle,
-        Command.create(updateTitle, "stimulus.controller.update", identifier, diagnostic, suggestion),
-        CodeActionKind.QuickFix,
-      )
+      const codeActions: CodeAction[] = []
 
-      return [
-        updateReferenceAction,
-        ...controllerRootsInProject.map((root) => {
-          const folder = `${manyRoots ? ` in "${root}/"` : ""}`
-          const title = `Create "${identifier}" Stimulus Controller${folder}`
+      if (suggestion) {
+        const updateTitle = `Replace "${identifier}" with suggestion: "${suggestion}"`
+        const updateReferenceAction = CodeAction.create(
+          updateTitle,
+          Command.create(updateTitle, "stimulus.controller.update", identifier, diagnostic, suggestion),
+          CodeActionKind.QuickFix,
+        )
 
-          return CodeAction.create(
-            title,
-            Command.create(title, "stimulus.controller.create", identifier, diagnostic, root),
-            CodeActionKind.QuickFix,
-          )
-        }),
-      ]
+        codeActions.push(updateReferenceAction)
+      }
+
+      const createControllerActions = controllerRootsInProject.map((root) => {
+        const folder = `${manyRoots ? ` in "${root}/"` : ""}`
+        const title = `Create "${identifier}" Stimulus Controller${folder}`
+
+        return CodeAction.create(
+          title,
+          Command.create(title, "stimulus.controller.create", identifier, diagnostic, root),
+          CodeActionKind.QuickFix,
+        )
+      })
+
+      codeActions.push(...createControllerActions)
+
+      return codeActions
     })
   }
 
