@@ -1,9 +1,11 @@
+import path from "path"
 import { CodeAction, CodeActionKind, CodeActionParams, Command, Diagnostic } from "vscode-languageserver/node"
 
 import { DocumentService } from "./document_service"
 import { InvalidActionDiagnosticData, InvalidControllerDiagnosticData } from "./diagnostics"
+import { capitalize, camelize } from "./utils"
 
-import { Project } from "stimulus-parser"
+import { Project, ControllerDefinition, ExportDeclaration } from "stimulus-parser"
 
 export class CodeActions {
   private readonly documentService: DocumentService
@@ -35,6 +37,8 @@ export class CodeActions {
       const codeActions: CodeAction[] = []
       const { identifier, suggestion } = diagnostic.data as InvalidControllerDiagnosticData
 
+      // Code Action: stimulus.controller.update
+
       if (suggestion) {
         const updateTitle = `Replace "${identifier}" with suggestion: "${suggestion}"`
         const updateReferenceAction = CodeAction.create(
@@ -45,6 +49,72 @@ export class CodeActions {
 
         codeActions.push(updateReferenceAction)
       }
+
+      // Code Action: stimulus.controller.register
+
+      if (identifier) {
+        const projectControllers = this.project.projectFiles
+          .flatMap((file) => file.exportedControllerDefinitions)
+          .filter((controller) => controller.guessedIdentifier === identifier)
+
+        projectControllers.forEach((controller) => {
+          const exportDeclaration = controller.classDeclaration.exportDeclaration
+
+          if (!exportDeclaration) return
+          if (!this.project.controllersFile) return
+
+          // TODO: Account for importmaps
+          const relativePath = path.relative(
+            path.dirname(this.project.controllersFile.path),
+            controller.sourceFile.path,
+          )
+
+          const importSource = relativePath.startsWith(".") ? relativePath : `./${relativePath}`
+
+          const { localName, importStatement } = this.importStatementFromExportDeclaration(
+            exportDeclaration,
+            controller,
+            importSource,
+          )
+
+          codeActions.push(
+            this.registerControllerCodeActionFor(
+              controller.guessedIdentifier,
+              importSource,
+              importStatement,
+              localName,
+            ),
+          )
+        })
+
+        this.project.detectedNodeModules.forEach((nodeModule) => {
+          const exportDeclarations = nodeModule.entrypointSourceFile?.exportDeclarations || []
+
+          exportDeclarations.forEach((exportDeclaration) => {
+            const controller = exportDeclaration.nextResolvedClassDeclaration?.controllerDefinition
+
+            if (!controller) return
+            if (controller.guessedIdentifier !== identifier) return
+
+            const { localName, importStatement } = this.importStatementFromExportDeclaration(
+              exportDeclaration,
+              controller,
+              nodeModule.name,
+            )
+
+            codeActions.push(
+              this.registerControllerCodeActionFor(
+                controller.guessedIdentifier,
+                nodeModule.name,
+                importStatement,
+                localName,
+              ),
+            )
+          })
+        })
+      }
+
+      // Code Action: stimulus.controller.create
 
       const controllerRootsInProject = this.project.controllerRoots.filter(
         (project) => !project.includes("node_modules"),
@@ -93,5 +163,41 @@ export class CodeActions {
 
       return [updateReferenceAction, implementControllerAction]
     })
+  }
+
+  private importStatementFromExportDeclaration(
+    exportDeclaration: ExportDeclaration,
+    controller: ControllerDefinition,
+    importSource: string,
+  ) {
+    const exportType = exportDeclaration?.type
+    const localName =
+      exportType === "default"
+        ? controller.classDeclaration.className || capitalize(camelize(controller.guessedIdentifier))
+        : exportDeclaration.exportedName || controller.guessedIdentifier
+    const importSpecifier = exportType === "default" ? localName : `{ ${localName} }`
+
+    const importStatement = `import ${importSpecifier} from "${importSource}"`
+
+    return {
+      localName,
+      importSpecifier,
+      importStatement,
+    }
+  }
+
+  private registerControllerCodeActionFor(
+    identifier: string,
+    source: string,
+    importStatement: string,
+    localName: string,
+  ): CodeAction {
+    const registerTitle = `Register controller "${identifier}" from "${source}"`
+
+    return CodeAction.create(
+      registerTitle,
+      Command.create(registerTitle, "stimulus.controller.register", importStatement, identifier, localName),
+      CodeActionKind.QuickFix,
+    )
   }
 }
