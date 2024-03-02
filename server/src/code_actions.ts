@@ -32,17 +32,8 @@ export class CodeActions {
 
   private handleInvalidControllerDiagnostics(diagnostics: Diagnostic[]) {
     return diagnostics.flatMap((diagnostic) => {
-      const { identifier, suggestion } = diagnostic.data as InvalidControllerDiagnosticData
-
-      const controllerRootsInProject = this.project.controllerRoots.filter(
-        (project) => !project.includes("node_modules"),
-      )
-
-      const manyRoots = controllerRootsInProject.length > 1
-
-      if (controllerRootsInProject.length === 0) controllerRootsInProject.push(this.project.controllerRootFallback)
-
       const codeActions: CodeAction[] = []
+      const { identifier, suggestion } = diagnostic.data as InvalidControllerDiagnosticData
 
       if (suggestion) {
         const updateTitle = `Replace "${identifier}" with suggestion: "${suggestion}"`
@@ -54,6 +45,14 @@ export class CodeActions {
 
         codeActions.push(updateReferenceAction)
       }
+
+      const controllerRootsInProject = this.project.controllerRoots.filter(
+        (project) => !project.includes("node_modules"),
+      )
+
+      const manyRoots = controllerRootsInProject.length > 1
+
+      if (controllerRootsInProject.length === 0) controllerRootsInProject.push(this.project.controllerRootFallback)
 
       const createControllerActions = controllerRootsInProject.map((root) => {
         const folder = `${manyRoots ? ` in "${root}/"` : ""}`

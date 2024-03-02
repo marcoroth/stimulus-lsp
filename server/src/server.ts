@@ -153,8 +153,10 @@ connection.onCompletionResolve((item) => {
   return item
 })
 
-connection.onRequest("stimulus-lsp/controllerDefinitions", (request: ControllerDefinitionsRequestType): Promise<ControllerDefinitionsResponse> =>
-  new ControllerDefinitionsRequest(service).handleRequest(request)
+connection.onRequest(
+  "stimulus-lsp/controllerDefinitions",
+  (request: ControllerDefinitionsRequestType): Promise<ControllerDefinitionsResponse> =>
+    new ControllerDefinitionsRequest(service).handleRequest(request),
 )
 
 // Listen on the connection
