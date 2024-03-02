@@ -1,7 +1,7 @@
-import { CodeAction, CodeActionKind, CodeActionParams, Command } from "vscode-languageserver/node"
+import { CodeAction, CodeActionKind, CodeActionParams, Command, Diagnostic } from "vscode-languageserver/node"
 
 import { DocumentService } from "./document_service"
-import { InvalidControllerDiagnosticData } from "./diagnostics"
+import { InvalidActionDiagnosticData, InvalidControllerDiagnosticData } from "./diagnostics"
 
 import { Project } from "stimulus-parser"
 
@@ -14,18 +14,23 @@ export class CodeActions {
     this.project = project
   }
 
-  onCodeAction(params: CodeActionParams) {
+  onCodeAction(params: CodeActionParams): CodeAction[] {
+    const { diagnostics } = params.context
+    if (diagnostics.length === 0) return []
+
     const textDocument = this.documentService.get(params.textDocument.uri)
+    if (textDocument === undefined) return []
 
-    if (textDocument === undefined) return undefined
-    if (params.context.diagnostics.length === 0) return undefined
+    const invalidControllerDiagnostics = diagnostics.filter((d) => d.code === "stimulus.controller.invalid")
+    const invalidActionDiagnostics = diagnostics.filter((d) => d.code === "stimulus.controller.action.invalid")
 
-    const diagnostics = params.context.diagnostics.filter(
-      (diagnostic) => diagnostic.code === "stimulus.controller.invalid",
-    )
+    return [
+      ...this.handleInvalidControllerDiagnostics(invalidControllerDiagnostics),
+      ...this.handleInvalidActionDiagnostics(invalidActionDiagnostics),
+    ]
+  }
 
-    if (diagnostics.length === 0) return undefined
-
+  private handleInvalidControllerDiagnostics(diagnostics: Diagnostic[]) {
     return diagnostics.flatMap((diagnostic) => {
       const { identifier, suggestion } = diagnostic.data as InvalidControllerDiagnosticData
 
@@ -55,6 +60,22 @@ export class CodeActions {
           )
         }),
       ]
+    })
+  }
+
+  private handleInvalidActionDiagnostics(diagnostics: Diagnostic[]) {
+    return diagnostics.flatMap((diagnostic) => {
+      const { actionName, suggestion } = diagnostic.data as InvalidActionDiagnosticData
+
+      const updateTitle = `Replace "${actionName}" with suggestion: "${suggestion}"`
+
+      const updateReferenceAction = CodeAction.create(
+        updateTitle,
+        Command.create(updateTitle, "stimulus.controller.action.update", actionName, diagnostic, suggestion),
+        CodeActionKind.QuickFix,
+      )
+
+      return [updateReferenceAction]
     })
   }
 }

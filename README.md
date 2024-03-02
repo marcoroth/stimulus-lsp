@@ -33,6 +33,7 @@ Currently, this Language Server only works for HTML, though its utility extends 
 
 * Create unknown controllers (`stimulus.controller.create`)
 * Update controller identifier with did you mean suggestion (`stimulus.controller.update`)
+* Update controller action name with did you mean suggestion (`stimulus.controller.action.update`)
 
 ## Structure
 
