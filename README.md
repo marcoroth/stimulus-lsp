@@ -31,10 +31,11 @@ Currently, this Language Server only works for HTML, though its utility extends 
 
 ### Quick-Fixes
 
-* Create unknown controllers (`stimulus.controller.create`)
+* Create a controller with the given identifier (`stimulus.controller.create`)
 * Update controller identifier with did you mean suggestion (`stimulus.controller.update`)
+* Register a controller definition from your project or a NPM package (`stimulus.controller.register`)
 * Update controller action name with did you mean suggestion (`stimulus.controller.action.update`)
-* Implement invalid controller action name on controller (`stimulus.controller.action.implement`)
+* Implement a missing controller action on controller (`stimulus.controller.action.implement`)
 
 ## Structure
 
