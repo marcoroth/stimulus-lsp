@@ -75,7 +75,7 @@ export class CodeActions {
         CodeActionKind.QuickFix,
       )
 
-      const implementTitle = `Implement controller action "${actionName}" on "${identifier}"`
+      const implementTitle = `Implement "${actionName}" action on "${identifier}" controller`
 
       const implementControllerAction = CodeAction.create(
         implementTitle,
