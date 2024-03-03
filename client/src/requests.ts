@@ -5,6 +5,8 @@ export type ControllerDefinition = {
   path: string
   registered: boolean
   position: Position
+  importStatement?: string
+  localName?: string
 }
 
 export interface ControllerDefinitionsOrigin {

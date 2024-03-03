@@ -72,6 +72,11 @@
         "command": "controllerDefinitions.refreshEntry",
         "title": "Refresh Stimulus Controller Definitions",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "controllerDefinitions.registerControllerDefinition",
+        "title": "Register controller definition on the Stimulus Application",
+        "icon": "$(add)"
       }
     ],
     "menus": {
@@ -80,6 +85,13 @@
           "command": "controllerDefinitions.refreshEntry",
           "when": "view == controllerDefinitions",
           "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "controllerDefinitions.registerControllerDefinition",
+          "when": "view == controllerDefinitions && viewItem == controllerDefinition-unregistered-importable",
+          "group": "inline"
         }
       ]
     },

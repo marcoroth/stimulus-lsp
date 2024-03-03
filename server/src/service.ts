@@ -47,6 +47,7 @@ export class Service {
 
     // TODO: we need to setup a file listener to check when new packages get installed
     await this.project.detectAvailablePackages()
+    await this.project.analyzeAllDetectedModules()
 
     // Only keep settings for open documents
     this.documentService.onDidClose((change) => {
