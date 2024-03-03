@@ -1,3 +1,4 @@
+import dedent from "dedent"
 import { Connection, Diagnostic, DiagnosticSeverity, Position, Range } from "vscode-languageserver/node"
 import { TextDocument } from "vscode-languageserver-textdocument"
 import { getLanguageService, Node } from "vscode-html-languageservice"
@@ -314,8 +315,14 @@ export class Diagnostics {
         const defaultValueType = this.parseValueType(valueDefinition.default)
 
         if (valueDefinition.type !== defaultValueType) {
+          const message = dedent`
+            The type of the default value you provided doesn't match the type you defined.
+            The "${valueDefinition.name}" Stimulus Value is of type \`${valueDefinition.type}\`.
+            The default value you provided for "${valueDefinition.name}" is of type \`${defaultValueType}\`.
+          `
+
           this.pushDiagnostic(
-            `Default Value type mismatch. The "${valueDefinition.name}" value is defined as type "${valueDefinition.type}" but the default value you passed is of type "${defaultValueType}".`,
+            message,
             "stimulus.controller.value_definition.default_value.type_mismatch",
             range,
             textDocument,
