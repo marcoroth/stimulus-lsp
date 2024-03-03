@@ -9,7 +9,7 @@ import { attributeValue, tokenList } from "./html_util"
 import { didyoumean, camelize, dasherize } from "./utils"
 import { StimulusHTMLDataProvider } from "./data_providers/stimulus_html_data_provider"
 
-import type { SourceFile } from "stimulus-parser"
+import type { Project, SourceFile } from "stimulus-parser"
 
 export interface InvalidControllerDiagnosticData {
   identifier: string
@@ -26,6 +26,7 @@ export class Diagnostics {
   private readonly connection: Connection
   private readonly stimulusDataProvider: StimulusHTMLDataProvider
   private readonly documentService: DocumentService
+  private readonly project: Project
   private readonly diagnosticsSource = "Stimulus LSP "
   private diagnostics: Map<TextDocument, Diagnostic[]> = new Map()
 
@@ -38,10 +39,12 @@ export class Diagnostics {
     connection: Connection,
     stimulusDataProvider: StimulusHTMLDataProvider,
     documentService: DocumentService,
+    project: Project,
   ) {
     this.connection = connection
     this.stimulusDataProvider = stimulusDataProvider
     this.documentService = documentService
+    this.project = project
   }
 
   get controllers() {
@@ -62,47 +65,35 @@ export class Diagnostics {
 
       const attributeValueRange = this.attributeValueRange(textDocument, node, this.controllerAttribute, identifier)
 
-      this.populateSourceFileErrorsAsDiagnostics([controller.classDeclaration.sourceFile])
-
       controller.controllerDefinition.errors.forEach((error) => {
         this.createParseErrorDiagnosticFor(identifier, error.message || "", textDocument, attributeValueRange)
       })
     })
   }
 
-  populateSourceFileErrorsAsDiagnostics(sourceFiles: SourceFile[]) {
-    sourceFiles.forEach((sourceFile) => {
-      const textDocument = this.documentService.get(`file://${sourceFile.path}`)
+  populateSourceFileErrorsAsDiagnostics(sourceFile: SourceFile, textDocument: TextDocument) {
+    const errors = sourceFile.errors.concat(
+      sourceFile.classDeclarations.flatMap((classDeclaration) => classDeclaration.controllerDefinition?.errors || []),
+    )
 
-      if (!textDocument) return
+    errors.map((error) => {
+      let range = Range.create(textDocument.positionAt(0), textDocument.positionAt(0))
 
-      const errors = sourceFile.errors.concat(
-        sourceFile.classDeclarations.flatMap((classDeclaration) => classDeclaration.controllerDefinition?.errors || []),
+      if (error.loc) {
+        const start = Position.create(error.loc.start.line - 1, error.loc.start.column)
+        const end = Position.create(error.loc.end.line - 1, error.loc.end.column)
+
+        range = Range.create(start, end)
+      }
+
+      this.pushDiagnostic(
+        error.message,
+        "stimulus.source_file.error",
+        range,
+        textDocument,
+        {},
+        DiagnosticSeverity.Warning,
       )
-
-      errors.map((error) => {
-        let range = Range.create(textDocument.positionAt(0), textDocument.positionAt(0))
-
-        if (error.loc) {
-          const start = Position.create(error.loc.start.line - 1, error.loc.start.column)
-          const end = Position.create(error.loc.end.line - 1, error.loc.end.column)
-
-          range = Range.create(start, end)
-        }
-
-        this.pushDiagnostic(
-          error.message,
-          "stimulus.source_file.error",
-          range,
-          textDocument,
-          {},
-          DiagnosticSeverity.Warning,
-        )
-      })
-
-      if (errors.length === 0) return
-
-      this.sendDiagnosticsFor(textDocument)
     })
   }
 
@@ -334,14 +325,30 @@ export class Diagnostics {
   }
 
   validate(textDocument: TextDocument) {
+    if (["javascript", "typescript"].includes(textDocument.languageId)) {
+      this.validateJavaScriptDocument(textDocument)
+    } else {
+      this.validateHTMLDocument(textDocument)
+    }
+
+    this.sendDiagnosticsFor(textDocument)
+  }
+
+  validateJavaScriptDocument(textDocument: TextDocument) {
+    const sourceFile = this.project.projectFiles.find((file) => `file://${file.path}` === textDocument.uri)
+
+    if (sourceFile) {
+      this.populateSourceFileErrorsAsDiagnostics(sourceFile, textDocument)
+    }
+  }
+
+  validateHTMLDocument(textDocument: TextDocument) {
     const service = getLanguageService()
     const html = service.parseHTMLDocument(textDocument)
 
     html.roots.forEach((node: Node) => {
       this.visitNode(node, textDocument)
     })
-
-    this.sendDiagnosticsFor(textDocument)
   }
 
   refreshDocument(document: TextDocument) {

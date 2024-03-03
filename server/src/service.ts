@@ -32,7 +32,7 @@ export class Service {
     this.project = new Project(this.settings.projectPath.replace("file://", ""))
     this.codeActions = new CodeActions(this.documentService, this.project)
     this.stimulusDataProvider = new StimulusHTMLDataProvider("id", this.project)
-    this.diagnostics = new Diagnostics(this.connection, this.stimulusDataProvider, this.documentService)
+    this.diagnostics = new Diagnostics(this.connection, this.stimulusDataProvider, this.documentService, this.project)
     this.definitions = new Definitions(this.documentService, this.stimulusDataProvider)
     this.commands = new Commands(this.project, this.connection)
     this.codeLens = new CodeLens(this.documentService, this.project)
@@ -65,16 +65,5 @@ export class Service {
     await this.project.refresh()
 
     this.diagnostics.refreshAllDocuments()
-
-    this.diagnostics.populateSourceFileErrorsAsDiagnostics(this.project.projectFiles)
-  }
-
-  async refreshFile(changeEvent: FileEvent) {
-    const path = changeEvent.uri.replace("file://", "")
-    const sourceFile = await this.project.refreshFile(path)
-
-    if (sourceFile) {
-      this.diagnostics.populateSourceFileErrorsAsDiagnostics([sourceFile])
-    }
   }
 }
