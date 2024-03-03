@@ -20,6 +20,8 @@ Currently, this Language Server only works for HTML, though its utility extends 
 
 ### Diagnostics
 
+#### HTML Files
+
 * Missing controllers (`stimulus.controller.invalid`)
 * Missing controller actions (`stimulus.action.invalid`)
 * Missing controller targets (`stimulus.controller.target.missing`)
@@ -27,6 +29,10 @@ Currently, this Language Server only works for HTML, though its utility extends 
 * Invalid action descriptors (`stimulus.action.invalid`)
 * Data attributes format mismatches (`stimulus.attribute.mismatch`)
 * Controller values type mismatches (`stimulus.controller.value.type_mismatch`)
+
+#### JavaScript Files/Stimulus Controller Files
+
+* Controller value definition default value type mismatch (`stimulus.controller.value_definition.default_value.type_mismatch`)
 * Controller parsing errors (`stimulus.controller.parse_error`)
 
 ### Quick-Fixes
