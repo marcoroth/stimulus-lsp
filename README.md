@@ -33,6 +33,7 @@ Currently, this Language Server only works for HTML, though its utility extends 
 #### JavaScript Files/Stimulus Controller Files
 
 * Controller value definition default value type mismatch (`stimulus.controller.value_definition.default_value.type_mismatch`)
+* Unknown value definition type (`stimulus.controller.value_definition.unknown_type`)
 * Controller parsing errors (`stimulus.controller.parse_error`)
 
 ### Quick-Fixes
