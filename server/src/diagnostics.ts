@@ -1,3 +1,4 @@
+import dedent from "dedent"
 import { Connection, Diagnostic, DiagnosticSeverity, Position, Range } from "vscode-languageserver/node"
 import { TextDocument } from "vscode-languageserver-textdocument"
 import { getLanguageService, Node } from "vscode-html-languageservice"
@@ -10,6 +11,7 @@ import { didyoumean, camelize, dasherize } from "./utils"
 import { StimulusHTMLDataProvider } from "./data_providers/stimulus_html_data_provider"
 
 import type { Project, SourceFile } from "stimulus-parser"
+import type * as Acorn from "acorn"
 
 export interface InvalidControllerDiagnosticData {
   identifier: string
@@ -77,14 +79,7 @@ export class Diagnostics {
     )
 
     errors.map((error) => {
-      let range = Range.create(textDocument.positionAt(0), textDocument.positionAt(0))
-
-      if (error.loc) {
-        const start = Position.create(error.loc.start.line - 1, error.loc.start.column)
-        const end = Position.create(error.loc.end.line - 1, error.loc.end.column)
-
-        range = Range.create(start, end)
-      }
+      const range = this.rangeFromLoc(textDocument, error.loc)
 
       this.pushDiagnostic(
         error.message,
@@ -311,6 +306,34 @@ export class Diagnostics {
     })
   }
 
+  validateDefaultValueDefinition(sourceFile: SourceFile, textDocument: TextDocument) {
+    sourceFile.controllerDefinitions.forEach((controller) => {
+      if (controller.values.length === 0) return
+
+      controller.values.forEach((valueDefinition) => {
+        const range = this.rangeFromLoc(textDocument, valueDefinition.node.loc)
+        const defaultValueType = this.parseValueType(valueDefinition.default)
+
+        if (valueDefinition.type !== defaultValueType) {
+          const message = dedent`
+            The type of the default value you provided doesn't match the type you defined.
+            The "${valueDefinition.name}" Stimulus Value is of type \`${valueDefinition.type}\`.
+            The default value you provided for "${valueDefinition.name}" is of type \`${defaultValueType}\`.
+          `
+
+          this.pushDiagnostic(
+            message,
+            "stimulus.controller.value_definition.default_value.type_mismatch",
+            range,
+            textDocument,
+            {},
+            DiagnosticSeverity.Error,
+          )
+        }
+      })
+    })
+  }
+
   visitNode(node: Node, textDocument: TextDocument) {
     this.validateParsedControllerWithoutErrors(node, textDocument)
     this.validateDataControllerAttribute(node, textDocument)
@@ -339,6 +362,7 @@ export class Diagnostics {
 
     if (sourceFile) {
       this.populateSourceFileErrorsAsDiagnostics(sourceFile, textDocument)
+      this.validateDefaultValueDefinition(sourceFile, textDocument)
     }
   }
 
@@ -359,6 +383,19 @@ export class Diagnostics {
     this.documentService.getAll().forEach((document) => {
       this.refreshDocument(document)
     })
+  }
+
+  private rangeFromLoc(textDocument: TextDocument, loc?: Acorn.SourceLocation | null): Range {
+    let range = Range.create(textDocument.positionAt(0), textDocument.positionAt(0))
+
+    if (loc) {
+      const start = Position.create(loc.start.line - 1, loc.start.column)
+      const end = Position.create(loc.end.line - 1, loc.end.column)
+
+      range = Range.create(start, end)
+    }
+
+    return range
   }
 
   private rangeFromNode(textDocument: TextDocument, node: Node) {
