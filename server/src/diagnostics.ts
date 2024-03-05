@@ -306,6 +306,30 @@ export class Diagnostics {
     })
   }
 
+  validateStimulusImports(sourceFile: SourceFile, textDocument: TextDocument) {
+    if (sourceFile.importDeclarations.length === 0) return
+
+    const replacements: { [key: string]: string } = {
+      stimulus: "@hotwired/stimulus",
+      "@stimulus/webpack-helpers": "@hotwired/stimulus-webpack-helpers",
+    }
+
+    sourceFile.importDeclarations.forEach((importDeclaration) => {
+      if (!importDeclaration.node.loc) return
+
+      if (Object.keys(replacements).includes(importDeclaration.source)) {
+        this.pushDiagnostic(
+          `You are importing from the deprecated \`${importDeclaration.source}\` package.\nPlease use the new \`${replacements[importDeclaration.source]}\` package.\n`,
+          "stimulus.package.deprecated.import",
+          this.rangeFromLoc(textDocument, importDeclaration.node.loc),
+          textDocument,
+          {},
+          DiagnosticSeverity.Information,
+        )
+      }
+    })
+  }
+
   validateValueDefinitions(sourceFile: SourceFile, textDocument: TextDocument) {
     sourceFile.controllerDefinitions.forEach((controller) => {
       if (controller.values.length === 0) return
@@ -376,6 +400,7 @@ export class Diagnostics {
     if (sourceFile) {
       this.populateSourceFileErrorsAsDiagnostics(sourceFile, textDocument)
       this.validateValueDefinitions(sourceFile, textDocument)
+      this.validateStimulusImports(sourceFile, textDocument)
     }
   }
 
@@ -465,7 +490,7 @@ export class Diagnostics {
 
   private createParseErrorDiagnosticFor(identifier: string, error: string, textDocument: TextDocument, range: Range) {
     this.pushDiagnostic(
-      `There was an error parsing the "${identifier}" Stimulus controller. Please check the controller for the following error: ${error}`,
+      `There was an error parsing the "${identifier}" Stimulus controller. \nPlease check the controller for the following error: ${error}`,
       "stimulus.controller.parse_error",
       range,
       textDocument,
