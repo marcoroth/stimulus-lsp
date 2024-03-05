@@ -306,13 +306,26 @@ export class Diagnostics {
     })
   }
 
-  validateDefaultValueDefinition(sourceFile: SourceFile, textDocument: TextDocument) {
+  validateValueDefinitions(sourceFile: SourceFile, textDocument: TextDocument) {
     sourceFile.controllerDefinitions.forEach((controller) => {
       if (controller.values.length === 0) return
 
       controller.values.forEach((valueDefinition) => {
         const range = this.rangeFromLoc(textDocument, valueDefinition.node.loc)
         const defaultValueType = this.parseValueType(valueDefinition.default)
+
+        if (!["Array", "Boolean", "Number", "Object", "String"].includes(valueDefinition.type)) {
+          this.pushDiagnostic(
+            `Unknown Value type. The "${valueDefinition.name}" value is defined as type "${valueDefinition.type}". \nPossible Values: \`Array\`, \`Boolean\`, \`Number\`, \`Object\`, or \`String\`.\n`,
+            "stimulus.controller.value_definition.unknown_type",
+            range,
+            textDocument,
+            {},
+            DiagnosticSeverity.Error,
+          )
+
+          return
+        }
 
         if (valueDefinition.type !== defaultValueType) {
           const message = dedent`
@@ -362,7 +375,7 @@ export class Diagnostics {
 
     if (sourceFile) {
       this.populateSourceFileErrorsAsDiagnostics(sourceFile, textDocument)
-      this.validateDefaultValueDefinition(sourceFile, textDocument)
+      this.validateValueDefinitions(sourceFile, textDocument)
     }
   }
 
