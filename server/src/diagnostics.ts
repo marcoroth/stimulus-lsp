@@ -18,6 +18,13 @@ export interface InvalidControllerDiagnosticData {
   suggestion: string
 }
 
+export interface DeprecatedPackageImportsDiagnosticData {
+  identifier: string
+  suggestion: string
+  importSourceRange: Range
+  textDocument: TextDocument
+}
+
 export interface InvalidActionDiagnosticData {
   identifier: string
   actionName: string
@@ -317,13 +324,27 @@ export class Diagnostics {
     sourceFile.importDeclarations.forEach((importDeclaration) => {
       if (!importDeclaration.node.loc) return
 
+      const range = this.rangeFromLoc(textDocument, importDeclaration.node.loc)
+      const importSourceRange = this.rangeFromLoc(textDocument, importDeclaration.node.source.loc)
+
+      // Strip out the quotes
+      importSourceRange.start.character += 1
+      importSourceRange.end.character -= 1
+
+      const data: DeprecatedPackageImportsDiagnosticData = {
+        identifier: importDeclaration.source,
+        suggestion: replacements[importDeclaration.source],
+        textDocument,
+        importSourceRange,
+      }
+
       if (Object.keys(replacements).includes(importDeclaration.source)) {
         this.pushDiagnostic(
           `You are importing from the deprecated \`${importDeclaration.source}\` package.\nPlease use the new \`${replacements[importDeclaration.source]}\` package.\n`,
           "stimulus.package.deprecated.import",
-          this.rangeFromLoc(textDocument, importDeclaration.node.loc),
+          range,
           textDocument,
-          {},
+          data,
           DiagnosticSeverity.Information,
         )
       }

@@ -40,6 +40,7 @@ connection.onInitialize(async (params: InitializeParams) => {
           "stimulus.controller.register",
           "stimulus.controller.action.update",
           "stimulus.controller.action.implement",
+          "stimulus.import.source.update",
         ],
       },
     },
@@ -136,6 +137,12 @@ connection.onExecuteCommand((params) => {
     const [identifer, actionName, diagnostic] = params.arguments as [string, string, Diagnostic]
 
     service.commands.implementControllerAction(identifer, actionName, diagnostic)
+  }
+
+  if (params.command === "stimulus.import.source.update") {
+    const [diagnostic] = params.arguments as [Diagnostic]
+
+    service.commands.updateImportSource(diagnostic)
   }
 
   if (params.command === "stimulus.controller.register") {

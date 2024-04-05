@@ -1,12 +1,12 @@
 import { CodeAction, CodeActionKind, CodeActionParams, Command, Diagnostic } from "vscode-languageserver/node"
 
 import { DocumentService } from "./document_service"
-import { InvalidActionDiagnosticData, InvalidControllerDiagnosticData } from "./diagnostics"
 import {
-  importStatementFromExportDeclaration,
-  relativeControllersFilePath,
-  importStatementForController,
-} from "./utils"
+  InvalidActionDiagnosticData,
+  InvalidControllerDiagnosticData,
+  DeprecatedPackageImportsDiagnosticData,
+} from "./diagnostics"
+import { importStatementForController } from "./utils"
 
 import { Project } from "stimulus-parser"
 
@@ -28,10 +28,12 @@ export class CodeActions {
 
     const invalidControllerDiagnostics = diagnostics.filter((d) => d.code === "stimulus.controller.invalid")
     const invalidActionDiagnostics = diagnostics.filter((d) => d.code === "stimulus.controller.action.invalid")
+    const deprecatedPackageImports = diagnostics.filter((d) => d.code === "stimulus.package.deprecated.import")
 
     return [
       ...this.handleInvalidControllerDiagnostics(invalidControllerDiagnostics),
       ...this.handleInvalidActionDiagnostics(invalidActionDiagnostics),
+      ...this.handleDeprecatedPackageImports(deprecatedPackageImports),
     ]
   }
 
@@ -39,6 +41,25 @@ export class CodeActions {
     return diagnostics.flatMap((diagnostic) => {
       const codeActions: CodeAction[] = []
       const { identifier, suggestion } = diagnostic.data as InvalidControllerDiagnosticData
+
+      // Code Action: stimulus.package.deprecated.import
+
+      if (diagnostic.code === "stimulus.package.deprecated.import") {
+        const updateImport = `Replace "${identifier}" with suggestion: "${suggestion}"`
+        const updateDeprecatedImport = CodeAction.create(
+          updateImport,
+          Command.create(
+            updateImport,
+            "stimulus.package.deprecated.controller.update",
+            identifier,
+            diagnostic,
+            suggestion,
+          ),
+          CodeActionKind.QuickFix,
+        )
+
+        codeActions.push(updateDeprecatedImport)
+      }
 
       // Code Action: stimulus.controller.update
 
@@ -138,6 +159,26 @@ export class CodeActions {
       )
 
       return [updateReferenceAction, implementControllerAction]
+    })
+  }
+
+  private handleDeprecatedPackageImports(diagnostics: Diagnostic[]) {
+    return diagnostics.flatMap((diagnostic) => {
+      const codeActions: CodeAction[] = []
+      const { identifier, suggestion } = diagnostic.data as DeprecatedPackageImportsDiagnosticData
+
+      // Code Action: stimulus.package.deprecated.import
+
+      const updateImport = `Replace "${identifier}" with suggestion: "${suggestion}"`
+      const updateDeprecatedImport = CodeAction.create(
+        updateImport,
+        Command.create(updateImport, "stimulus.import.source.update", diagnostic),
+        CodeActionKind.QuickFix,
+      )
+
+      codeActions.push(updateDeprecatedImport)
+
+      return codeActions
     })
   }
 }
