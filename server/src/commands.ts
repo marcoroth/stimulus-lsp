@@ -1,7 +1,7 @@
 import dedent from "dedent"
 
 import { Connection, TextDocumentEdit, TextEdit, CreateFile, Range, Diagnostic } from "vscode-languageserver/node"
-
+import { DeprecatedPackageImportsDiagnosticData } from "./diagnostics"
 import { Project, ControllerDefinition } from "stimulus-parser"
 
 type SerializedTextDocument = {
@@ -127,6 +127,30 @@ export class Commands {
     const document = { uri, version: null }
     const documentChanges: TextDocumentEdit[] = [TextDocumentEdit.create(document, [textEdit])]
 
+    await this.connection.workspace.applyEdit({ documentChanges })
+    await this.connection.window.showDocument({
+      uri,
+      external: false,
+      takeFocus: true,
+    })
+  }
+
+  async updateImportSource(diagnostic: Diagnostic) {
+    const {
+      textDocument,
+      importSourceRange: range,
+      suggestion: newText,
+    } = diagnostic.data as DeprecatedPackageImportsDiagnosticData & { textDocument: SerializedTextDocument }
+
+    const textEdit: TextEdit = {
+      range,
+      newText,
+    }
+
+    const uri = textDocument._uri
+    const document = { uri, version: null }
+
+    const documentChanges: TextDocumentEdit[] = [TextDocumentEdit.create(document, [textEdit])]
     await this.connection.workspace.applyEdit({ documentChanges })
     await this.connection.window.showDocument({
       uri,

@@ -18,6 +18,13 @@ export interface InvalidControllerDiagnosticData {
   suggestion: string
 }
 
+export interface DeprecatedPackageImportsDiagnosticData {
+  identifier: string
+  suggestion: string
+  importSourceRange: Range
+  textDocument: TextDocument
+}
+
 export interface InvalidActionDiagnosticData {
   identifier: string
   actionName: string
@@ -317,14 +324,27 @@ export class Diagnostics {
     sourceFile.importDeclarations.forEach((importDeclaration) => {
       if (!importDeclaration.node.loc) return
 
-      const range = this.packageNameRangeFromImportDeclaration(textDocument, importDeclaration.source, importDeclaration.node.loc)
+      const range = this.rangeFromLoc(textDocument, importDeclaration.node.loc)
+      const importSourceRange = this.rangeFromLoc(textDocument, importDeclaration.node.source.loc)
+
+      // Strip out the quotes
+      importSourceRange.start.character += 1
+      importSourceRange.end.character -= 1
+
+      const data: DeprecatedPackageImportsDiagnosticData = {
+        identifier: importDeclaration.source,
+        suggestion: replacements[importDeclaration.source],
+        textDocument,
+        importSourceRange,
+      }
+
       if (Object.keys(replacements).includes(importDeclaration.source)) {
         this.pushDiagnostic(
           `You are importing from the deprecated \`${importDeclaration.source}\` package.\nPlease use the new \`${replacements[importDeclaration.source]}\` package.\n`,
           "stimulus.package.deprecated.import",
           range,
           textDocument,
-          { identifier: importDeclaration.source, suggestion: replacements[importDeclaration.source], textDocument, range },
+          data,
           DiagnosticSeverity.Information,
         )
       }
@@ -433,31 +453,6 @@ export class Diagnostics {
 
       range = Range.create(start, end)
     }
-
-    return range
-  }
-
-  private packageNameRangeFromImportDeclaration(textDocument: TextDocument, packageName: string, loc: Acorn.SourceLocation): Range {
-    // Create a Range for the import statement
-
-    const startImportStatement = Position.create(loc.start.line - 1, loc.start.column)
-    const endImportStatement = Position.create(loc.end.line - 1, loc.end.column)
-    const selectionRange = Range.create(startImportStatement, endImportStatement)
-
-    // Create string of import declaration within the range
-
-    const importDeclaration = textDocument.getText(selectionRange)
-
-    // Find index of package name in import declaration string
-
-    const positionOfPackageName = importDeclaration.indexOf(packageName)
-
-    // Create Range for only packagename
-
-    const startPackageName = Position.create(loc.start.line - 1, positionOfPackageName)
-    const endPackageName = Position.create(loc.end.line - 1, loc.end.column - 1)
-    let range = Range.create(startPackageName, endPackageName)
-
 
     return range
   }
