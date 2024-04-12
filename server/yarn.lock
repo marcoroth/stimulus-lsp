@@ -176,9 +176,9 @@ debug@^4.3.4:
     ms "2.1.2"
 
 dedent@^1.5.1:
-  version "1.5.2"
-  resolved "https://registry.yarnpkg.com/dedent/-/dedent-1.5.2.tgz#838f09196f6d1fafd464904132dea270c5fe96b0"
-  integrity sha512-O4ncVvQ2ZI0KH+of+Evf956RssiyxvMgU0hE8QyG+rwmUjcxEYX4DoF9FQxIaHye3WQjPXrv3uRhlDrRzlq2CQ==
+  version "1.5.3"
+  resolved "https://registry.yarnpkg.com/dedent/-/dedent-1.5.3.tgz#99aee19eb9bae55a67327717b6e848d0bf777e5a"
+  integrity sha512-NHQtfOOW68WD8lgypbLA5oT+Bt0xXJhiYvoR6SmmNXZfpzOGXwdKWmcwG8N7PwVVWV3eF/68nmD9BaJSsTBhyQ==
 
 dir-glob@^3.0.1:
   version "3.0.1"
