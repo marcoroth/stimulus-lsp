@@ -440,9 +440,9 @@ source-map@^0.7.4:
   integrity sha512-l3BikUxvPOcn5E74dZiq5BGsTb5yEwhaTSzccU6t4sDOH8NWJCstKO5QT2CvtFoK6F0saL7p9xHAqHOlCPJygA==
 
 stimulus-parser@^0.1.4:
-  version "0.1.4"
-  resolved "https://registry.yarnpkg.com/stimulus-parser/-/stimulus-parser-0.1.4.tgz#67c702c6671df8da06ca0581d9e95ef97a0e1b67"
-  integrity sha512-JB6XF2PnA9MsgD1lVdfxWNwoAd5zt1n6eoxW3Z/QboUDw6HF53qxk2woLr+2SBujUSmdRKoXV2RDMgpyK9c6Gg==
+  version "0.1.5"
+  resolved "https://registry.yarnpkg.com/stimulus-parser/-/stimulus-parser-0.1.5.tgz#424de17c5686d178ec3dcd7c20af6d761b716cb7"
+  integrity sha512-0gR38KkUP6LxueiaTPOB7fHb7FGzQNkLtyvPdWScvSEMd+HIFhzaxuKP0RWi51wzvIHdR2WFynDJ0gCmZ+W6hg==
   dependencies:
     "@hotwired/stimulus-webpack-helpers" "^1.0.1"
     "@typescript-eslint/typescript-estree" "^7.0.1"
@@ -452,8 +452,16 @@ stimulus-parser@^0.1.4:
     fs "^0.0.1-security"
     glob "^10.3.10"
 
-"string-width-cjs@npm:string-width@^4.2.0", string-width@^4.1.0:
-  name string-width-cjs
+"string-width-cjs@npm:string-width@^4.2.0":
+  version "4.2.3"
+  resolved "https://registry.yarnpkg.com/string-width/-/string-width-4.2.3.tgz#269c7117d27b05ad2e536830a8ec895ef9c6d010"
+  integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==
+  dependencies:
+    emoji-regex "^8.0.0"
+    is-fullwidth-code-point "^3.0.0"
+    strip-ansi "^6.0.1"
+
+string-width@^4.1.0:
   version "4.2.3"
   resolved "https://registry.yarnpkg.com/string-width/-/string-width-4.2.3.tgz#269c7117d27b05ad2e536830a8ec895ef9c6d010"
   integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==
@@ -471,8 +479,14 @@ string-width@^5.0.1, string-width@^5.1.2:
     emoji-regex "^9.2.2"
     strip-ansi "^7.0.1"
 
-"strip-ansi-cjs@npm:strip-ansi@^6.0.1", strip-ansi@^6.0.0, strip-ansi@^6.0.1:
-  name strip-ansi-cjs
+"strip-ansi-cjs@npm:strip-ansi@^6.0.1":
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/strip-ansi/-/strip-ansi-6.0.1.tgz#9e26c63d30f53443e9489495b2105d37b67a85d9"
+  integrity sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==
+  dependencies:
+    ansi-regex "^5.0.1"
+
+strip-ansi@^6.0.0, strip-ansi@^6.0.1:
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/strip-ansi/-/strip-ansi-6.0.1.tgz#9e26c63d30f53443e9489495b2105d37b67a85d9"
   integrity sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==
