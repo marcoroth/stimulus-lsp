@@ -356,10 +356,11 @@ export class Diagnostics {
       if (controller.values.length === 0) return
 
       controller.values.forEach((valueDefinition) => {
-        const range = this.rangeFromLoc(textDocument, valueDefinition.node.loc)
         const defaultValueType = this.parseValueType(valueDefinition.default)
 
         if (!["Array", "Boolean", "Number", "Object", "String"].includes(valueDefinition.type)) {
+          const range = this.rangeFromLoc(textDocument, valueDefinition.typeLoc)
+
           this.pushDiagnostic(
             `Unknown Value type. The "${valueDefinition.name}" value is defined as type "${valueDefinition.type}". \nPossible Values: \`Array\`, \`Boolean\`, \`Number\`, \`Object\`, or \`String\`.\n`,
             "stimulus.controller.value_definition.unknown_type",
@@ -373,6 +374,8 @@ export class Diagnostics {
         }
 
         if (valueDefinition.type !== defaultValueType) {
+          const range = this.rangeFromLoc(textDocument, valueDefinition.defaultValueLoc)
+
           const message = dedent`
             The type of the default value you provided doesn't match the type you defined.
             The "${valueDefinition.name}" Stimulus Value is of type \`${valueDefinition.type}\`.
