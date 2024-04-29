@@ -40,8 +40,8 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
       })
 
     const valueAttribtues = this.controllers.flatMap((controller) => {
-      return Object.keys(controller.controllerDefinition.values).map((value) => {
-        return { name: `data-${controller.identifier}-${dasherize(value)}-value` }
+      return controller.controllerDefinition.values.map((definition) => {
+        return { name: `data-${controller.identifier}-${dasherize(definition.name)}-value` }
       })
     })
 
