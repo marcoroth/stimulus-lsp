@@ -330,9 +330,9 @@
     eslint-visitor-keys "^3.4.3"
 
 "@vscode/vsce@^2.22.0":
-  version "2.26.0"
-  resolved "https://registry.yarnpkg.com/@vscode/vsce/-/vsce-2.26.0.tgz#104b4f6f0b2d8af89a2b90880d91846370bf6208"
-  integrity sha512-v54ltgMzUG8lGY0kAgaOlry57xse1RlWzes9FotfGEx+Fr05KeR8rZicQzEMDmi9QnOgVWHuiEq+xA2HWkAz+Q==
+  version "2.26.1"
+  resolved "https://registry.yarnpkg.com/@vscode/vsce/-/vsce-2.26.1.tgz#c4f13b04225e5cd16d0a80eb5bb98b96451ce431"
+  integrity sha512-QOG6Ht7V93nhwcBxPWcG33UK0qDGEoJdg0xtVeaTN27W6PGdMJUJGTPhB/sNHUIFKwvwzv/zMAHvDgMNXbcwlA==
   dependencies:
     "@azure/identity" "^4.1.0"
     azure-devops-node-api "^12.5.0"
