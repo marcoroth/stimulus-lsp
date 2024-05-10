@@ -171,12 +171,14 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
 
         if (!valueDefiniton) return []
 
+        const defaultValue = (valueDefiniton.hasExplicitDefaultValue) ? { name: JSON.stringify(valueDefiniton.default).replace(/"/g, '\\"') } : { name: "" }
+
         if (valueDefiniton.type === "Boolean") {
           return [
+            defaultValue,
             { name: "true" },
             { name: "false" },
             { name: "null" },
-            { name: JSON.stringify(valueDefiniton.default) },
           ]
         }
 
@@ -184,7 +186,7 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
           return [
             { name: "-1" },
             { name: "0" },
-            { name: JSON.stringify(valueDefiniton.default) },
+            defaultValue,
             { name: "1" },
             { name: "2" },
             { name: "3" },
@@ -194,19 +196,20 @@ export class StimulusHTMLDataProvider implements IHTMLDataProvider {
             { name: "7" },
             { name: "8" },
             { name: "9" },
+            { name: "10" },
           ]
         }
 
         if (valueDefiniton.type === "Object") {
-          return [{ name: JSON.stringify(valueDefiniton.default) }, { name: "{}" }]
+          return [defaultValue, { name: "{}" }]
         }
 
         if (valueDefiniton.type === "Array") {
-          return [{ name: JSON.stringify(valueDefiniton.default) }, { name: "[]" }]
+          return [defaultValue, { name: "[]" }]
         }
 
         if (valueDefiniton.type === "String") {
-          return [{ name: JSON.stringify(valueDefiniton.default) }, { name: identifier }, { name: value }]
+          return [defaultValue, { name: identifier }, { name: value }]
         }
       }
     }
