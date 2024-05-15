@@ -651,7 +651,14 @@ export class Diagnostics {
     }
 
     const diagnostics = this.diagnostics.get(textDocument) || []
-    diagnostics.push(diagnostic)
+
+    const duplicateDiagnostic = diagnostics.find((d) => {
+      return JSON.stringify(d) === JSON.stringify(diagnostic)
+    })
+
+    if(!duplicateDiagnostic) {
+      diagnostics.push(diagnostic)
+    }
 
     this.diagnostics.set(textDocument, diagnostics)
 
