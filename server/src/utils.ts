@@ -60,7 +60,7 @@ export function nodeModleForController(controllerDefinition: ControllerDefinitio
 
 export function localNameForExportDeclaration(exportDeclaration: ExportDeclaration, controller: ControllerDefinition) {
   return exportDeclaration.type === "default"
-    ? controller.classDeclaration.className || capitalize(camelize(controller.guessedIdentifier))
+    ? controller.classDeclaration.className || `${capitalize(camelize(controller.guessedIdentifier))}Controller`
     : exportDeclaration.exportedName || controller.guessedIdentifier
 }
 
@@ -92,7 +92,17 @@ export function relativeControllersFilePath(project: Project, filePath: string):
     filePath,
   )
 
-  return relativePath.startsWith(".") ? relativePath : `./${relativePath}`
+  const fileName = path.basename(
+    relativePath,
+    path.extname(relativePath)
+  )
+
+  const controllerPath = path.join(
+    path.dirname(relativePath),
+    fileName
+  )
+
+  return controllerPath.startsWith(".") ? controllerPath : `./${controllerPath}`
 }
 
 export function exportDeclarationFromControllerDefinition(controllerDefinition: ControllerDefinition, project: Project) {
