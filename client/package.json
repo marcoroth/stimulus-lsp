@@ -3,7 +3,7 @@
   "description": "Intelligent Stimulus tooling for Visual Studio Code",
   "author": "Marco Roth",
   "license": "MIT",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "publisher": "Marco Roth",
   "repository": {
     "type": "git",
