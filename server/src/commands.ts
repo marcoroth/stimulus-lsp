@@ -40,12 +40,13 @@ export class Commands {
     if (importStatement === undefined) return
     if (identifier === undefined) return
     if (localName === undefined) return
-    if (!this.project.controllersFile) return
+    if (this.project.controllersFiles.length === 0) return
 
     // TODO: there must be a better way to get the end of the file without having the textDocument
     const endOfFile = { line: 10000000, character: 0 }
 
-    const uri = `file://${this.project.controllersFile.path}`
+    // TODO: don't always choose first contollersFile
+    const uri = `file://${this.project.controllersFiles[0].path}`
     const document = { uri, version: null }
     const textEdit: TextEdit = {
       range: { start: endOfFile, end: endOfFile },

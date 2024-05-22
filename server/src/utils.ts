@@ -84,11 +84,11 @@ export function importStatementFromExportDeclaration(
 }
 
 export function relativeControllersFilePath(project: Project, filePath: string): string {
-  if (!project.controllersFile) return ""
+  if (project.controllersFiles.length === 0) return ""
 
   // TODO: Account for importmaps
   const relativePath = path.relative(
-    path.dirname(project.controllersFile.path),
+    path.dirname(project.controllersFiles[0].path),
     filePath,
   )
 
