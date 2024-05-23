@@ -2,6 +2,7 @@ import dedent from "dedent"
 
 import { Connection, TextDocumentEdit, TextEdit, CreateFile, Range, Diagnostic } from "vscode-languageserver/node"
 import { DeprecatedPackageImportsDiagnosticData } from "./diagnostics"
+import { Config } from "./config"
 import { Project, ControllerDefinition } from "stimulus-parser"
 
 type SerializedTextDocument = {
@@ -155,6 +156,53 @@ export class Commands {
     await this.connection.workspace.applyEdit({ documentChanges })
     await this.connection.window.showDocument({
       uri,
+      external: false,
+      takeFocus: true,
+    })
+  }
+
+  async createStimulusLSPConfig() {
+    const config = await Config.fromPathOrNew(this.project.projectPath)
+    const configPath = config.path
+    const createFile: CreateFile = { kind: "create", uri: configPath }
+
+    await this.connection.workspace.applyEdit({ documentChanges: [createFile] })
+
+    const documentRange: Range = Range.create(0, 0, 0, 0)
+    const textEdit: TextEdit = { range: documentRange, newText: config.toJSON() }
+    const textDocumentEdit = TextDocumentEdit.create({ uri: configPath, version: 1 }, [textEdit])
+
+    await this.connection.workspace.applyEdit({ documentChanges: [textDocumentEdit] })
+    await this.connection.window.showDocument({
+      uri: textDocumentEdit.textDocument.uri,
+      external: false,
+      takeFocus: true,
+    })
+  }
+
+  async addIgnoredControllerToConfig(identifier: string) {
+    const config = await Config.fromPathOrNew(this.project.projectPath)
+
+    config.addIgnoredController(identifier)
+
+    await config.write()
+
+    await this.connection.window.showDocument({
+      uri: config.path,
+      external: false,
+      takeFocus: true,
+    })
+  }
+
+  async addIgnoredAttributeToConfig(attribute: string) {
+    const config = await Config.fromPathOrNew(this.project.projectPath)
+
+    config.addIgnoredAttribute(attribute)
+
+    await config.write()
+
+    await this.connection.window.showDocument({
+      uri: config.path,
       external: false,
       takeFocus: true,
     })

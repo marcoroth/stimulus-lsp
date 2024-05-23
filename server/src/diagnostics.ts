@@ -10,6 +10,7 @@ import { attributeValue, tokenList } from "./html_util"
 import { didyoumean, camelize, dasherize } from "./utils"
 import { StimulusHTMLDataProvider } from "./data_providers/stimulus_html_data_provider"
 
+import type { Service } from "./service"
 import type { Project, SourceFile } from "stimulus-parser"
 import type * as Acorn from "acorn"
 
@@ -36,6 +37,7 @@ export class Diagnostics {
   private readonly stimulusDataProvider: StimulusHTMLDataProvider
   private readonly documentService: DocumentService
   private readonly project: Project
+  private readonly service: Service
   private readonly diagnosticsSource = "Stimulus LSP "
   private diagnostics: Map<TextDocument, Diagnostic[]> = new Map()
 
@@ -49,11 +51,13 @@ export class Diagnostics {
     stimulusDataProvider: StimulusHTMLDataProvider,
     documentService: DocumentService,
     project: Project,
+    service: Service,
   ) {
     this.connection = connection
     this.stimulusDataProvider = stimulusDataProvider
     this.documentService = documentService
     this.project = project
+    this.service = service
   }
 
   get controllers() {
@@ -159,6 +163,10 @@ export class Diagnostics {
       const value = attributeValue(node, attribute) || ""
       const attributeMatches = attribute.match(this.valueAttribute)
 
+      if (this.isIgnoredAttribute(attribute)) {
+        return
+      }
+
       // cannot analyze value if it is interpolated
       if (this.foundSkippableTags(value)) {
         return
@@ -209,7 +217,7 @@ export class Diagnostics {
 
         if (!controller) {
           const attributeNameRange = this.attributeNameRange(textDocument, node, attribute, identifier)
-          this.createInvalidControllerDiagnosticFor(identifier, textDocument, attributeNameRange)
+          this.createInvalidControllerDiagnosticFor(identifier, textDocument, attributeNameRange, { attribute })
 
           return
         }
@@ -283,6 +291,8 @@ export class Diagnostics {
     const targetAttributeNames = Object.keys(attributes).filter((attribute) => attribute.match(this.targetAttribute))
 
     targetAttributeNames.forEach((attribute) => {
+      if (this.isIgnoredAttribute(attribute)) return
+
       const targetName = attributeValue(node, attribute) || ""
       const targetMatches = attribute.match(this.targetAttribute)
       const matchedTarget = targetMatches && Array.isArray(targetMatches)
@@ -293,7 +303,7 @@ export class Diagnostics {
 
         if (!controller) {
           const attributeNameRange = this.attributeNameRange(textDocument, node, attribute, identifier)
-          this.createInvalidControllerDiagnosticFor(identifier, textDocument, attributeNameRange)
+          this.createInvalidControllerDiagnosticFor(identifier, textDocument, attributeNameRange, { attribute })
 
           return
         }
@@ -522,19 +532,33 @@ export class Diagnostics {
     )
   }
 
-  private createInvalidControllerDiagnosticFor(identifier: string, textDocument: TextDocument, range: Range) {
+  private isIgnoredController(identifier: string) {
+    const ignoredIdentifiers = this.service.config?.ignoredControllerIdentifiers || []
+
+    return ignoredIdentifiers.includes(identifier)
+  }
+
+  private isIgnoredAttribute(attribute: string) {
+    const ignoredAttributes = this.service.config?.ignoredAttributes || []
+
+    return ignoredAttributes.includes(attribute)
+  }
+
+  private createInvalidControllerDiagnosticFor(identifier: string, textDocument: TextDocument, range: Range, data?: Object) {
     const match = didyoumean(
       identifier,
       this.controllers.map((controller) => controller.identifier),
     )
     const suggestion = match ? `Did you mean "${match}"?` : ""
 
+    if (this.isIgnoredController(identifier)) return
+
     this.pushDiagnostic(
       `"${identifier}" isn't a valid Stimulus controller. ${suggestion}`,
       "stimulus.controller.invalid",
       range,
       textDocument,
-      { identifier, suggestion: match, textDocument, range },
+      { identifier, suggestion: match, textDocument, range, data },
     )
   }
 

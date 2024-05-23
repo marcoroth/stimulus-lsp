@@ -40,6 +40,9 @@ connection.onInitialize(async (params: InitializeParams) => {
           "stimulus.controller.register",
           "stimulus.controller.action.update",
           "stimulus.controller.action.implement",
+          "stimulus.config.create",
+          "stimulus.config.controller.ignore",
+          "stimulus.config.attribute.ignore",
           "stimulus.import.source.update",
         ],
       },
@@ -74,7 +77,10 @@ connection.onInitialized(() => {
   })
 
   connection.client.register(DidChangeWatchedFilesNotification.type, {
-    watchers: [{ globPattern: `**/**/*.{ts,js}` }],
+    watchers: [
+      { globPattern: `**/**/*.{ts,js}` },
+      { globPattern: `**/**/.stimulus-lsp/config.json` },
+    ],
   })
 })
 
@@ -99,12 +105,17 @@ connection.onDidOpenTextDocument((params) => {
   }
 })
 
-connection.onDidChangeWatchedFiles((_params) => {
-  // params.changes.forEach((event) => {
-  //   service.refreshFile(event)
-  // })
 
-  service.refresh()
+connection.onDidChangeWatchedFiles((params) => {
+  params.changes.forEach(async (event) => {
+    if (event.uri.endsWith("/.stimulus-lsp/config.json")) {
+      await service.refreshConfig()
+
+      service.documentService.getAll().forEach((document) => {
+        service.diagnostics.refreshDocument(document)
+      })
+    }
+  })
 })
 
 connection.onDefinition((params) => service.definitions.onDefinition(params))
@@ -143,6 +154,24 @@ connection.onExecuteCommand((params) => {
     const [diagnostic] = params.arguments as [Diagnostic]
 
     service.commands.updateImportSource(diagnostic)
+  }
+
+  if (params.command === "stimulus.config.create") {
+    const [_identifier, _diagnostic] = params.arguments as [string, Diagnostic]
+
+    service.commands.createStimulusLSPConfig()
+  }
+
+  if (params.command === "stimulus.config.controller.ignore") {
+    const [identifier, _diagnostic] = params.arguments as [string, Diagnostic]
+
+    service.commands.addIgnoredControllerToConfig(identifier)
+  }
+
+  if (params.command === "stimulus.config.attribute.ignore") {
+    const [attribute, _diagnostic] = params.arguments as [string, Diagnostic]
+
+    service.commands.addIgnoredAttributeToConfig(attribute)
   }
 
   if (params.command === "stimulus.controller.register") {

@@ -134,6 +134,34 @@ export class CodeActions {
 
       codeActions.push(...createControllerActions)
 
+      // Code Action: stimulus.config.attribute.ignore
+
+      const { attribute } = diagnostic?.data?.data || {}
+
+      if (attribute) {
+        const ignoreAttributeTitle = `Ignore diagnostics for "${attribute}" attribute.`
+
+        const ignoreAttributeAction = CodeAction.create(
+          ignoreAttributeTitle,
+          Command.create(ignoreAttributeTitle, "stimulus.config.attribute.ignore", attribute, diagnostic),
+          CodeActionKind.QuickFix,
+        )
+
+        codeActions.push(ignoreAttributeAction)
+      }
+
+      // Code Action: stimulus.config.controller.ignore
+
+      const ignoreControllerTitle = `Ignore diagnostics for "${identifier}" controller.`
+
+      const ignoreControllerAction = CodeAction.create(
+        ignoreControllerTitle,
+        Command.create(ignoreControllerTitle, "stimulus.config.controller.ignore", identifier, diagnostic),
+        CodeActionKind.QuickFix,
+      )
+
+      codeActions.push(ignoreControllerAction)
+
       return codeActions
     })
   }
