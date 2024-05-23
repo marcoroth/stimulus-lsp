@@ -44,6 +44,9 @@ Currently, this Language Server only works for HTML, though its utility extends 
 * Register a controller definition from your project or a NPM package (`stimulus.controller.register`)
 * Update controller action name with did you mean suggestion (`stimulus.controller.action.update`)
 * Implement a missing controller action on controller (`stimulus.controller.action.implement`)
+* Create a default config file at `.stimulus-lsp/config.json` (`stimulus.config.create`)
+* Ignore diagnostics for a HTML attribute by adding it to the `ignoredAttributes` config (`stimulus.config.attribute.ignore`)
+* Ignore diagnostics for a Stimulus controller identifier by adding it to the `ignoredControllerIdentifiers` config (`stimulus.config.controller.ignore`)
 
 ## Structure
 
