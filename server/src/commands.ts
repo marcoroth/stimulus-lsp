@@ -188,7 +188,7 @@ export class Commands {
     await config.write()
 
     await this.connection.window.showDocument({
-      uri: config.path,
+      uri: `file://${config.path}`,
       external: false,
       takeFocus: true,
     })
@@ -202,7 +202,7 @@ export class Commands {
     await config.write()
 
     await this.connection.window.showDocument({
-      uri: config.path,
+      uri: `file://${config.path}`,
       external: false,
       takeFocus: true,
     })
