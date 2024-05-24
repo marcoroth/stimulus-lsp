@@ -1,4 +1,4 @@
-import { Connection, FileEvent, InitializeParams } from "vscode-languageserver/node"
+import { Connection, InitializeParams } from "vscode-languageserver/node"
 import { getLanguageService, LanguageService } from "vscode-html-languageservice"
 
 import { StimulusHTMLDataProvider } from "./data_providers/stimulus_html_data_provider"
