@@ -124,6 +124,6 @@
     "eslint-plugin-prettier": "^5.0.1",
     "prettier": "^3.1.0",
     "rimraf": "^6.0.0",
-    "typescript": "^5.3.2"
+    "typescript": "^5.5.3"
   }
 }
