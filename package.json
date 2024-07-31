@@ -115,7 +115,7 @@
     "test": "sh ./scripts/e2e.sh"
   },
   "devDependencies": {
-    "@types/node": "^20.10.0",
+    "@types/node": "^22.0.2",
     "@typescript-eslint/eslint-plugin": "^7.0.1",
     "@typescript-eslint/parser": "^7.0.1",
     "@vscode/vsce": "^2.22.0",
