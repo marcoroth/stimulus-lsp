@@ -70,7 +70,7 @@ export class Commands {
     if (controllerRoot === undefined) controllerRoot = this.project.controllerRoot
 
     const path = ControllerDefinition.controllerPathForIdentifier(identifier)
-    const newControllerPath = `${this.project.projectPath}/${controllerRoot}/${path}`
+    const newControllerPath = `file://${this.project.projectPath}/${controllerRoot}/${path}`
     const createFile: CreateFile = { kind: "create", uri: newControllerPath }
 
     await this.connection.workspace.applyEdit({ documentChanges: [createFile] })
