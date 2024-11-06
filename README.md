@@ -77,4 +77,4 @@ Currently, this Language Server only works for HTML, though its utility extends 
 
 ## Install instructions: Neovim
 
-[Install instructions can be found at nvim-lspconfig](https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md#stimulus_ls)
+[Install instructions can be found at nvim-lspconfig](https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md#stimulus_ls)
