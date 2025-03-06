@@ -10,6 +10,7 @@
     "strict": true,
     "outDir": "out",
     "rootDir": "src",
+    "erasableSyntaxOnly": true,
     "typeRoots": [
       "./types",
       "./node_modules/@types"

@@ -6,10 +6,13 @@ import { Project } from "stimulus-parser"
 import { dasherize } from "../utils"
 
 export class StimulusHTMLDataProvider implements IHTMLDataProvider {
-  constructor(
-    private id: string,
-    private project: Project,
-  ) {}
+  private id: string;
+  private project: Project
+
+  constructor(id: string, project: Project) {
+    this.id = id;
+    this.project = project;
+  }
 
   get controllers() {
     return this.project.registeredControllers
