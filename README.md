@@ -1,7 +1,6 @@
 # Stimulus LSP
 
-Intelligent Stimulus tooling for Visual Studio Code
-
+Intelligent Stimulus tooling for Visual Studio Code and other editors which support the Language Server Protocol.
 
 ![](/assets/stimulus-lsp.png)
 
@@ -75,6 +74,12 @@ Currently, this Language Server only works for HTML, though its utility extends 
 - In the [Extension Development Host] instance of VSCode, open a HTML file.
   - Type `<div data-controller="|">`, place your cursor where the `|` is, hit Ctrl+Space and you should see completions.
 
-## Install instructions: Neovim
+## Install instructions
+
+### Neovim
 
 [Install instructions can be found at nvim-lspconfig](https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md#stimulus_ls)
+
+### Zed
+
+Install the [Zed Stimulus](https://github.com/vitallium/zed-stimulus) extension.
