@@ -570,9 +570,9 @@ typescript@^5.8.2:
   integrity sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ==
 
 vscode-html-languageservice@^5.1.1:
-  version "5.3.3"
-  resolved "https://registry.yarnpkg.com/vscode-html-languageservice/-/vscode-html-languageservice-5.3.3.tgz#42f7f22411a26b327ac4c4a5d26a0369fa7c529e"
-  integrity sha512-AK/jJM0VIWRrlfqkDBMZxNMnxYT5I2uoMVRoNJ5ePSplnSaT9mbYjqJlxxeLvUrOW7MEH0vVIDzU48u44QZE0w==
+  version "5.4.0"
+  resolved "https://registry.yarnpkg.com/vscode-html-languageservice/-/vscode-html-languageservice-5.4.0.tgz#05edbae7287e942f3187f6266cfc2333608a8a43"
+  integrity sha512-9/cbc90BSYCghmHI7/VbWettHZdC7WYpz2g5gBK6UDUI1MkZbM773Q12uAYJx9jzAiNHPpyo6KzcwmcnugncAQ==
   dependencies:
     "@vscode/l10n" "^0.0.18"
     vscode-languageserver-textdocument "^1.0.12"
