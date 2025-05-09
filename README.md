@@ -76,6 +76,10 @@ Currently, this Language Server only works for HTML, though its utility extends 
 
 ## Install instructions
 
+### VS Code
+
+Install the [Stimulus LSP extension](https://marketplace.visualstudio.com/items?itemName=marcoroth.stimulus-lsp) from the Visual Studio Marketplace.
+
 ### Neovim
 
 [Install instructions can be found at nvim-lspconfig](https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md#stimulus_ls)
