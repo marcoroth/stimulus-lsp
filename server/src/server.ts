@@ -89,9 +89,9 @@ connection.onDidChangeConfiguration((change) => {
     // Reset all cached document settings
     service.settings.documentSettings.clear()
   } else {
-    service.settings.globalSettings = <StimulusSettings>(
+    service.settings.globalSettings = (
       (change.settings.languageServerStimulus || service.settings.defaultSettings)
-    )
+    ) as StimulusSettings
   }
 
   service.refresh()
