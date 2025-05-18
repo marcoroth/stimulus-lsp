@@ -1,0 +1,30 @@
+{
+  "name": "stimulus-mcp-server",
+  "version": "0.0.1",
+  "description": "Stimulus MCP Sever",
+  "type": "module",
+  "main": "dist/index.js",
+  "author": "Marco Roth",
+  "license": "MIT",
+  "private": false,
+  "bin": {
+    "stimulus-mcp-server": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc && chmod 755 dist/index.js",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.11.0",
+    "stimulus-parser": "^0.2.2",
+    "zod": "^3.24.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.18",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.3"
+  },
+  "files": [
+    "dist"
+  ]
+}
