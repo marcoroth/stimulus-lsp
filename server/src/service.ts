@@ -12,7 +12,7 @@ import { Config } from "./config"
 import { CodeLensProvider as CodeLens } from "./code_lens"
 
 import { Project } from "stimulus-parser"
-
+import { Herb } from "@herb-tools/node"
 export class Service {
   connection: Connection
   settings: Settings
@@ -26,6 +26,7 @@ export class Service {
   project: Project
   codeLens: CodeLens
   config?: Config
+  herb: typeof Herb
 
   constructor(connection: Connection, params: InitializeParams) {
     this.connection = connection
@@ -38,6 +39,7 @@ export class Service {
     this.definitions = new Definitions(this.documentService, this.stimulusDataProvider)
     this.commands = new Commands(this.project, this.connection)
     this.codeLens = new CodeLens(this.documentService, this.project)
+    this.herb = Herb
 
     this.htmlLanguageService = getLanguageService({
       customDataProviders: [this.stimulusDataProvider],
@@ -50,6 +52,8 @@ export class Service {
     // TODO: we need to setup a file listener to check when new packages get installed
     await this.project.detectAvailablePackages()
     await this.project.analyzeAllDetectedModules()
+
+    await this.herb.load()
 
     this.config = await Config.fromPathOrNew(this.project.projectPath)
 
