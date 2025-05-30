@@ -12,7 +12,8 @@
   },
   "scripts": {
     "build": "tsc && chmod 755 dist/index.js",
-    "test": "vitest"
+    "test": "vitest",
+    "inspect": "npx @modelcontextprotocol/inspector node dist/index.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.11.0",
