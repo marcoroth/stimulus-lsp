@@ -4,6 +4,7 @@ node_modules/
 
 .vscode-test/
 
+*.tsbuildinfo
 *.vsix
 *.tgz
 *~

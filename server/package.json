@@ -27,7 +27,7 @@
     "@herb-tools/node": "/Users/marcoroth/Development/herb/javascript/packages/node/herb-tools-node-v0.1.1.tgz",
     "@hotwired/stimulus": "https://github.com/hotwired/dev-builds/archive/refs/tags/@hotwired/stimulus/8cbca6d.tar.gz",
     "dedent": "^1.5.1",
-    "stimulus-parser": "^0.2.0",
+    "stimulus-parser": "^0.3.0",
     "typescript": "^5.8.2",
     "vscode-html-languageservice": "^5.1.1",
     "vscode-languageserver": "^9.0.1",
