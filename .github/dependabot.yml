@@ -10,10 +10,16 @@ updates:
     schedule:
       interval: "daily"
     groups:
-      eslint:
+      typescript-eslint:
         patterns:
           - "@typescript-eslint*"
-          - "eslint*"
+
+      eslint:
+        patterns:
+          - "eslint"
+          - "eslint-config-*"
+          - "eslint-plugin-*"
+          - "prettier-*"
 
   - package-ecosystem: "npm"
     directory: "/server"
