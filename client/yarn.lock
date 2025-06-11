@@ -24,10 +24,10 @@ brace-expansion@^2.0.1:
   dependencies:
     balanced-match "^1.0.0"
 
-brace-expansion@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/brace-expansion/-/brace-expansion-4.0.0.tgz#bb24b89bf4d4b37d742acac89b65d1a32b379a81"
-  integrity sha512-l/mOwLWs7BQIgOKrL46dIAbyCKvPV7YJPDspkuc88rHsZRlg3hptUGdU7Trv0VFP4d3xnSGBQrKu5ZvGB7UeIw==
+brace-expansion@^4.0.0, brace-expansion@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/brace-expansion/-/brace-expansion-4.0.1.tgz#3387e13eaa2992025d05ea47308f77e4a8dedd1e"
+  integrity sha512-YClrbvTCXGe70pU2JiEiPLYXO9gQkyxYeKpJIQHVS/gOs6EWMQP2RYBwjFLNT322Ji8TOC3IMPfsYCedNpzKfA==
   dependencies:
     balanced-match "^3.0.0"
 
@@ -38,12 +38,12 @@ lru-cache@^6.0.0:
   dependencies:
     yallist "^4.0.0"
 
-minimatch@^10.0.1:
-  version "10.0.1"
-  resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-10.0.1.tgz#ce0521856b453c86e25f2c4c0d03e6ff7ddc440b"
-  integrity sha512-ethXTt3SGGR+95gudmqJ1eNhRO7eGEGIgYA9vnPatK4/etz2MEVDno5GMCibdMTuBMyElzIlgxMna3K94XDIDQ==
+minimatch@^10.0.2:
+  version "10.0.2"
+  resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-10.0.2.tgz#99c15b4e4f7e71b354e086e20b7f6c4d65dd15f3"
+  integrity sha512-+9TJCIYXgZ2Dm5LxVCFsa8jOm+evMwXHFI0JM1XROmkfkpz8/iLLDh+TwSmyIBrs6C6Xu9294/fq8cBA+P6AqA==
   dependencies:
-    brace-expansion "^2.0.1"
+    brace-expansion "^4.0.1"
 
 minimatch@^5.1.0:
   version "5.1.6"

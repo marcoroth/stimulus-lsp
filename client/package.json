@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "brace-expansion": "^4.0.0",
-    "minimatch": "^10.0.1",
+    "minimatch": "^10.0.2",
     "typescript": "^5.8.3",
     "vscode-languageclient": "^9.0.1"
   },
