@@ -24,10 +24,10 @@ brace-expansion@^2.0.1:
   dependencies:
     balanced-match "^1.0.0"
 
-brace-expansion@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/brace-expansion/-/brace-expansion-4.0.0.tgz#bb24b89bf4d4b37d742acac89b65d1a32b379a81"
-  integrity sha512-l/mOwLWs7BQIgOKrL46dIAbyCKvPV7YJPDspkuc88rHsZRlg3hptUGdU7Trv0VFP4d3xnSGBQrKu5ZvGB7UeIw==
+brace-expansion@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/brace-expansion/-/brace-expansion-4.0.1.tgz#3387e13eaa2992025d05ea47308f77e4a8dedd1e"
+  integrity sha512-YClrbvTCXGe70pU2JiEiPLYXO9gQkyxYeKpJIQHVS/gOs6EWMQP2RYBwjFLNT322Ji8TOC3IMPfsYCedNpzKfA==
   dependencies:
     balanced-match "^3.0.0"
 
