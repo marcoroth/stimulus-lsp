@@ -28,6 +28,7 @@
     "dedent": "^1.5.1",
     "stimulus-parser": "^0.3.0",
     "typescript": "^5.8.2",
+    "@herb-tools/language-service": "file:/Users/marcoroth/Development/herb-linter/javascript/packages/html-erb-language-service",
     "vscode-html-languageservice": "^5.1.1",
     "vscode-languageserver": "^9.0.1",
     "vscode-languageserver-textdocument": "^1.0.1"

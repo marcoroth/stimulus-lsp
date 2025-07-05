@@ -1,7 +1,7 @@
 import dedent from "dedent"
 import { Connection, Diagnostic, DiagnosticSeverity, Position, Range } from "vscode-languageserver/node"
 import { TextDocument } from "vscode-languageserver-textdocument"
-import { getLanguageService, Node } from "vscode-html-languageservice"
+import { getLanguageService, Node } from "@herb-tools/language-service"
 
 import { parseActionDescriptorString } from "./action_descriptor"
 

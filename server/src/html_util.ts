@@ -1,4 +1,4 @@
-import { Node } from "vscode-html-languageservice"
+import { Node } from "@herb-tools/language-service"
 
 export function attributeValue(node: Node, attribute: string) {
   if (!node.attributes) return null
