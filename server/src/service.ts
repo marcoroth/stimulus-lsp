@@ -1,5 +1,5 @@
 import { Connection, InitializeParams } from "vscode-languageserver/node"
-import { getLanguageService, LanguageService } from "vscode-html-languageservice"
+import { getLanguageService, LanguageService } from "@herb-tools/language-service"
 
 import { StimulusHTMLDataProvider } from "./data_providers/stimulus_html_data_provider"
 import { Settings } from "./settings"
