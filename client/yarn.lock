@@ -14,10 +14,10 @@
   dependencies:
     "@isaacs/balanced-match" "^4.0.1"
 
-"@types/vscode@^1.106.1":
-  version "1.106.1"
-  resolved "https://registry.yarnpkg.com/@types/vscode/-/vscode-1.106.1.tgz#c8c9591b4b9debd8cf67b46d5e5ef54bdec9b805"
-  integrity sha512-R/HV8u2h8CAddSbX8cjpdd7B8/GnE4UjgjpuGuHcbp1xV6yh4OeqU4L1pKjlwujCrSFS0MOpwJAIs/NexMB1fQ==
+"@types/vscode@^1.108.0":
+  version "1.108.0"
+  resolved "https://registry.yarnpkg.com/@types/vscode/-/vscode-1.108.0.tgz#bea1645c047f60a9ae593e8abc6eefe330fe4427"
+  integrity sha512-WXEz8iCGrraEf+NB8gvC9ONakihpRYsnw2n8oq2/qAQGB5MrQERlkd2KxjpvlLHPjyu3uBynDZ+DRUe5vsw94g==
 
 balanced-match@^1.0.0:
   version "1.0.2"
