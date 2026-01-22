@@ -1,5 +1,5 @@
 import { Range, DefinitionParams, Location } from "vscode-languageserver/node"
-import { getLanguageService } from "vscode-html-languageservice"
+import { getLanguageService } from "@herb-tools/language-service"
 
 import { tokenList, reverseString } from "./html_util"
 import { DocumentService } from "./document_service"

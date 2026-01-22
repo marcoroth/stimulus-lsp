@@ -2,6 +2,26 @@
 # yarn lockfile v1
 
 
+"@herb-tools/core@0.3.1":
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/@herb-tools/core/-/core-0.3.1.tgz#dd6ad7c4110c202f34fcf7e3b1816cf3f20a55ad"
+  integrity sha512-9v0UCSKG+QA6TlTlRzSgX5kSZPlxSUzKhyQjv1oBGdj+SAkEo8+rMp9Gdt2g8rJL17g5h967mGT3+f7V8MDYAw==
+
+"@herb-tools/language-service@file:../../herb-linter/javascript/packages/html-erb-language-service":
+  version "0.3.1"
+  dependencies:
+    "@herb-tools/core" "0.3.1"
+    "@herb-tools/node-wasm" "0.3.1"
+    vscode-languageserver-textdocument "^1.0.12"
+    vscode-languageserver-types "^3.17.5"
+
+"@herb-tools/node-wasm@0.3.1":
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/@herb-tools/node-wasm/-/node-wasm-0.3.1.tgz#003512a204c32bc5859a1184468a66f490108a45"
+  integrity sha512-WyQ8n/glLPuEtmdZpR2Nrhy5Ha57yH1InjLaOEPo36EKvAc1YgMRtyf4AQVtPHQ8IlWZHe7WqJhYB++EYnhadw==
+  dependencies:
+    "@herb-tools/core" "0.3.1"
+
 "@hotwired/stimulus-webpack-helpers@^1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@hotwired/stimulus-webpack-helpers/-/stimulus-webpack-helpers-1.0.1.tgz#4cd74487adeca576c9865ac2b9fe5cb20cef16dd"
