@@ -2,18 +2,6 @@
 # yarn lockfile v1
 
 
-"@isaacs/balanced-match@^4.0.1":
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/@isaacs/balanced-match/-/balanced-match-4.0.1.tgz#3081dadbc3460661b751e7591d7faea5df39dd29"
-  integrity sha512-yzMTt9lEb8Gv7zRioUilSglI0c0smZ9k5D65677DLWLtWJaXIS3CqcGyUFByYKlnUj6TkjLVs54fBl6+TiGQDQ==
-
-"@isaacs/brace-expansion@^5.0.1":
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/@isaacs/brace-expansion/-/brace-expansion-5.0.1.tgz#0ef5a92d91f2fff2a37646ce54da9e5f599f6eff"
-  integrity sha512-WMz71T1JS624nWj2n2fnYAuPovhv7EUhk69R6i9dsVyzxt5eM3bjwvgk9L+APE1TRscGysAVMANkB0jh0LQZrQ==
-  dependencies:
-    "@isaacs/balanced-match" "^4.0.1"
-
 "@types/vscode@^1.109.0":
   version "1.109.0"
   resolved "https://registry.yarnpkg.com/@types/vscode/-/vscode-1.109.0.tgz#062dfddf5f7df9cf36038e900ae67421ae69091b"
@@ -29,6 +17,11 @@ balanced-match@^3.0.0:
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-3.0.1.tgz#e854b098724b15076384266497392a271f4a26a0"
   integrity sha512-vjtV3hiLqYDNRoiAv0zC4QaGAMPomEoq83PRmYIofPswwZurCeWR5LByXm7SyoL0Zh5+2z0+HC7jG8gSZJUh0w==
 
+balanced-match@^4.0.2:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-4.0.3.tgz#6337a2f23e0604a30481423432f99eac603599f9"
+  integrity sha512-1pHv8LX9CpKut1Zp4EXey7Z8OfH11ONNH6Dhi2WDUt31VVZFXZzKwXcysBgqSumFCmR+0dqjMK5v5JiFHzi0+g==
+
 brace-expansion@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/brace-expansion/-/brace-expansion-2.0.1.tgz#1edc459e0f0c548486ecf9fc99f2221364b9a0ae"
@@ -43,6 +36,13 @@ brace-expansion@^4.0.0:
   dependencies:
     balanced-match "^3.0.0"
 
+brace-expansion@^5.0.2:
+  version "5.0.2"
+  resolved "https://registry.yarnpkg.com/brace-expansion/-/brace-expansion-5.0.2.tgz#b6c16d0791087af6c2bc463f52a8142046c06b6f"
+  integrity sha512-Pdk8c9poy+YhOgVWw1JNN22/HcivgKWwpxKq04M/jTmHyCZn12WPJebZxdjSa5TmBqISrUSgNYU3eRORljfCCw==
+  dependencies:
+    balanced-match "^4.0.2"
+
 lru-cache@^6.0.0:
   version "6.0.0"
   resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-6.0.0.tgz#6d6fe6570ebd96aaf90fcad1dafa3b2566db3a94"
@@ -50,12 +50,12 @@ lru-cache@^6.0.0:
   dependencies:
     yallist "^4.0.0"
 
-minimatch@^10.1.2:
-  version "10.1.2"
-  resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-10.1.2.tgz#6c3f289f9de66d628fa3feb1842804396a43d81c"
-  integrity sha512-fu656aJ0n2kcXwsnwnv9g24tkU5uSmOlTjd6WyyaKm2Z+h1qmY6bAjrcaIxF/BslFqbZ8UBtbJi7KgQOZD2PTw==
+minimatch@^10.2.2:
+  version "10.2.2"
+  resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-10.2.2.tgz#361603ee323cfb83496fea2ae17cc44ea4e1f99f"
+  integrity sha512-+G4CpNBxa5MprY+04MbgOw1v7So6n5JY166pFi9KfYwT78fxScCeSNQSNzp6dpPSW2rONOps6Ocam1wFhCgoVw==
   dependencies:
-    "@isaacs/brace-expansion" "^5.0.1"
+    brace-expansion "^5.0.2"
 
 minimatch@^5.1.0:
   version "5.1.6"
