@@ -1,4 +1,4 @@
-import { IHTMLDataProvider } from "vscode-html-languageservice"
+import { IHTMLDataProvider } from "@herb-tools/language-service"
 
 import { EVENTS } from "../events"
 
