@@ -27,6 +27,9 @@
   "engines": {
     "vscode": "^1.43.0"
   },
+  "extensionDependencies": [
+    "marcoroth.herb-lsp"
+  ],
   "activationEvents": [
     "onLanguage:ruby",
     "onLanguage:erb",
