@@ -39,6 +39,18 @@
   ],
   "main": "./client/out/extension",
   "contributes": {
+    "configurationDefaults": {
+      "[html]": {
+        "editor.quickSuggestions": {
+          "strings": "on"
+        }
+      },
+      "[erb]": {
+        "editor.quickSuggestions": {
+          "strings": "on"
+        }
+      }
+    },
     "configuration": {
       "type": "object",
       "title": "Stimulus configuration",

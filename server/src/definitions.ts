@@ -1,5 +1,6 @@
 import { Range, DefinitionParams, Location } from "vscode-languageserver/node"
-import { getLanguageService } from "vscode-html-languageservice"
+import { getLanguageService } from "@herb-tools/language-service"
+import { Herb } from "@herb-tools/node-wasm"
 
 import { tokenList, reverseString } from "./html_util"
 import { DocumentService } from "./document_service"
@@ -25,7 +26,7 @@ export class Definitions {
 
     if (!textDocument) return
 
-    const html = getLanguageService().parseHTMLDocument(textDocument)
+    const html = getLanguageService({ herb: Herb }).parseHTMLDocument(textDocument)
     const offset = textDocument.offsetAt(params.position)
     const node = html.findNodeAt(offset)
     const content = textDocument.getText()

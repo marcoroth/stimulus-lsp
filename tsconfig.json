@@ -8,6 +8,7 @@
     "outDir": "out",
     "rootDir": "src",
     "sourceMap": true,
+    "skipLibCheck": true,
     "erasableSyntaxOnly": true
   },
   "include": [

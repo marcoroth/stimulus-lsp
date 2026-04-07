@@ -1,7 +1,9 @@
 import dedent from "dedent"
 import { Connection, Diagnostic, DiagnosticSeverity, Position, Range } from "vscode-languageserver/node"
 import { TextDocument } from "vscode-languageserver-textdocument"
-import { getLanguageService, Node } from "vscode-html-languageservice"
+import { getLanguageService, Node, findTokenIndex } from "@herb-tools/language-service"
+import type { HerbHTMLNode } from "@herb-tools/language-service"
+import { Herb } from "@herb-tools/node-wasm"
 
 import { parseActionDescriptorString } from "./action_descriptor"
 
@@ -439,7 +441,7 @@ export class Diagnostics {
   }
 
   validateHTMLDocument(textDocument: TextDocument) {
-    const service = getLanguageService()
+    const service = getLanguageService({ herb: Herb })
     const html = service.parseHTMLDocument(textDocument)
 
     html.roots.forEach((node: Node) => {
@@ -475,6 +477,16 @@ export class Diagnostics {
   }
 
   private attributeNameRange(textDocument: TextDocument, node: Node, attribute: string, search: string) {
+    const herbNode = node as HerbHTMLNode
+    const nameRange = herbNode.getAttributeNameRange?.(attribute)
+
+    if (nameRange) {
+      return Range.create(
+        textDocument.positionAt(nameRange.start),
+        textDocument.positionAt(nameRange.end),
+      )
+    }
+
     const range = this.rangeFromNode(textDocument, node)
     const startTagContent = textDocument.getText(range)
 
@@ -498,6 +510,16 @@ export class Diagnostics {
   }
 
   private attributeValueRange(textDocument: TextDocument, node: Node, attribute: string, search: string) {
+    const herbNode = node as HerbHTMLNode
+    const tokenRange = herbNode.getAttributeValueTokenRange?.(attribute, search, textDocument.getText())
+
+    if (tokenRange) {
+      return Range.create(
+        textDocument.positionAt(tokenRange.start),
+        textDocument.positionAt(tokenRange.end),
+      )
+    }
+
     const range = this.rangeFromNode(textDocument, node)
     const startTagContent = textDocument.getText(range)
 
@@ -513,7 +535,7 @@ export class Diagnostics {
   ) {
     const value = attributeValue(node, attribute) || ""
 
-    const searchIndex = value.indexOf(search) || 0
+    const searchIndex = findTokenIndex(value, search) !== -1 ? findTokenIndex(value, search) : 0
     const attributeStartIndex = tagContent.indexOf(attribute)
 
     const attributeValueStart = node.start + attributeStartIndex + attribute.length + searchIndex + 2

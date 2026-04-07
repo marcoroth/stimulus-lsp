@@ -29,7 +29,10 @@ connection.onInitialize(async (params: InitializeParams) => {
   const result: InitializeResult = {
     capabilities: {
       textDocumentSync: TextDocumentSyncKind.Incremental,
-      completionProvider: { resolveProvider: true },
+      completionProvider: {
+        resolveProvider: true,
+        triggerCharacters: ['"', "'", " ", "=", "<", "/", "-", ">", "#", "."],
+      },
       codeLensProvider: { resolveProvider: true },
       codeActionProvider: true,
       definitionProvider: true,

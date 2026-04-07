@@ -1,5 +1,6 @@
 import { Connection, InitializeParams } from "vscode-languageserver/node"
-import { getLanguageService, LanguageService } from "vscode-html-languageservice"
+import { getLanguageService, LanguageService } from "@herb-tools/language-service"
+import { Herb } from "@herb-tools/node-wasm"
 
 import { StimulusHTMLDataProvider } from "./data_providers/stimulus_html_data_provider"
 import { Settings } from "./settings"
@@ -40,11 +41,14 @@ export class Service {
     this.codeLens = new CodeLens(this.documentService, this.project)
 
     this.htmlLanguageService = getLanguageService({
+      herb: Herb,
       customDataProviders: [this.stimulusDataProvider],
+      tokenListAttributes: ["data-controller", "data-action"],
     })
   }
 
   async init() {
+    await Herb.load()
     await this.project.initialize()
 
     // TODO: we need to setup a file listener to check when new packages get installed
