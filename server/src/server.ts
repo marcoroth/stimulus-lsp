@@ -11,6 +11,7 @@ import {
 
 import { Service } from "./service"
 import { StimulusSettings } from "./settings"
+import { version } from "../package.json"
 
 import { ControllerDefinitionsRequest } from "./requests/controller_definitions"
 
@@ -27,6 +28,10 @@ connection.onInitialize(async (params: InitializeParams) => {
   await service.init()
 
   const result: InitializeResult = {
+    serverInfo: {
+      name: "Stimulus LSP",
+      version
+    },
     capabilities: {
       textDocumentSync: TextDocumentSyncKind.Incremental,
       completionProvider: {
