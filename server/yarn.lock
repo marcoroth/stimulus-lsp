@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@herb-tools/core@0.10.1":
+  version "0.10.1"
+  resolved "https://registry.yarnpkg.com/@herb-tools/core/-/core-0.10.1.tgz#81845d6128f0c3a6a13ff1112c4fef7dcd3696d9"
+  integrity sha512-zFVhWGvqC7b5KHtp4LNlCt4ExLInuRZJxvcNp9kcHCAwnVux+EiXnJz8rsiiF8pU1z2gjq3w6q/g7ayjOetpAg==
+
 "@herb-tools/core@0.9.5":
   version "0.9.5"
   resolved "https://registry.yarnpkg.com/@herb-tools/core/-/core-0.9.5.tgz#7fd75301da8d3bedc3e9f0c2dbc020b36e44b349"
@@ -12,12 +17,12 @@
   resolved "https://registry.yarnpkg.com/@herb-tools/language-service/-/language-service-0.9.5.tgz#dafd252aaace0a796c9c0c928ef30a65b5b5d235"
   integrity sha512-9AqLiFwP/ji/lLoceXnsKmdZi57ImXu+7ID/jbAX4dHZqfuYDrtdxuWyV4yPpIbqxW0LMc83/NA6wYUWbNJCYQ==
 
-"@herb-tools/node-wasm@0.9.5":
-  version "0.9.5"
-  resolved "https://registry.yarnpkg.com/@herb-tools/node-wasm/-/node-wasm-0.9.5.tgz#5804a1c92a4ef6066770328d319d455684f676ba"
-  integrity sha512-BlFhsR5W5RuMQTBZeKPXEKhoJI8vbVuiZH7797CiDJ2BEhousFbSLjYr2fCTSseRY37caFP/m7/VVA4vZYVduw==
+"@herb-tools/node-wasm@0.10.1":
+  version "0.10.1"
+  resolved "https://registry.yarnpkg.com/@herb-tools/node-wasm/-/node-wasm-0.10.1.tgz#a73f0b0cd1e1e116641b3a2f80a1f1996e6d7ef4"
+  integrity sha512-dKMpscMLdBEgJnPmkBVT0iEkjssgjOUsJCpKWi2HMqZEsIem4NR9j3v7D5aq8cR5W80y/7dvNmHtefAsLt8KSA==
   dependencies:
-    "@herb-tools/core" "0.9.5"
+    "@herb-tools/core" "0.10.1"
 
 "@hotwired/stimulus-webpack-helpers@^1.0.1":
   version "1.0.1"
