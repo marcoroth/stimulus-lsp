@@ -24,13 +24,13 @@
     "out"
   ],
   "dependencies": {
+    "@herb-tools/core": "^0.10.1",
+    "@herb-tools/language-service": "^0.10.1",
+    "@herb-tools/node-wasm": "0.10.1",
     "@hotwired/stimulus": "https://github.com/hotwired/dev-builds/archive/refs/tags/@hotwired/stimulus/8cbca6d.tar.gz",
     "dedent": "^1.5.1",
     "stimulus-parser": "^0.3.2",
     "typescript": "^5.8.2",
-    "@herb-tools/core": "0.9.5",
-    "@herb-tools/language-service": "0.9.5",
-    "@herb-tools/node-wasm": "0.9.5",
     "vscode-html-languageservice": "^5.1.1",
     "vscode-languageserver": "^9.0.1",
     "vscode-languageserver-textdocument": "^1.0.1"
