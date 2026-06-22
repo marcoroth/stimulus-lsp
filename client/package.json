@@ -16,7 +16,7 @@
     "brace-expansion": "^5.0.6",
     "minimatch": "^10.2.5",
     "typescript": "^5.9.3",
-    "vscode-languageclient": "^9.0.1"
+    "vscode-languageclient": "^10.0.0"
   },
   "devDependencies": {
     "@types/vscode": "^1.125.0"
