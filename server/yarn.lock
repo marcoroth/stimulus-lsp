@@ -8,9 +8,9 @@
   integrity sha512-gAZjcgFO0UcQXiRG1hkPAnn6SAX/Jj//Bq2QcFUCLMcbAY0uaF13g7QDiY+ntg9LqmdT5Lka0TXC8mv1ehTk8w==
 
 "@herb-tools/language-service@^0.10.1":
-  version "0.10.1"
-  resolved "https://registry.yarnpkg.com/@herb-tools/language-service/-/language-service-0.10.1.tgz#a0623e7dfba0f47b88cbe5e6ffaaa3f427646e81"
-  integrity sha512-nIvOFoTdB/N6nihJ4vylIgvpl+mFR/OG0MuDa7/Zag6A3Njkumm7fWyqcOcCk2klkjjhzPE5gOCYKUbn0cEMQw==
+  version "0.10.2"
+  resolved "https://registry.yarnpkg.com/@herb-tools/language-service/-/language-service-0.10.2.tgz#27b8fc8b148794c98d7bc184fe35643a73b977f1"
+  integrity sha512-nD/aQILbUpIqDmB3YnkWAnl8tLjtPBz9KnvbHjbU3Z+fk17xkuEZwiWstBV12Qc0VnF7EuNIp71j2A5F2+4OQQ==
 
 "@herb-tools/node-wasm@0.10.2":
   version "0.10.2"
