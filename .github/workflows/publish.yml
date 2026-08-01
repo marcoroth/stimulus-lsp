@@ -37,10 +37,15 @@ jobs:
       - name: Yarn build
         run: yarn build
 
-      - name: Publish
+      - name: Publish to VS Code Marketplace
         run: yarn run deploy
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
+
+      - name: Publish to Open VSX Registry
+        run: npx ovsx publish --yarn -p $OVSX_PAT
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
 
   npm:
     name: Publish npm package
@@ -59,9 +64,6 @@ jobs:
         with:
           node-version-file: '.node-version'
           cache: 'yarn'
-
-      - name: Update npm
-        run: npm install --global npm@latest
 
       - name: Yarn install
         run: yarn install
