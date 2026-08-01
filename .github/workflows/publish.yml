@@ -8,18 +8,10 @@ on:
     types:
       - created
 
-  workflow_dispatch:
-    inputs:
-      vscode:
-        description: 'Also publish the VS Code extension'
-        type: boolean
-        default: false
-
 jobs:
   publish:
     name: Publish VSCode extension
     runs-on: ubuntu-latest
-    if: github.event_name == 'release' || inputs.vscode
 
     steps:
       - name: Checkout
