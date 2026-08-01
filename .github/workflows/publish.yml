@@ -8,19 +8,27 @@ on:
     types:
       - created
 
+  workflow_dispatch:
+    inputs:
+      vscode:
+        description: 'Also publish the VS Code extension'
+        type: boolean
+        default: false
+
 jobs:
   publish:
     name: Publish VSCode extension
     runs-on: ubuntu-latest
+    if: github.event_name == 'release' || inputs.vscode
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version-file: '.node-version'
           cache: 'yarn'
 
       - name: Yarn install
@@ -33,3 +41,38 @@ jobs:
         run: yarn run deploy
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
+
+  npm:
+    name: Publish npm package
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+          cache: 'yarn'
+
+      - name: Update npm
+        run: npm install --global npm@latest
+
+      - name: Yarn install
+        run: yarn install
+
+      - name: Yarn build
+        run: yarn build
+
+      - name: Build server
+        run: yarn build
+        working-directory: server
+
+      - name: Publish with provenance
+        run: npm publish --provenance --access public --ignore-scripts
+        working-directory: server
