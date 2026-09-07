@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@types/vscode@^1.125.0":
-  version "1.125.0"
-  resolved "https://registry.yarnpkg.com/@types/vscode/-/vscode-1.125.0.tgz#944755fe16fcaf15060899bf214556c7549e4cd6"
-  integrity sha512-0icm/ZQAaism87P0ekHqi4/Ju9du+Tm0RUW+y7vqRsxY2cY0FNRX1nAnaW7nT6npPt2tfHiheZ55Zm9UhqonFA==
+"@types/vscode@^1.136.0":
+  version "1.136.0"
+  resolved "https://registry.yarnpkg.com/@types/vscode/-/vscode-1.136.0.tgz#94b5f12cf029c46c9847b87d9e5a2702fa92e1aa"
+  integrity sha512-DO746VAfnHk8+Y8CsUKYMm2rjWD0mxEuYBZI+ssaqJY7yvLJPf9lcwxSSz9W60gbdvdcGyvHQxHTyByfF9mVqg==
 
 balanced-match@^1.0.0:
   version "1.0.2"
